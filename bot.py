@@ -5,6 +5,7 @@ import os
 import logging
 import asyncio
 import requests
+import json
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
@@ -15,7 +16,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Import API configuration
-from config import TELEGRAM_BOT_TOKEN, BTCTURK_API_TICKER_URL
+from config import (
+    TELEGRAM_BOT_TOKEN, 
+    BTCTURK_API_TICKER_URL,
+    BLINK_API_URL,
+    BLINK_PRICE_QUERY,
+    BLINK_PRICE_VARIABLES
+)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a welcome message when the command /start is issued."""
@@ -23,6 +30,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Merhaba! 👋 Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
         "Kullanılabilir komutlar:\n"
         "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir\n"
+        "/price - Güncel BTC/USD ve BTC/TRY kurlarını göster\n"
         "/help - Yardım mesajını göster"
     )
 
@@ -31,8 +39,77 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await update.message.reply_text(
         "Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
         "Kullanılabilir komutlar:\n"
-        "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir"
+        "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir\n"
+        "/price - Güncel BTC/USD ve BTC/TRY kurlarını göster"
     )
+
+async def get_btc_usd_price():
+    """Fetch current BTC/USD price from Blink API."""
+    try:
+        response = requests.post(
+            BLINK_API_URL,
+            json={
+                "query": BLINK_PRICE_QUERY,
+                "variables": BLINK_PRICE_VARIABLES
+            },
+            timeout=10
+        )
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'data' in data and 'btcPriceList' in data['data']:
+            price_data = data['data']['btcPriceList'][0]['price']
+            base = float(price_data['base'])
+            offset = int(price_data['offset'])
+            return base / (10 ** offset)
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/USD price: {str(e)}")
+        return None
+
+async def get_btc_try_price():
+    """Fetch current BTC/TRY price from BTCTurk API."""
+    try:
+        response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        for pair_data in data.get('data', []):
+            if pair_data.get('pair') == 'BTCTRY':
+                return float(pair_data.get('last', 0))
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/TRY price: {str(e)}")
+        return None
+
+async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show current BTC/USD and BTC/TRY prices."""
+    try:
+        btc_usd_price = await get_btc_usd_price()
+        btc_try_price = await get_btc_try_price()
+        
+        if btc_usd_price is None or btc_try_price is None:
+            await update.message.reply_text(
+                "Üzgünüm, fiyat bilgilerini alırken bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+            )
+            return
+        
+        message = (
+            f"💰 *Güncel Bitcoin Fiyatları*\n\n"
+            f"*BTC/USD:* ${btc_usd_price:,.2f}\n"
+            f"*BTC/TRY:* ₺{btc_try_price:,.2f}\n\n"
+            f"_Veri kaynakları: Blink API, BTCTurk_"
+        )
+        
+        await update.message.reply_text(message, parse_mode='Markdown')
+        
+    except Exception as e:
+        logger.error(f"Error in price command: {str(e)}")
+        await update.message.reply_text(
+            "Üzgünüm, bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+        )
 
 async def convert_100lira(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Convert 100 TRY to satoshi and send the result."""
@@ -107,6 +184,7 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("100lira", convert_100lira))
+    application.add_handler(CommandHandler("price", price_command))
 
     # Start the Bot
     logger.info("Starting bot...")
