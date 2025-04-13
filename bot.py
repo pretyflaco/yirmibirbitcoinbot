@@ -2,8 +2,13 @@ import os
 import json
 import logging
 import requests
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
+import asyncio
+from telegram import Update, Bot
+from telegram.ext import (
+    Application, 
+    CommandHandler, 
+    ContextTypes
+)
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, 
@@ -13,24 +18,24 @@ logger = logging.getLogger(__name__)
 # Configuration
 from config import TELEGRAM_BOT_TOKEN, BTCTURK_API_TICKER_URL
 
-def start(update: Update, context: CallbackContext) -> None:
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a welcome message when the command /start is issued."""
-    update.message.reply_text(
+    await update.message.reply_text(
         "Merhaba! 👋 Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
         "Kullanılabilir komutlar:\n"
         "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir\n"
         "/help - Yardım mesajını göster"
     )
 
-def help_command(update: Update, context: CallbackContext) -> None:
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a help message when the command /help is issued."""
-    update.message.reply_text(
+    await update.message.reply_text(
         "Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
         "Kullanılabilir komutlar:\n"
         "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir"
     )
 
-def convert_100lira(update: Update, context: CallbackContext) -> None:
+async def convert_100lira(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Convert 100 TRY to satoshi and send the result."""
     try:
         # Fetch current exchange rate from BTCTurk
@@ -48,7 +53,7 @@ def convert_100lira(update: Update, context: CallbackContext) -> None:
         
         if not btc_try_data:
             logger.error("BTCTRY pair not found in the API response")
-            update.message.reply_text(
+            await update.message.reply_text(
                 "Üzgünüm, BTC/TRY kurunu bulamadım. Lütfen daha sonra tekrar deneyin."
             )
             return
@@ -58,7 +63,7 @@ def convert_100lira(update: Update, context: CallbackContext) -> None:
         
         if btc_try_rate <= 0:
             logger.error(f"Invalid exchange rate: {btc_try_rate}")
-            update.message.reply_text(
+            await update.message.reply_text(
                 "Üzgünüm, geçersiz bir kur aldım. Lütfen daha sonra tekrar deneyin."
             )
             return
@@ -76,43 +81,42 @@ def convert_100lira(update: Update, context: CallbackContext) -> None:
             f"_Şu anda güncellendi_"
         )
         
-        update.message.reply_text(message, parse_mode='Markdown')
+        await update.message.reply_text(message, parse_mode='Markdown')
         
     except requests.RequestException as e:
         logger.error(f"API request error: {str(e)}")
-        update.message.reply_text(
+        await update.message.reply_text(
             "Üzgünüm, borsaya bağlanamadım. Lütfen daha sonra tekrar deneyin."
         )
     except (ValueError, KeyError, TypeError) as e:
         logger.error(f"Data processing error: {str(e)}")
-        update.message.reply_text(
+        await update.message.reply_text(
             "Üzgünüm, borsa verilerini işlerken bir hata ile karşılaştım. Lütfen daha sonra tekrar deneyin."
         )
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
-        update.message.reply_text(
+        await update.message.reply_text(
             "Beklenmedik bir hata oluştu. Lütfen daha sonra tekrar deneyin."
         )
 
-def main() -> None:
+async def main() -> None:
     """Start the bot."""
-    # Create the Updater and pass it your bot's token
-    updater = Updater(TELEGRAM_BOT_TOKEN)
-
-    # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
+    # Create the Application and pass it your bot's token
+    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
     # Add command handlers
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", help_command))
-    dispatcher.add_handler(CommandHandler("100lira", convert_100lira))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("100lira", convert_100lira))
 
     # Start the Bot
     logger.info("Starting bot...")
-    updater.start_polling()
     
-    # Run the bot until you press Ctrl-C or the process receives SIGINT, SIGTERM or SIGABRT
-    updater.idle()
+    # Start the Bot until Ctrl+C
+    await application.initialize()
+    await application.start()
+    await application.run_polling(allowed_updates=Update.ALL_TYPES)
+    await application.stop()
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
