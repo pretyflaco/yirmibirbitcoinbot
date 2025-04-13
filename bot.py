@@ -1,18 +1,17 @@
+import logging
 import os
 import json
-import logging
 import requests
-import asyncio
-from telegram import Update, Bot
-from telegram.ext import (
-    Application, 
-    CommandHandler, 
-    ContextTypes
-)
+from telegram import Bot, Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 # Set up logging
-logging.basicConfig(level=logging.DEBUG, 
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+# Set higher logging level for httpx to avoid all GET and POST requests being logged
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
 logger = logging.getLogger(__name__)
 
 # Configuration
@@ -99,24 +98,28 @@ async def convert_100lira(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             "Beklenmedik bir hata oluştu. Lütfen daha sonra tekrar deneyin."
         )
 
-async def main() -> None:
+def main():
     """Start the bot."""
-    # Create the Application and pass it your bot's token
-    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
-
-    # Add command handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("100lira", convert_100lira))
-
-    # Start the Bot
-    logger.info("Starting bot...")
+    # We need to create an ApplicationBuilder instance - use separate imports to avoid timezone issues
+    from telegram.ext import Defaults, PicklePersistence, Application
     
-    # Start the Bot until Ctrl+C
-    await application.initialize()
-    await application.start()
-    await application.run_polling(allowed_updates=Update.ALL_TYPES)
-    await application.stop()
+    # Old dependencies might be causing issues
+    import sys
+    print("Python version:", sys.version)
+    print("Python path:", sys.path)
+    print("Imported libraries:", [m.__name__ for m in sys.modules.values() if hasattr(m, '__name__') and not m.__name__.startswith('_')])
+    
+    # Create a simple standalone bot without complex features
+    app = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+    
+    # Add command handlers
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(CommandHandler("100lira", convert_100lira))
+    
+    # Start the bot
+    logger.info("Starting bot...")
+    app.run_polling()
 
-if __name__ == '__main__':
-    asyncio.run(main())
+if __name__ == "__main__":
+    main()

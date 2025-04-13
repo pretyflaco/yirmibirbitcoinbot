@@ -103,7 +103,7 @@ Just send the command `/100lira` and the bot will reply with the current satoshi
 - API endpoint: https://api.btcturk.com/api/v2/ticker
 - The bot extracts the BTCTRY pair data from the API response
 - Calculates the satoshi equivalent by dividing 100 TRY by the BTC/TRY rate and multiplying by 100,000,000
-- Built with Python using python-telegram-bot library (v13.7)
+- Built with Python using python-telegram-bot library (v22.0)
 - Responses are formatted in Turkish language
 - Includes a Flask web application for monitoring the bot status
 
