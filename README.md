@@ -60,10 +60,20 @@ Just send the command `/100lira` and the bot will reply with the current satoshi
    BTCTURK_API_TICKER_URL = f"{BTCTURK_API_BASE_URL}/api/v2/ticker"
    ```
 
-4. Set your Telegram Bot Token in environment variables:
+4. Set your Telegram Bot Token as an environment variable:
+
+   **In Replit:**
+   - Click on the "Secrets (Environment variables)" tab in the sidebar
+   - Click "Add new secret"
+   - Key: `TELEGRAM_BOT_TOKEN`
+   - Value: Your Telegram bot token (paste it without any quotes)
+   - Click "Add secret"
+
+   **On your local machine:**
    ```bash
-   export TELEGRAM_BOT_TOKEN="your_bot_token_here"
+   export TELEGRAM_BOT_TOKEN=your_bot_token_here
    ```
+   Note: Do not use quotes around your token when setting the environment variable
 
 5. Run the Telegram bot:
    ```bash
@@ -117,8 +127,9 @@ If you prefer using Docker:
 2. Build and run the Docker container:
    ```bash
    docker build -t try-to-satoshi-bot .
-   docker run -e TELEGRAM_BOT_TOKEN="your_bot_token_here" try-to-satoshi-bot
+   docker run -e TELEGRAM_BOT_TOKEN=your_bot_token_here try-to-satoshi-bot
    ```
+   Note: Do not use quotes around your token in the docker run command
 
 ## Deployment
 
