@@ -24,6 +24,9 @@ from config import (
     BLINK_PRICE_VARIABLES
 )
 
+# Yadio API URL
+YADIO_API_URL = "https://api.yadio.io/exrates/USD"
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a welcome message when the command /start is issued."""
     await update.message.reply_text(
@@ -31,6 +34,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Kullanılabilir komutlar:\n"
         "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir\n"
         "/price - Güncel BTC/USD ve BTC/TRY kurlarını göster\n"
+        "/volume - En yüksek hacimli 5 para birimi çiftini göster\n"
+        "/dollar - USDT/TRY ve USD/TRY kurlarını göster\n"
         "/help - Yardım mesajını göster"
     )
 
@@ -40,7 +45,9 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
         "Kullanılabilir komutlar:\n"
         "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir\n"
-        "/price - Güncel BTC/USD ve BTC/TRY kurlarını göster"
+        "/price - Güncel BTC/USD ve BTC/TRY kurlarını göster\n"
+        "/volume - En yüksek hacimli 5 para birimi çiftini göster\n"
+        "/dollar - USDT/TRY ve USD/TRY kurlarını göster"
     )
 
 async def get_btc_usd_price():
@@ -85,6 +92,119 @@ async def get_btc_try_price():
     except Exception as e:
         logger.error(f"Error fetching BTC/TRY price: {str(e)}")
         return None
+
+async def get_top_volume_pairs():
+    """Fetch top 5 currency pairs with highest volume from BTCTurk API."""
+    try:
+        response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'data' in data:
+            # Sort pairs by volume in descending order
+            sorted_pairs = sorted(
+                data['data'], 
+                key=lambda x: float(x.get('volume', 0)), 
+                reverse=True
+            )
+            
+            # Get top 5 pairs
+            top_pairs = sorted_pairs[:5]
+            
+            return top_pairs
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching top volume pairs: {str(e)}")
+        return None
+
+async def get_usdt_try_rate():
+    """Fetch USDT/TRY rate from BTCTurk API."""
+    try:
+        response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        for pair_data in data.get('data', []):
+            if pair_data.get('pair') == 'USDTTRY':
+                return float(pair_data.get('last', 0))
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching USDT/TRY rate: {str(e)}")
+        return None
+
+async def get_usd_try_rate():
+    """Fetch USD/TRY rate from Yadio API."""
+    try:
+        response = requests.get(YADIO_API_URL, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'TRY' in data:
+            return float(data['TRY'])
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching USD/TRY rate: {str(e)}")
+        return None
+
+async def volume_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show top 5 currency pairs with highest volume."""
+    try:
+        top_pairs = await get_top_volume_pairs()
+        
+        if not top_pairs:
+            await update.message.reply_text(
+                "Üzgünüm, hacim bilgilerini alırken bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+            )
+            return
+        
+        message = "📊 *En Yüksek Hacimli 5 Para Birimi Çifti*\n\n"
+        
+        for i, pair in enumerate(top_pairs, 1):
+            pair_name = pair.get('pair', '')
+            volume = float(pair.get('volume', 0))
+            denominator_symbol = pair.get('denominatorSymbol', '')
+            
+            message += f"{i}. *{pair_name}*: {volume:,.2f} {denominator_symbol}\n"
+        
+        message += "\n_Veri kaynağı: BTCTurk_"
+        
+        await update.message.reply_text(message, parse_mode='Markdown')
+        
+    except Exception as e:
+        logger.error(f"Error in volume command: {str(e)}")
+        await update.message.reply_text(
+            "Üzgünüm, bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+        )
+
+async def dollar_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show USDT/TRY and USD/TRY exchange rates."""
+    try:
+        usdt_try_rate = await get_usdt_try_rate()
+        usd_try_rate = await get_usd_try_rate()
+        
+        if usdt_try_rate is None or usd_try_rate is None:
+            await update.message.reply_text(
+                "Üzgünüm, döviz kurlarını alırken bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+            )
+            return
+        
+        message = (
+            f"💵 *Güncel Dolar Kurları*\n\n"
+            f"*USDT/TRY:* ₺{usdt_try_rate:.2f}\n"
+            f"*USD/TRY:* ₺{usd_try_rate:.2f}\n\n"
+            f"_Veri kaynakları: BTCTurk, Yadio_"
+        )
+        
+        await update.message.reply_text(message, parse_mode='Markdown')
+        
+    except Exception as e:
+        logger.error(f"Error in dollar command: {str(e)}")
+        await update.message.reply_text(
+            "Üzgünüm, bir hata oluştu. Lütfen daha sonra tekrar deneyin."
+        )
 
 async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show current BTC/USD and BTC/TRY prices."""
@@ -187,6 +307,8 @@ def main() -> None:
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("100lira", convert_100lira))
     application.add_handler(CommandHandler("price", price_command))
+    application.add_handler(CommandHandler("volume", volume_command))
+    application.add_handler(CommandHandler("dollar", dollar_command))
 
     # Start the Bot
     logger.info("Starting bot...")
