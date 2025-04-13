@@ -62,8 +62,8 @@ async def get_btc_usd_price():
             price_data = data['data']['btcPriceList'][-1]['price']
             base = float(price_data['base'])
             offset = int(price_data['offset'])
-            # Fix the 10x multiplier issue by dividing by 10
-            return (base / (10 ** offset)) / 10
+            # Fix the 10x multiplier issue by dividing by 100
+            return (base / (10 ** offset)) / 100
         
         return None
     except Exception as e:
