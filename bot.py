@@ -1,23 +1,27 @@
 #!/usr/bin/env python
-# Python Telegram Bot v22.0 Implementation
+# Python Telegram Bot - Direct implementation without ApplicationBuilder
 
 import os
 import logging
 import asyncio
+import pytz
 import requests
-from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram import Bot, Update
+from telegram.ext import CommandHandler, MessageHandler, filters
+from telegram.ext import CallbackContext
 
 # Set up logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
+logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 # Import API configuration
 from config import TELEGRAM_BOT_TOKEN, BTCTURK_API_TICKER_URL
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+# Define command handlers
+async def start_command(update: Update, context: CallbackContext) -> None:
     """Send a welcome message when the command /start is issued."""
     await update.message.reply_text(
         "Merhaba! 👋 Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
@@ -26,7 +30,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "/help - Yardım mesajını göster"
     )
 
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def help_command(update: Update, context: CallbackContext) -> None:
     """Send a help message when the command /help is issued."""
     await update.message.reply_text(
         "Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
@@ -34,7 +38,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir"
     )
 
-async def convert_100lira(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def convert_100lira_command(update: Update, context: CallbackContext) -> None:
     """Convert 100 TRY to satoshi and send the result."""
     try:
         # Fetch current exchange rate from BTCTurk
@@ -98,23 +102,68 @@ async def convert_100lira(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             "Beklenmedik bir hata oluştu. Lütfen daha sonra tekrar deneyin."
         )
 
-async def main() -> None:
-    """Start the bot."""
-    # Create the Application with a simple builder pattern and no job queue
-    builder = Application.builder().token(TELEGRAM_BOT_TOKEN)
-    # Explicitly disable job queue to avoid timezone issues
-    builder.job_queue(None)
-    # Build the application
-    application = builder.build()
+# Simple polling mechanism
+async def poll_updates(bot: Bot, handlers: dict):
+    """Custom polling function to avoid ApplicationBuilder."""
+    offset = 0
+    while True:
+        try:
+            # Get updates from Telegram
+            updates = await bot.get_updates(offset=offset, timeout=30)
+            
+            for update in updates:
+                offset = update.update_id + 1
+                
+                # Process update with appropriate handler
+                if update.message and update.message.text:
+                    text = update.message.text
+                    
+                    # Check for commands
+                    if text.startswith('/'):
+                        command = text.split(' ')[0].lower()
+                        if command in handlers:
+                            await handlers[command](update, None)
+                            logger.info(f"Handled command: {command}")
+                        else:
+                            logger.info(f"Unknown command: {command}")
+                
+                # Process the next update
+                await asyncio.sleep(0.1)
+            
+            # Short delay before next polling
+            await asyncio.sleep(0.5)
+            
+        except Exception as e:
+            logger.error(f"Error in polling: {e}")
+            await asyncio.sleep(5)  # Wait a bit longer on error
+
+async def main():
+    """Set up and run the bot."""
+    # Initialize the bot
+    bot = Bot(token=TELEGRAM_BOT_TOKEN)
     
-    # Add command handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("100lira", convert_100lira))
-
-    # Start the Bot
-    logger.info("Starting bot...")
-    await application.run_polling(allowed_updates=Update.ALL_TYPES)
-
+    # Set up command handlers
+    handlers = {
+        '/start': start_command,
+        '/help': help_command,
+        '/100lira': convert_100lira_command
+    }
+    
+    # Test bot token before starting
+    try:
+        bot_info = await bot.get_me()
+        logger.info(f"Bot initialized: @{bot_info.username}")
+        
+        # Start polling for updates
+        logger.info("Starting bot polling...")
+        await poll_updates(bot, handlers)
+        
+    except Exception as e:
+        logger.error(f"Error initializing bot: {e}")
+        
 if __name__ == '__main__':
+    # Set timezone for Python runtime
+    os.environ['TZ'] = 'UTC'
+    
+    # Run the main function
     asyncio.run(main())
