@@ -57,8 +57,9 @@ async def get_btc_usd_price():
         response.raise_for_status()
         data = response.json()
         
-        if 'data' in data and 'btcPriceList' in data['data']:
-            price_data = data['data']['btcPriceList'][0]['price']
+        if 'data' in data and 'btcPriceList' in data['data'] and data['data']['btcPriceList']:
+            # Get the most recent price (last item in the array)
+            price_data = data['data']['btcPriceList'][-1]['price']
             base = float(price_data['base'])
             offset = int(price_data['offset'])
             return base / (10 ** offset)
@@ -98,8 +99,8 @@ async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         
         message = (
             f"💰 *Güncel Bitcoin Fiyatları*\n\n"
-            f"*BTC/USD:* ${btc_usd_price:,.2f}\n"
-            f"*BTC/TRY:* ₺{btc_try_price:,.2f}\n\n"
+            f"*BTC/USD:* ${int(btc_usd_price):,}\n"
+            f"*BTC/TRY:* ₺{int(btc_try_price):,}\n\n"
             f"_Veri kaynakları: Blink API, BTCTurk_"
         )
         
@@ -152,7 +153,7 @@ async def convert_100lira(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         # Format the response
         message = (
             f"💰 *100 Türk Lirası = {satoshi_amount:.0f} satoshi*\n\n"
-            f"Kur: 1 BTC = {btc_try_rate:,.2f} TL\n"
+            f"Kur: 1 BTC = ₺{int(btc_try_rate):,}\n"
             f"Veri kaynağı: BTCTurk\n"
             f"_Şu anda güncellendi_"
         )
