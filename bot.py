@@ -41,9 +41,9 @@ def convert_100lira(update: Update, context: CallbackContext) -> None:
         
         # Find the BTCTRY pair
         btc_try_data = None
-        for pair in data.get('data', []):
-            if pair.get('pairSymbol') == 'BTCTRY':
-                btc_try_data = pair
+        for pair_data in data.get('data', []):
+            if pair_data.get('pair') == 'BTCTRY':
+                btc_try_data = pair_data
                 break
         
         if not btc_try_data:
