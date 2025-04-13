@@ -19,7 +19,7 @@ A Telegram bot that converts 100 Turkish Lira (TRY) to its Bitcoin satoshi equiv
 
 ## Usage
 
-You can use the bot on Telegram by searching for `@yirmibir21bot` or clicking this link: [https://t.me/yirmibir21bot](https://t.me/yirmibir21bot)
+You can use the bot on Telegram by searching for `@100liratosatoshi_bot` or clicking this link: [https://t.me/100liratosatoshi_bot](https://t.me/100liratosatoshi_bot)
 
 Just send the command `/100lira` and the bot will reply with the current satoshi value of 100 TRY.
 
@@ -103,7 +103,7 @@ Just send the command `/100lira` and the bot will reply with the current satoshi
 - API endpoint: https://api.btcturk.com/api/v2/ticker
 - The bot extracts the BTCTRY pair data from the API response
 - Calculates the satoshi equivalent by dividing 100 TRY by the BTC/TRY rate and multiplying by 100,000,000
-- Built with Python using python-telegram-bot library (v22.0)
+- Built with Python using python-telegram-bot library (v13.7)
 - Responses are formatted in Turkish language
 - Includes a Flask web application for monitoring the bot status
 
