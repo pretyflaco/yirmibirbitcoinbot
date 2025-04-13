@@ -16,18 +16,18 @@ from config import TELEGRAM_BOT_TOKEN, BTCTURK_API_TICKER_URL
 def start(update: Update, context: CallbackContext) -> None:
     """Send a welcome message when the command /start is issued."""
     update.message.reply_text(
-        "Welcome! 👋 I can help you convert Turkish Lira to Bitcoin satoshi.\n\n"
-        "Available commands:\n"
-        "/100lira - Convert 100 TRY to satoshi using the current exchange rate\n"
-        "/help - Show help message"
+        "Merhaba! 👋 Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
+        "Kullanılabilir komutlar:\n"
+        "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir\n"
+        "/help - Yardım mesajını göster"
     )
 
 def help_command(update: Update, context: CallbackContext) -> None:
     """Send a help message when the command /help is issued."""
     update.message.reply_text(
-        "I can help you convert Turkish Lira to Bitcoin satoshi.\n\n"
-        "Available commands:\n"
-        "/100lira - Convert 100 TRY to satoshi using the current exchange rate"
+        "Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
+        "Kullanılabilir komutlar:\n"
+        "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir"
     )
 
 def convert_100lira(update: Update, context: CallbackContext) -> None:
@@ -49,7 +49,7 @@ def convert_100lira(update: Update, context: CallbackContext) -> None:
         if not btc_try_data:
             logger.error("BTCTRY pair not found in the API response")
             update.message.reply_text(
-                "Sorry, I couldn't find the BTC/TRY exchange rate. Please try again later."
+                "Üzgünüm, BTC/TRY kurunu bulamadım. Lütfen daha sonra tekrar deneyin."
             )
             return
         
@@ -59,7 +59,7 @@ def convert_100lira(update: Update, context: CallbackContext) -> None:
         if btc_try_rate <= 0:
             logger.error(f"Invalid exchange rate: {btc_try_rate}")
             update.message.reply_text(
-                "Sorry, I received an invalid exchange rate. Please try again later."
+                "Üzgünüm, geçersiz bir kur aldım. Lütfen daha sonra tekrar deneyin."
             )
             return
         
@@ -70,10 +70,10 @@ def convert_100lira(update: Update, context: CallbackContext) -> None:
         
         # Format the response
         message = (
-            f"💰 *100 Turkish Lira = {satoshi_amount:.0f} satoshi*\n\n"
-            f"Exchange rate: 1 BTC = {btc_try_rate:,.2f} TRY\n"
-            f"Data source: BTCTurk\n"
-            f"_Updated just now_"
+            f"💰 *100 Türk Lirası = {satoshi_amount:.0f} satoshi*\n\n"
+            f"Kur: 1 BTC = {btc_try_rate:,.2f} TL\n"
+            f"Veri kaynağı: BTCTurk\n"
+            f"_Şu anda güncellendi_"
         )
         
         update.message.reply_text(message, parse_mode='Markdown')
@@ -81,17 +81,17 @@ def convert_100lira(update: Update, context: CallbackContext) -> None:
     except requests.RequestException as e:
         logger.error(f"API request error: {str(e)}")
         update.message.reply_text(
-            "Sorry, I couldn't connect to the exchange. Please try again later."
+            "Üzgünüm, borsaya bağlanamadım. Lütfen daha sonra tekrar deneyin."
         )
     except (ValueError, KeyError, TypeError) as e:
         logger.error(f"Data processing error: {str(e)}")
         update.message.reply_text(
-            "Sorry, I encountered an error while processing the exchange data. Please try again later."
+            "Üzgünüm, borsa verilerini işlerken bir hata ile karşılaştım. Lütfen daha sonra tekrar deneyin."
         )
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         update.message.reply_text(
-            "An unexpected error occurred. Please try again later."
+            "Beklenmedik bir hata oluştu. Lütfen daha sonra tekrar deneyin."
         )
 
 def main() -> None:
