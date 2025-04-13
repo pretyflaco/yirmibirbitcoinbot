@@ -98,7 +98,7 @@ async def convert_100lira(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             "Beklenmedik bir hata oluştu. Lütfen daha sonra tekrar deneyin."
         )
 
-async def main() -> None:
+def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
@@ -110,7 +110,7 @@ async def main() -> None:
 
     # Start the Bot
     logger.info("Starting bot...")
-    await application.run_polling()
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()
