@@ -101,10 +101,31 @@ async def get_top_volume_pairs():
         data = response.json()
         
         if 'data' in data:
-            # Sort pairs by volume in descending order
+            # Calculate volume in denominator currency for each pair
+            pairs_with_denominator_volume = []
+            for pair_data in data['data']:
+                try:
+                    # Get the volume in numerator currency
+                    volume = float(pair_data.get('volume', 0))
+                    # Get the exchange rate
+                    last_price = float(pair_data.get('last', 0))
+                    
+                    # Calculate volume in denominator currency
+                    denominator_volume = volume * last_price
+                    
+                    # Create a new dictionary with the calculated volume
+                    pair_with_denominator_volume = pair_data.copy()
+                    pair_with_denominator_volume['denominator_volume'] = denominator_volume
+                    
+                    pairs_with_denominator_volume.append(pair_with_denominator_volume)
+                except (ValueError, TypeError) as e:
+                    logger.error(f"Error calculating denominator volume for pair {pair_data.get('pair', 'unknown')}: {str(e)}")
+                    continue
+            
+            # Sort pairs by denominator volume in descending order
             sorted_pairs = sorted(
-                data['data'], 
-                key=lambda x: float(x.get('volume', 0)), 
+                pairs_with_denominator_volume, 
+                key=lambda x: x.get('denominator_volume', 0), 
                 reverse=True
             )
             
@@ -189,7 +210,8 @@ async def volume_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
         for i, pair in enumerate(top_pairs, 1):
             pair_name = pair.get('pair', '')
-            volume = float(pair.get('volume', 0))
+            # Use the calculated denominator volume
+            volume = float(pair.get('denominator_volume', 0))
             denominator_symbol = pair.get('denominatorSymbol', '')
             
             message += f"{i}. *{pair_name}*: {volume:,.2f} {denominator_symbol}\n"
