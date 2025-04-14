@@ -32,6 +32,10 @@ BINANCE_API_URL = "https://api.binance.com/api/v3/ticker/price"
 KRAKEN_API_URL = "https://api.kraken.com/0/public/Ticker"
 PARIBU_API_URL = "https://www.paribu.com/ticker"
 BITFINEX_API_URL = "https://api-pub.bitfinex.com/v2/ticker"
+BITSTAMP_API_URL = "https://www.bitstamp.net/api/v2/ticker"
+COINBASE_API_URL = "https://api.coinbase.com/v2/prices"
+OKX_API_URL = "https://www.okx.com/api/v5/market/ticker"
+BITFLYER_API_URL = "https://api.bitflyer.com/v1/ticker"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a welcome message when the command /start is issued."""
@@ -206,6 +210,66 @@ async def get_bitfinex_btc_try_price():
         return None
     except Exception as e:
         logger.error(f"Error fetching BTC/TRY price from Bitfinex: {str(e)}")
+        return None
+
+async def get_bitstamp_btc_usd_price():
+    """Fetch current BTC/USD price from Bitstamp API."""
+    try:
+        response = requests.get(f"{BITSTAMP_API_URL}/btcusd/", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'last' in data:
+            return float(data['last'])
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/USD price from Bitstamp: {str(e)}")
+        return None
+
+async def get_coinbase_btc_usd_price():
+    """Fetch current BTC/USD price from Coinbase API."""
+    try:
+        response = requests.get(f"{COINBASE_API_URL}/BTC-USD/spot", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'data' in data and 'amount' in data['data']:
+            return float(data['data']['amount'])
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/USD price from Coinbase: {str(e)}")
+        return None
+
+async def get_okx_btc_usd_price():
+    """Fetch current BTC/USD price from OKX API."""
+    try:
+        response = requests.get(f"{OKX_API_URL}?instId=BTC-USDT", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'data' in data and len(data['data']) > 0 and 'last' in data['data'][0]:
+            return float(data['data'][0]['last'])
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/USD price from OKX: {str(e)}")
+        return None
+
+async def get_bitflyer_btc_usd_price():
+    """Fetch current BTC/USD price from Bitflyer API."""
+    try:
+        response = requests.get(f"{BITFLYER_API_URL}?product_code=BTC_USD", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'ltp' in data:
+            return float(data['ltp'])
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/USD price from Bitflyer: {str(e)}")
         return None
 
 async def get_top_volume_pairs():
@@ -457,6 +521,10 @@ async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         kraken_btc_usd = await get_kraken_btc_usd_price()
         paribu_btc_usd = await get_paribu_btc_usd_price()
         bitfinex_btc_usd = await get_bitfinex_btc_usd_price()
+        bitstamp_btc_usd = await get_bitstamp_btc_usd_price()
+        coinbase_btc_usd = await get_coinbase_btc_usd_price()
+        okx_btc_usd = await get_okx_btc_usd_price()
+        bitflyer_btc_usd = await get_bitflyer_btc_usd_price()
         
         message = "💰 *Güncel Bitcoin Fiyatları*\n\n"
         
@@ -486,8 +554,14 @@ async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         if blink_btc_usd is not None:
             message += f"Blink: ${int(blink_btc_usd):,}\n"
         
+        if bitstamp_btc_usd is not None:
+            message += f"Bitstamp: ${int(bitstamp_btc_usd):,}\n"
+        
         if bitfinex_btc_usd is not None:
             message += f"Bitfinex: ${int(bitfinex_btc_usd):,}\n"
+        
+        if coinbase_btc_usd is not None:
+            message += f"Coinbase: ${int(coinbase_btc_usd):,}\n"
         
         if kraken_btc_usd is not None:
             message += f"Kraken: ${int(kraken_btc_usd):,}\n"
@@ -495,7 +569,13 @@ async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         if paribu_btc_usd is not None:
             message += f"Paribu: ${int(paribu_btc_usd):,}\n"
         
-        message += "\n_Veri kaynakları: Blink API, BTCTurk, Binance, Bitfinex, Kraken, Paribu_"
+        if okx_btc_usd is not None:
+            message += f"OKX: ${int(okx_btc_usd):,}\n"
+        
+        if bitflyer_btc_usd is not None:
+            message += f"Bitflyer: ${int(bitflyer_btc_usd):,}\n"
+        
+        message += "\n_Veri kaynakları: Blink API, BTCTurk, Binance, Bitfinex, Kraken, Paribu, Bitstamp, Coinbase, OKX, Bitflyer_"
         
         await update.message.reply_text(message, parse_mode='Markdown')
         
