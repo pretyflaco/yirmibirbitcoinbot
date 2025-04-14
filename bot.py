@@ -6,8 +6,9 @@ import logging
 import asyncio
 import requests
 import json
+import time
 from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 # Set up logging
 logging.basicConfig(
@@ -37,8 +38,70 @@ COINBASE_API_URL = "https://api.coinbase.com/v2/prices"
 OKX_API_URL = "https://www.okx.com/api/v5/market/ticker"
 BITFLYER_API_URL = "https://api.bitflyer.com/v1/ticker"
 
+# Rate limiting settings
+PUBLIC_GROUP_COOLDOWN = 3600  # 1 hour in seconds
+PRIVATE_CHAT_COOLDOWN = 900   # 15 minutes in seconds
+ADMIN_USERNAME = "pretyflaco"
+
+# Store for rate limiting
+command_last_used = {}
+banned_users = set()
+
+async def is_banned(update: Update) -> bool:
+    """Check if the user is banned."""
+    if update.effective_user.username:
+        return update.effective_user.username in banned_users
+    return False
+
+async def check_rate_limit(update: Update, command: str) -> bool:
+    """Check if the command is rate limited."""
+    # Admin is exempt from rate limits
+    if update.effective_user.username == ADMIN_USERNAME:
+        return False
+    
+    # Get the chat ID and type
+    chat_id = update.effective_chat.id
+    is_private = update.effective_chat.type == "private"
+    
+    # Create a unique key for this command in this chat
+    key = f"{command}_{chat_id}"
+    
+    # Get the current time
+    current_time = time.time()
+    
+    # Check if the command has been used before
+    if key in command_last_used:
+        # Calculate the time elapsed since last use
+        elapsed = current_time - command_last_used[key]
+        
+        # Check if the cooldown period has passed
+        cooldown = PRIVATE_CHAT_COOLDOWN if is_private else PUBLIC_GROUP_COOLDOWN
+        if elapsed < cooldown:
+            # Calculate remaining time
+            remaining = int(cooldown - elapsed)
+            minutes = remaining // 60
+            seconds = remaining % 60
+            
+            # Send a message about the rate limit
+            await update.message.reply_text(
+                f"Bu komutu tekrar kullanmak için {minutes} dakika {seconds} saniye beklemelisiniz."
+            )
+            return True
+    
+    # Update the last used time
+    command_last_used[key] = current_time
+    return False
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a welcome message when the command /start is issued."""
+    # Check if user is banned
+    if await is_banned(update):
+        return
+    
+    # Check rate limit
+    if await check_rate_limit(update, "start"):
+        return
+    
     await update.message.reply_text(
         "Merhaba! 👋 Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
         "Kullanılabilir komutlar:\n"
@@ -51,6 +114,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a help message when the command /help is issued."""
+    # Check if user is banned
+    if await is_banned(update):
+        return
+    
+    # Check rate limit
+    if await check_rate_limit(update, "help"):
+        return
+    
     await update.message.reply_text(
         "Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
         "Kullanılabilir komutlar:\n"
@@ -59,6 +130,29 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/volume - En yüksek hacimli 5 para birimi çiftini göster\n"
         "/dollar - USDT/TRY ve USD/TRY kurlarını göster"
     )
+
+async def ban_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Ban a user from using the bot."""
+    # Only admin can use this command
+    if update.effective_user.username != ADMIN_USERNAME:
+        return
+    
+    # Check if username is provided
+    if not context.args or len(context.args) != 1:
+        await update.message.reply_text("Kullanım: /ban [kullanıcı_adı]")
+        return
+    
+    username = context.args[0].strip('@')
+    
+    # Don't allow banning the admin
+    if username == ADMIN_USERNAME:
+        await update.message.reply_text("Kendinizi banlayamazsınız.")
+        return
+    
+    # Add user to banned list
+    banned_users.add(username)
+    
+    await update.message.reply_text(f"@{username} kullanıcısı banlandı.")
 
 async def get_btc_usd_price():
     """Fetch current BTC/USD price from Blink API."""
@@ -376,6 +470,14 @@ async def get_usd_try_rate():
 
 async def volume_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show top 5 currency pairs with highest volume."""
+    # Check if user is banned
+    if await is_banned(update):
+        return
+    
+    # Check rate limit
+    if await check_rate_limit(update, "volume"):
+        return
+    
     try:
         top_pairs = await get_top_volume_pairs()
         
@@ -481,6 +583,14 @@ async def get_all_pairs():
 
 async def dollar_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show USDT/TRY and USD/TRY exchange rates."""
+    # Check if user is banned
+    if await is_banned(update):
+        return
+    
+    # Check rate limit
+    if await check_rate_limit(update, "dollar"):
+        return
+    
     try:
         usdt_try_rate = await get_usdt_try_rate()
         usd_try_rate = await get_usd_try_rate()
@@ -508,6 +618,14 @@ async def dollar_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show current BTC/USD and BTC/TRY prices from multiple sources."""
+    # Check if user is banned
+    if await is_banned(update):
+        return
+    
+    # Check rate limit
+    if await check_rate_limit(update, "price"):
+        return
+    
     try:
         # Fetch BTC/TRY prices from all sources
         btcturk_btc_try = await get_btc_try_price()
@@ -587,6 +705,14 @@ async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 async def convert_100lira(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Convert 100 TRY to satoshi and send the result."""
+    # Check if user is banned
+    if await is_banned(update):
+        return
+    
+    # Check rate limit
+    if await check_rate_limit(update, "100lira"):
+        return
+    
     try:
         # Fetch current exchange rate from BTCTurk
         response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
@@ -661,6 +787,7 @@ def main() -> None:
     application.add_handler(CommandHandler("price", price_command))
     application.add_handler(CommandHandler("volume", volume_command))
     application.add_handler(CommandHandler("dollar", dollar_command))
+    application.add_handler(CommandHandler("ban", ban_command))
 
     # Start the Bot
     logger.info("Starting bot...")
