@@ -156,8 +156,9 @@ async def get_usd_try_rate():
         
         logger.info(f"Yadio API response: {data}")
         
-        if 'TRY' in data:
-            rate = float(data['TRY'])
+        # The TRY rate is nested inside the 'USD' object
+        if 'USD' in data and 'TRY' in data['USD']:
+            rate = float(data['USD']['TRY'])
             logger.info(f"Found USD/TRY rate: {rate}")
             return rate
         
