@@ -27,6 +27,12 @@ from config import (
 # Yadio API URL
 YADIO_API_URL = "https://api.yadio.io/exrates/USD"
 
+# Additional API URLs
+BINANCE_API_URL = "https://api.binance.com/api/v3/ticker/price"
+KRAKEN_API_URL = "https://api.kraken.com/0/public/Ticker"
+PARIBU_API_URL = "https://www.paribu.com/ticker"
+BITFINEX_API_URL = "https://api-pub.bitfinex.com/v2/ticker"
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a welcome message when the command /start is issued."""
     await update.message.reply_text(
@@ -74,7 +80,7 @@ async def get_btc_usd_price():
         
         return None
     except Exception as e:
-        logger.error(f"Error fetching BTC/USD price: {str(e)}")
+        logger.error(f"Error fetching BTC/USD price from Blink: {str(e)}")
         return None
 
 async def get_btc_try_price():
@@ -90,7 +96,116 @@ async def get_btc_try_price():
         
         return None
     except Exception as e:
-        logger.error(f"Error fetching BTC/TRY price: {str(e)}")
+        logger.error(f"Error fetching BTC/TRY price from BTCTurk: {str(e)}")
+        return None
+
+async def get_binance_btc_usd_price():
+    """Fetch current BTC/USD price from Binance API."""
+    try:
+        response = requests.get(f"{BINANCE_API_URL}?symbol=BTCUSDT", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'price' in data:
+            return float(data['price'])
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/USD price from Binance: {str(e)}")
+        return None
+
+async def get_binance_btc_try_price():
+    """Fetch current BTC/TRY price from Binance API."""
+    try:
+        response = requests.get(f"{BINANCE_API_URL}?symbol=BTCTRY", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'price' in data:
+            return float(data['price'])
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/TRY price from Binance: {str(e)}")
+        return None
+
+async def get_kraken_btc_usd_price():
+    """Fetch current BTC/USD price from Kraken API."""
+    try:
+        response = requests.get(f"{KRAKEN_API_URL}?pair=XBTUSDT", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'result' in data and 'XBTUSDT' in data['result']:
+            # Get the last traded close price (first value in 'c' array)
+            close_price = data['result']['XBTUSDT']['c'][0]
+            return float(close_price)
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/USD price from Kraken: {str(e)}")
+        return None
+
+async def get_paribu_btc_usd_price():
+    """Fetch current BTC/USD price from Paribu API."""
+    try:
+        response = requests.get(PARIBU_API_URL, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'BTC_USDT' in data and 'last' in data['BTC_USDT']:
+            return float(data['BTC_USDT']['last'])
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/USD price from Paribu: {str(e)}")
+        return None
+
+async def get_paribu_btc_try_price():
+    """Fetch current BTC/TRY price from Paribu API."""
+    try:
+        response = requests.get(PARIBU_API_URL, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'BTC_TL' in data and 'last' in data['BTC_TL']:
+            return float(data['BTC_TL']['last'])
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/TRY price from Paribu: {str(e)}")
+        return None
+
+async def get_bitfinex_btc_usd_price():
+    """Fetch current BTC/USD price from Bitfinex API."""
+    try:
+        response = requests.get(f"{BITFINEX_API_URL}/tBTCUSD", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        # LAST_PRICE is at index 6 in the array
+        if len(data) > 6:
+            return float(data[6])
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/USD price from Bitfinex: {str(e)}")
+        return None
+
+async def get_bitfinex_btc_try_price():
+    """Fetch current BTC/TRY price from Bitfinex API."""
+    try:
+        response = requests.get(f"{BITFINEX_API_URL}/tBTCTRY", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        # LAST_PRICE is at index 6 in the array
+        if len(data) > 6:
+            return float(data[6])
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/TRY price from Bitfinex: {str(e)}")
         return None
 
 async def get_top_volume_pairs():
@@ -328,23 +443,59 @@ async def dollar_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         )
 
 async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Show current BTC/USD and BTC/TRY prices."""
+    """Show current BTC/USD and BTC/TRY prices from multiple sources."""
     try:
-        btc_usd_price = await get_btc_usd_price()
-        btc_try_price = await get_btc_try_price()
+        # Fetch BTC/TRY prices from all sources
+        btcturk_btc_try = await get_btc_try_price()
+        binance_btc_try = await get_binance_btc_try_price()
+        bitfinex_btc_try = await get_bitfinex_btc_try_price()
+        paribu_btc_try = await get_paribu_btc_try_price()
         
-        if btc_usd_price is None or btc_try_price is None:
-            await update.message.reply_text(
-                "Üzgünüm, fiyat bilgilerini alırken bir hata oluştu. Lütfen daha sonra tekrar deneyin."
-            )
-            return
+        # Fetch BTC/USD prices from all sources
+        blink_btc_usd = await get_btc_usd_price()
+        binance_btc_usd = await get_binance_btc_usd_price()
+        kraken_btc_usd = await get_kraken_btc_usd_price()
+        paribu_btc_usd = await get_paribu_btc_usd_price()
+        bitfinex_btc_usd = await get_bitfinex_btc_usd_price()
         
-        message = (
-            f"💰 *Güncel Bitcoin Fiyatları*\n\n"
-            f"*BTC/USD:* ${int(btc_usd_price):,}\n"
-            f"*BTC/TRY:* ₺{int(btc_try_price):,}\n\n"
-            f"_Veri kaynakları: Blink API, BTCTurk_"
-        )
+        message = "💰 *Güncel Bitcoin Fiyatları*\n\n"
+        
+        # BTC/TRY section
+        message += "*BTC/TRY*\n"
+        
+        if btcturk_btc_try is not None:
+            message += f"BTCTurk: ₺{int(btcturk_btc_try):,}\n"
+        
+        if binance_btc_try is not None:
+            message += f"Binance: ₺{int(binance_btc_try):,}\n"
+        
+        if bitfinex_btc_try is not None:
+            message += f"Bitfinex: ₺{int(bitfinex_btc_try):,}\n"
+        
+        if paribu_btc_try is not None:
+            message += f"Paribu: ₺{int(paribu_btc_try):,}\n"
+        
+        message += "\n"
+        
+        # BTC/USD section
+        message += "*BTC/USD*\n"
+        
+        if binance_btc_usd is not None:
+            message += f"Binance: ${int(binance_btc_usd):,}\n"
+        
+        if blink_btc_usd is not None:
+            message += f"Blink: ${int(blink_btc_usd):,}\n"
+        
+        if bitfinex_btc_usd is not None:
+            message += f"Bitfinex: ${int(bitfinex_btc_usd):,}\n"
+        
+        if kraken_btc_usd is not None:
+            message += f"Kraken: ${int(kraken_btc_usd):,}\n"
+        
+        if paribu_btc_usd is not None:
+            message += f"Paribu: ${int(paribu_btc_usd):,}\n"
+        
+        message += "\n_Veri kaynakları: Blink API, BTCTurk, Binance, Bitfinex, Kraken, Paribu_"
         
         await update.message.reply_text(message, parse_mode='Markdown')
         
