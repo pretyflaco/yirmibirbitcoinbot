@@ -208,13 +208,44 @@ async def volume_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
         message = "📊 *En Yüksek Hacimli 5 Para Birimi Çifti*\n\n"
         
+        # Find BTC/TRY pair and its rank
+        btc_try_pair = None
+        btc_try_rank = None
+        
         for i, pair in enumerate(top_pairs, 1):
             pair_name = pair.get('pair', '')
             # Use the calculated denominator volume
             volume = float(pair.get('denominator_volume', 0))
             denominator_symbol = pair.get('denominatorSymbol', '')
             
-            message += f"{i}. *{pair_name}*: {volume:,.2f} {denominator_symbol}\n"
+            # Format volume without decimals
+            formatted_volume = f"{int(volume):,}"
+            
+            message += f"{i}. *{pair_name}*: {formatted_volume} {denominator_symbol}\n"
+            
+            # Check if this is BTC/TRY
+            if pair_name == 'BTCTRY':
+                btc_try_pair = pair
+                btc_try_rank = i
+        
+        # If BTC/TRY is not in top 5, add it separately
+        if not btc_try_pair:
+            # Find BTC/TRY in all pairs
+            all_pairs = await get_all_pairs()
+            if all_pairs:
+                for i, pair in enumerate(all_pairs, 1):
+                    if pair.get('pair') == 'BTCTRY':
+                        btc_try_pair = pair
+                        btc_try_rank = i
+                        break
+        
+        # Add BTC/TRY information if it's not in top 5
+        if btc_try_pair and not btc_try_rank:
+            volume = float(btc_try_pair.get('denominator_volume', 0))
+            denominator_symbol = btc_try_pair.get('denominatorSymbol', '')
+            formatted_volume = f"{int(volume):,}"
+            
+            message += f"\n*BTCTRY*: {formatted_volume} {denominator_symbol} (Genel sıralama: #{btc_try_rank})"
         
         message += "\n_Veri kaynağı: BTCTurk_"
         
@@ -225,6 +256,49 @@ async def volume_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await update.message.reply_text(
             "Üzgünüm, bir hata oluştu. Lütfen daha sonra tekrar deneyin."
         )
+
+async def get_all_pairs():
+    """Fetch all currency pairs from BTCTurk API."""
+    try:
+        response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'data' in data:
+            # Calculate volume in denominator currency for each pair
+            pairs_with_denominator_volume = []
+            for pair_data in data['data']:
+                try:
+                    # Get the volume in numerator currency
+                    volume = float(pair_data.get('volume', 0))
+                    # Get the exchange rate
+                    last_price = float(pair_data.get('last', 0))
+                    
+                    # Calculate volume in denominator currency
+                    denominator_volume = volume * last_price
+                    
+                    # Create a new dictionary with the calculated volume
+                    pair_with_denominator_volume = pair_data.copy()
+                    pair_with_denominator_volume['denominator_volume'] = denominator_volume
+                    
+                    pairs_with_denominator_volume.append(pair_with_denominator_volume)
+                except (ValueError, TypeError) as e:
+                    logger.error(f"Error calculating denominator volume for pair {pair_data.get('pair', 'unknown')}: {str(e)}")
+                    continue
+            
+            # Sort pairs by denominator volume in descending order
+            sorted_pairs = sorted(
+                pairs_with_denominator_volume, 
+                key=lambda x: x.get('denominator_volume', 0), 
+                reverse=True
+            )
+            
+            return sorted_pairs
+        
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching all pairs: {str(e)}")
+        return None
 
 async def dollar_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show USDT/TRY and USD/TRY exchange rates."""
