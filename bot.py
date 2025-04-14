@@ -240,7 +240,7 @@ async def volume_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                         break
         
         # Add BTC/TRY information if it's not in top 5
-        if btc_try_pair and not btc_try_rank:
+        if btc_try_pair and btc_try_rank > 5:
             volume = float(btc_try_pair.get('denominator_volume', 0))
             denominator_symbol = btc_try_pair.get('denominatorSymbol', '')
             formatted_volume = f"{int(volume):,}"
