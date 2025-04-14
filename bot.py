@@ -121,32 +121,56 @@ async def get_top_volume_pairs():
 async def get_usdt_try_rate():
     """Fetch USDT/TRY rate from BTCTurk API."""
     try:
+        logger.info("Fetching USDT/TRY rate from BTCTurk API...")
         response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
         response.raise_for_status()
         data = response.json()
         
+        logger.info(f"BTCTurk API response: {data}")
+        
         for pair_data in data.get('data', []):
             if pair_data.get('pair') == 'USDTTRY':
-                return float(pair_data.get('last', 0))
+                rate = float(pair_data.get('last', 0))
+                logger.info(f"Found USDT/TRY rate: {rate}")
+                return rate
         
+        logger.error("USDTTRY pair not found in BTCTurk API response")
+        return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network error fetching USDT/TRY rate: {str(e)}")
+        return None
+    except (ValueError, KeyError, TypeError) as e:
+        logger.error(f"Data processing error fetching USDT/TRY rate: {str(e)}")
         return None
     except Exception as e:
-        logger.error(f"Error fetching USDT/TRY rate: {str(e)}")
+        logger.error(f"Unexpected error fetching USDT/TRY rate: {str(e)}")
         return None
 
 async def get_usd_try_rate():
     """Fetch USD/TRY rate from Yadio API."""
     try:
+        logger.info("Fetching USD/TRY rate from Yadio API...")
         response = requests.get(YADIO_API_URL, timeout=10)
         response.raise_for_status()
         data = response.json()
         
-        if 'TRY' in data:
-            return float(data['TRY'])
+        logger.info(f"Yadio API response: {data}")
         
+        if 'TRY' in data:
+            rate = float(data['TRY'])
+            logger.info(f"Found USD/TRY rate: {rate}")
+            return rate
+        
+        logger.error("TRY rate not found in Yadio API response")
+        return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network error fetching USD/TRY rate: {str(e)}")
+        return None
+    except (ValueError, KeyError, TypeError) as e:
+        logger.error(f"Data processing error fetching USD/TRY rate: {str(e)}")
         return None
     except Exception as e:
-        logger.error(f"Error fetching USD/TRY rate: {str(e)}")
+        logger.error(f"Unexpected error fetching USD/TRY rate: {str(e)}")
         return None
 
 async def volume_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
