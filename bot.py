@@ -1074,7 +1074,7 @@ async def process_lightning_address(update: Update, context: ContextTypes.DEFAUL
     processing_message = await update.message.reply_text("Lightning ödemesi işleniyor...")
     
     try:
-        # Get the wallet ID and check balance
+        # Get the wallet data to find the BTC wallet ID
         wallet_data = await get_wallet_data()
         if not wallet_data:
             await processing_message.edit_text("Cüzdan bilgileri alınamadı. Lütfen daha sonra tekrar deneyin.")
@@ -1093,34 +1093,73 @@ async def process_lightning_address(update: Update, context: ContextTypes.DEFAUL
             lightning_payment_in_progress = False
             return ConversationHandler.END
         
-        # Check if we have enough balance (at least 1000 sats)
-        if int(btc_wallet.get('balance', 0)) < 1000:
-            await processing_message.edit_text("Yetersiz bakiye. En az 1000 satoshi gerekiyor.")
-            lightning_payment_in_progress = False
-            return ConversationHandler.END
+        # Get the wallet ID
+        wallet_id = btc_wallet.get('id')
+        if not wallet_id:
+            logger.error("Wallet ID not found")
+            return {"status": "ERROR", "errors": [{"message": "Wallet ID not found"}]}
         
-        # Send the payment
-        payment_result = await send_lightning_payment(lightning_address, 1000)
+        # GraphQL mutation to send payment
+        mutation = """
+        mutation LnAddressPaymentSend($input: LnAddressPaymentSendInput!) {
+          lnAddressPaymentSend(input: $input) {
+            status
+            errors {
+              code
+              message
+              path
+            }
+          }
+        }
+        """
         
-        if payment_result.get('status') == 'SUCCESS':
-            await processing_message.edit_text(
-                f"✅ Ödeme başarıyla gönderildi!\n\n"
-                f"Alıcı: {lightning_address}\n"
-                f"Miktar: 1000 satoshi"
-            )
-        else:
-            error_message = payment_result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
-            await processing_message.edit_text(f"❌ Ödeme gönderilemedi: {error_message}")
+        # Variables for the mutation - include the walletId
+        variables = {
+            "input": {
+                "walletId": wallet_id,
+                "lnAddress": lightning_address,
+                "amount": str(amount_sats),  # Convert to string as per the example
+                "memo": "TelegramBot Payment"
+            }
+        }
+        
+        # Log the request for debugging
+        logger.info(f"Sending Lightning payment to {lightning_address} for {amount_sats} sats")
+        logger.info(f"Request variables: {variables}")
+        
+        # Make the API request
+        response = requests.post(
+            BLINK_API_URL,
+            json={
+                "query": mutation,
+                "variables": variables
+            },
+            headers={
+                "X-API-KEY": BLINK_API_KEY
+            },
+            timeout=30
+        )
+        
+        # Log the response for debugging
+        logger.info(f"Lightning payment response status: {response.status_code}")
+        
+        # Check if the response is valid JSON
+        try:
+            data = response.json()
+            logger.info(f"Lightning payment response: {data}")
+        except ValueError:
+            logger.error(f"Invalid JSON response: {response.text}")
+            return {"status": "ERROR", "errors": [{"message": "Invalid JSON response"}]}
+        
+        # Extract payment result
+        if 'data' in data and 'lnAddressPaymentSend' in data['data']:
+            return data['data']['lnAddressPaymentSend']
+        
+        return {"status": "ERROR", "errors": [{"message": "Invalid API response"}]}
     
     except Exception as e:
-        logger.error(f"Error in lightning payment: {str(e)}")
-        await processing_message.edit_text(f"Bir hata oluştu: {str(e)}")
-    
-    finally:
-        # Reset payment in progress flag
-        lightning_payment_in_progress = False
-    
-    return ConversationHandler.END
+        logger.error(f"Error sending lightning payment: {str(e)}")
+        return {"status": "ERROR", "errors": [{"message": str(e)}]}
 
 async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancel the conversation."""
@@ -1170,70 +1209,6 @@ async def get_wallet_data():
     except Exception as e:
         logger.error(f"Error getting wallet data: {str(e)}")
         return None
-
-async def send_lightning_payment(lightning_address, amount_sats):
-    """Send a payment to a Lightning Address."""
-    try:
-        # GraphQL mutation to send payment
-        mutation = """
-        mutation LnAddressPaymentSend($input: LnAddressPaymentSendInput!) {
-          lnAddressPaymentSend(input: $input) {
-            status
-            errors {
-              code
-              message
-              path
-            }
-          }
-        }
-        """
-        
-        # Variables for the mutation - make sure to use the correct input type
-        variables = {
-            "input": {
-                "lightningAddress": lightning_address,
-                "amount": int(amount_sats),  # Ensure amount is an integer
-                "memo": "TelegramBot Payment"
-            }
-        }
-        
-        # Log the request for debugging
-        logger.info(f"Sending Lightning payment to {lightning_address} for {amount_sats} sats")
-        logger.info(f"Request variables: {variables}")
-        
-        # Make the API request
-        response = requests.post(
-            BLINK_API_URL,
-            json={
-                "query": mutation,
-                "variables": variables
-            },
-            headers={
-                "X-API-KEY": BLINK_API_KEY
-            },
-            timeout=30
-        )
-        
-        # Log the response for debugging
-        logger.info(f"Lightning payment response status: {response.status_code}")
-        
-        # Check if the response is valid JSON
-        try:
-            data = response.json()
-            logger.info(f"Lightning payment response: {data}")
-        except ValueError:
-            logger.error(f"Invalid JSON response: {response.text}")
-            return {"status": "ERROR", "errors": [{"message": "Invalid JSON response"}]}
-        
-        # Extract payment result
-        if 'data' in data and 'lnAddressPaymentSend' in data['data']:
-            return data['data']['lnAddressPaymentSend']
-        
-        return {"status": "ERROR", "errors": [{"message": "Invalid API response"}]}
-    
-    except Exception as e:
-        logger.error(f"Error sending lightning payment: {str(e)}")
-        return {"status": "ERROR", "errors": [{"message": str(e)}]}
 
 def main() -> None:
     """Start the bot."""
