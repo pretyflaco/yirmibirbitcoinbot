@@ -365,25 +365,56 @@ async def ban_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 async def get_btc_usd_price():
     """Fetch current BTC/USD price from Blink API."""
     try:
+        logger.info("Fetching BTC/USD price from Blink API...")
+        
+        # Try a simpler query that's more likely to succeed
+        simplified_query = """
+        query {
+          btcPrice {
+            price {
+              base
+              offset
+            }
+            timestamp
+          }
+        }
+        """
+        
         response = requests.post(
             BLINK_API_URL,
-            json={
-                "query": BLINK_PRICE_QUERY,
-                "variables": BLINK_PRICE_VARIABLES
-            },
+            json={"query": simplified_query},
             timeout=10
         )
-        response.raise_for_status()
-        data = response.json()
         
-        if 'data' in data and 'btcPriceList' in data['data'] and data['data']['btcPriceList']:
-            # Get the most recent price (last item in the array)
-            price_data = data['data']['btcPriceList'][-1]['price']
+        # Log response details for debugging
+        logger.info(f"Blink API response status: {response.status_code}")
+        
+        # Check if the request was successful
+        if response.status_code != 200:
+            logger.error(f"Blink API request failed with status code {response.status_code}: {response.text}")
+            return None
+            
+        data = response.json()
+        logger.info(f"Blink API response structure: {list(data.keys() if isinstance(data, dict) else [])}")
+        
+        # Check for errors in response
+        if 'errors' in data:
+            error_messages = [error.get('message', 'Unknown error') for error in data.get('errors', [])]
+            error_message = "; ".join(error_messages)
+            logger.error(f"Blink API returned errors: {error_message}")
+            return None
+            
+        # Extract price from response
+        if 'data' in data and data['data'] and 'btcPrice' in data['data']:
+            price_data = data['data']['btcPrice']['price']
             base = float(price_data['base'])
             offset = int(price_data['offset'])
-            # Fix the 10x multiplier issue by dividing by 100
-            return (base / (10 ** offset)) / 100
+            # Calculate the proper price
+            price = base * (10 ** -offset)
+            logger.info(f"Successfully fetched BTC price from Blink: {price}")
+            return price
         
+        logger.error(f"Unexpected Blink API response format: {data}")
         return None
     except Exception as e:
         logger.error(f"Error fetching BTC/USD price from Blink: {str(e)}")
@@ -392,14 +423,31 @@ async def get_btc_usd_price():
 async def get_btc_try_price():
     """Fetch current BTC/TRY price from BTCTurk API."""
     try:
+        logger.info("Fetching BTC/TRY price from BTCTurk API...")
         response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
         response.raise_for_status()
-        data = response.json()
         
+        # Ensure we're dealing with JSON data
+        content_type = response.headers.get('Content-Type', '')
+        if 'application/json' not in content_type:
+            logger.error(f"BTCTurk API returned non-JSON response: {content_type}")
+            logger.info(f"Response content: {response.text[:200]}...")
+            return None
+            
+        data = response.json()
+        logger.info(f"BTCTurk API response type: {type(data)}")
+        
+        # Check if the response has the expected structure
+        if not isinstance(data, dict) or 'data' not in data:
+            logger.error(f"BTCTurk API response missing 'data' field or has unexpected format: {type(data)}")
+            return None
+        
+        # Find the BTCTRY pair
         for pair_data in data.get('data', []):
-            if pair_data.get('pair') == 'BTCTRY':
+            if isinstance(pair_data, dict) and pair_data.get('pair') == 'BTCTRY':
                 return float(pair_data.get('last', 0))
         
+        logger.error("BTCTRY pair not found in the API response")
         return None
     except Exception as e:
         logger.error(f"Error fetching BTC/TRY price from BTCTurk: {str(e)}")
@@ -626,18 +674,25 @@ async def get_usdt_try_rate():
         logger.info("Fetching USDT/TRY rate from BTCTurk API...")
         response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
         response.raise_for_status()
-        data = response.json()
         
-        logger.info(f"BTCTurk API response: {data}")
+        # Ensure we're dealing with JSON data
+        content_type = response.headers.get('Content-Type', '')
+        if 'application/json' not in content_type:
+            logger.error(f"BTCTurk API returned non-JSON response: {content_type}")
+            logger.info(f"Response content: {response.text[:200]}...")
+            return None
+            
+        data = response.json()
+        logger.info(f"BTCTurk API response type: {type(data)}")
         
         # Check if the response has the expected structure
-        if 'data' not in data:
-            logger.error("BTCTurk API response missing 'data' field")
+        if not isinstance(data, dict) or 'data' not in data:
+            logger.error(f"BTCTurk API response missing 'data' field or has unexpected format: {type(data)}")
             return None
         
         # Find the USDTTRY pair
         for pair_data in data.get('data', []):
-            if pair_data.get('pair') == 'USDTTRY':
+            if isinstance(pair_data, dict) and pair_data.get('pair') == 'USDTTRY':
                 rate = float(pair_data.get('last', 0))
                 logger.info(f"Found USDT/TRY rate: {rate}")
                 return rate
@@ -806,26 +861,30 @@ async def dollar_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
     
     try:
+        await update.message.reply_text("Döviz kurları alınıyor, lütfen bekleyin...")
+        
         # Get USDT/TRY rate from BTCTurk
         usdt_try_rate = await get_usdt_try_rate()
         
         # Get USD/TRY rate from Yadio
         usd_try_rate = await get_usd_try_rate()
         
-        if usdt_try_rate is None or usd_try_rate is None:
-            await update.message.reply_text(
-                "Üzgünüm, döviz kurlarını alırken bir hata oluştu. Lütfen daha sonra tekrar deneyin."
-            )
-            return
+        # Format the message based on available data
+        message = "💵 *Güncel Dolar Kurları*\n\n"
         
-        # Format the message
-        message = (
-            f"💵 *Güncel Dolar Kurları*\n\n"
-            f"*USDT/TRY:* ₺{usdt_try_rate:.2f}\n"
-            f"*USD/TRY:* ₺{usd_try_rate:.2f}\n\n"
-            f"_Veri kaynakları: BTCTurk, Yadio_"
-        )
+        if usdt_try_rate is not None:
+            message += f"*USDT/TRY:* ₺{usdt_try_rate:.2f}\n"
+        else:
+            message += "*USDT/TRY:* Veri alınamadı\n"
         
+        if usd_try_rate is not None:
+            message += f"*USD/TRY:* ₺{usd_try_rate:.2f}\n"
+        else:
+            message += "*USD/TRY:* Veri alınamadı\n"
+        
+        message += "\n_Veri kaynakları: BTCTurk, Yadio_"
+        
+        # Update the previous message with the results
         await update.message.reply_text(message, parse_mode='Markdown')
         
     except Exception as e:
@@ -845,6 +904,9 @@ async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         return
     
     try:
+        # Send an initial message to indicate that we're fetching prices
+        await update.message.reply_text("Bitcoin fiyatları alınıyor, lütfen bekleyin...")
+        
         # Fetch BTC/TRY prices from all sources
         btcturk_btc_try = await get_btc_try_price()
         binance_btc_try = await get_binance_btc_try_price()
@@ -862,56 +924,73 @@ async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         okx_btc_usd = await get_okx_btc_usd_price()
         bitflyer_btc_usd = await get_bitflyer_btc_usd_price()
         
+        # Count successful data fetches
+        try_prices_count = sum(1 for p in [btcturk_btc_try, binance_btc_try, bitfinex_btc_try, paribu_btc_try] if p is not None)
+        usd_prices_count = sum(1 for p in [blink_btc_usd, binance_btc_usd, kraken_btc_usd, paribu_btc_usd, 
+                                          bitfinex_btc_usd, bitstamp_btc_usd, coinbase_btc_usd, okx_btc_usd, 
+                                          bitflyer_btc_usd] if p is not None)
+        
+        # Check if we have any data to display
+        if try_prices_count == 0 and usd_prices_count == 0:
+            await update.message.reply_text(
+                "Üzgünüm, hiçbir kaynaktan Bitcoin fiyat verisi alınamadı. Lütfen daha sonra tekrar deneyin."
+            )
+            return
+        
         message = "💰 *Güncel Bitcoin Fiyatları*\n\n"
         
         # BTC/TRY section
-        message += "*BTC/TRY*\n"
-        
-        if btcturk_btc_try is not None:
-            message += f"BTCTurk: ₺{int(btcturk_btc_try):,}\n"
-        
-        if binance_btc_try is not None:
-            message += f"Binance: ₺{int(binance_btc_try):,}\n"
-        
-        if bitfinex_btc_try is not None:
-            message += f"Bitfinex: ₺{int(bitfinex_btc_try):,}\n"
-        
-        if paribu_btc_try is not None:
-            message += f"Paribu: ₺{int(paribu_btc_try):,}\n"
-        
-        message += "\n"
+        if try_prices_count > 0:
+            message += "*BTC/TRY*\n"
+            
+            if btcturk_btc_try is not None:
+                message += f"BTCTurk: ₺{int(btcturk_btc_try):,}\n"
+            
+            if binance_btc_try is not None:
+                message += f"Binance: ₺{int(binance_btc_try):,}\n"
+            
+            if bitfinex_btc_try is not None:
+                message += f"Bitfinex: ₺{int(bitfinex_btc_try):,}\n"
+            
+            if paribu_btc_try is not None:
+                message += f"Paribu: ₺{int(paribu_btc_try):,}\n"
+            
+            message += "\n"
         
         # BTC/USD section
-        message += "*BTC/USD*\n"
+        if usd_prices_count > 0:
+            message += "*BTC/USD*\n"
+            
+            if binance_btc_usd is not None:
+                message += f"Binance: ${int(binance_btc_usd):,}\n"
+            
+            if blink_btc_usd is not None:
+                message += f"Blink: ${int(blink_btc_usd):,}\n"
+            
+            if bitstamp_btc_usd is not None:
+                message += f"Bitstamp: ${int(bitstamp_btc_usd):,}\n"
+            
+            if bitfinex_btc_usd is not None:
+                message += f"Bitfinex: ${int(bitfinex_btc_usd):,}\n"
+            
+            if coinbase_btc_usd is not None:
+                message += f"Coinbase: ${int(coinbase_btc_usd):,}\n"
+            
+            if kraken_btc_usd is not None:
+                message += f"Kraken: ${int(kraken_btc_usd):,}\n"
+            
+            if paribu_btc_usd is not None:
+                message += f"Paribu: ${int(paribu_btc_usd):,}\n"
+            
+            if okx_btc_usd is not None:
+                message += f"OKX: ${int(okx_btc_usd):,}\n"
+            
+            if bitflyer_btc_usd is not None:
+                message += f"Bitflyer: ${int(bitflyer_btc_usd):,}\n"
+            
+            message += "\n"
         
-        if binance_btc_usd is not None:
-            message += f"Binance: ${int(binance_btc_usd):,}\n"
-        
-        if blink_btc_usd is not None:
-            message += f"Blink: ${int(blink_btc_usd):,}\n"
-        
-        if bitstamp_btc_usd is not None:
-            message += f"Bitstamp: ${int(bitstamp_btc_usd):,}\n"
-        
-        if bitfinex_btc_usd is not None:
-            message += f"Bitfinex: ${int(bitfinex_btc_usd):,}\n"
-        
-        if coinbase_btc_usd is not None:
-            message += f"Coinbase: ${int(coinbase_btc_usd):,}\n"
-        
-        if kraken_btc_usd is not None:
-            message += f"Kraken: ${int(kraken_btc_usd):,}\n"
-        
-        if paribu_btc_usd is not None:
-            message += f"Paribu: ${int(paribu_btc_usd):,}\n"
-        
-        if okx_btc_usd is not None:
-            message += f"OKX: ${int(okx_btc_usd):,}\n"
-        
-        if bitflyer_btc_usd is not None:
-            message += f"Bitflyer: ${int(bitflyer_btc_usd):,}\n"
-        
-        message += "\n_Veri kaynakları: Blink API, BTCTurk, Binance, Bitfinex, Kraken, Paribu, Bitstamp, Coinbase, OKX, Bitflyer_"
+        message += "_Veri kaynakları: Blink API, BTCTurk, Binance, Bitfinex, Kraken, Paribu, Bitstamp, Coinbase, OKX, Bitflyer_"
         
         await update.message.reply_text(message, parse_mode='Markdown')
         
