@@ -630,6 +630,12 @@ async def get_usdt_try_rate():
         
         logger.info(f"BTCTurk API response: {data}")
         
+        # Check if the response has the expected structure
+        if 'data' not in data:
+            logger.error("BTCTurk API response missing 'data' field")
+            return None
+        
+        # Find the USDTTRY pair
         for pair_data in data.get('data', []):
             if pair_data.get('pair') == 'USDTTRY':
                 rate = float(pair_data.get('last', 0))
@@ -800,7 +806,10 @@ async def dollar_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
     
     try:
+        # Get USDT/TRY rate from BTCTurk
         usdt_try_rate = await get_usdt_try_rate()
+        
+        # Get USD/TRY rate from Yadio
         usd_try_rate = await get_usd_try_rate()
         
         if usdt_try_rate is None or usd_try_rate is None:
@@ -809,6 +818,7 @@ async def dollar_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             )
             return
         
+        # Format the message
         message = (
             f"💵 *Güncel Dolar Kurları*\n\n"
             f"*USDT/TRY:* ₺{usdt_try_rate:.2f}\n"
@@ -1022,6 +1032,13 @@ async def gimmecheese_command(update: Update, context: ContextTypes.DEFAULT_TYPE
         await update.message.reply_text("Zaten bir ödeme işlemi devam ediyor. Lütfen bekleyin.")
         return ConversationHandler.END
     
+    # Check if BLINK_API_KEY is set
+    if BLINK_API_KEY == "YOUR_BLINK_API_KEY_HERE":
+        await update.message.reply_text(
+            "Blink API anahtarı ayarlanmamış. Lütfen config.py dosyasında BLINK_API_KEY değerini güncelleyin."
+        )
+        return ConversationHandler.END
+    
     # Ask for Lightning Address
     await update.message.reply_text(
         "Lütfen Bitcoin göndermek istediğiniz Lightning Adresini girin.\n"
@@ -1147,6 +1164,7 @@ async def get_wallet_data():
         if 'data' in data and 'me' in data['data'] and 'defaultAccount' in data['data']['me']:
             return data['data']['me']['defaultAccount']['wallets']
         
+        logger.error(f"Invalid wallet data response: {data}")
         return None
     
     except Exception as e:
@@ -1179,6 +1197,9 @@ async def send_lightning_payment(lightning_address, amount_sats):
             }
         }
         
+        # Log the request for debugging
+        logger.info(f"Sending Lightning payment to {lightning_address} for {amount_sats} sats")
+        
         # Make the API request
         response = requests.post(
             BLINK_API_URL,
@@ -1192,8 +1213,16 @@ async def send_lightning_payment(lightning_address, amount_sats):
             timeout=30
         )
         
-        response.raise_for_status()
-        data = response.json()
+        # Log the response for debugging
+        logger.info(f"Lightning payment response status: {response.status_code}")
+        
+        # Check if the response is valid JSON
+        try:
+            data = response.json()
+            logger.info(f"Lightning payment response: {data}")
+        except ValueError:
+            logger.error(f"Invalid JSON response: {response.text}")
+            return {"status": "ERROR", "errors": [{"message": "Invalid JSON response"}]}
         
         # Extract payment result
         if 'data' in data and 'lnAddressPaymentSend' in data['data']:
