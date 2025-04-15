@@ -194,5 +194,1124 @@
     "text": "Tasarım, tam blok zincirine ihtiyaç duymayan hafif bir istemci özetliyor. Tasarım PDF'inde Basitleştirilmiş Ödeme Doğrulaması olarak adlandırılıyor. Hafif istemci işlem gönderebilir ve alabilir, sadece blok üretemez. Ödemeleri doğrulamak için bir düğüme güvenmesine gerek yok, hala kendisi doğrulayabilir.\nHafif istemci henüz uygulanmadı, ancak plan ihtiyaç duyulduğunda uygulamak. Şimdilik, herkes sadece tam bir ağ düğümü çalıştırıyor.",
     "post_id": "188",
     "date": "14 Temmuz 2010"
+  },
+  {
+    "category": "scalability, nodes",
+    "medium": "bitcointalk",
+    "text": "Muhtemelen 100.000'den fazla düğüm olmayacağını tahmin ediyorum, belki de daha az. Daha fazla düğümün katılmasına değmeyecek bir dengeye ulaşacaktır. Geri kalanı milyonlarca olabilecek hafif istemciler olacaktır.",
+    "post_id": "188",
+    "date": "14 Temmuz 2010"
+  },
+  {
+    "category": "nodes",
+    "medium": "bitcointalk",
+    "text": "Denge boyutunda, birçok düğüm, LAN üzerinden çiftliğin geri kalanını besleyen bir veya iki ağ düğümüne sahip sunucu çiftlikleri olacaktır.",
+    "post_id": "188",
+    "date": "14 Temmuz 2010"
+  },
+  {
+    "category": "economics",
+    "medium": "bitcointalk",
+    "text": "Birisi dünyadaki kıt bir varlığın tüm arzını almaya çalıştığında, ne kadar çok satın alırsa fiyat o kadar yükselir. Bir noktada, daha fazla satın almak onlar için çok pahalı hale gelir. Önceden ona sahip olan insanlar için harika çünkü onu köşedekilere çılgın yüksek fiyatlarla satıyorlar. Fiyat yükselmeye devam ettikçe, bazı insanlar daha da yüksek fiyatlar için beklemeye devam ediyor ve satmayı reddediyor.",
+    "post_id": "174",
+    "date": "9 Temmuz 2010"
+  },
+  {
+    "category": "releases",
+    "medium": "bitcointalk",
+    "text": "P2P kripto para birimi Bitcoin'in 0.3 sürümü duyuruluyor! Bitcoin, güvenilir bir merkezi sunucuya olan ihtiyacı ortadan kaldırmak için kriptografi ve dağıtılmış bir ağ kullanan dijital bir para birimidir. Merkezi olarak yönetilen para birimlerinin keyfi enflasyon riskinden kaçının! Bitcoin'in toplam dolaşımı 21 milyon coin ile sınırlıdır. Coinler, ağın düğümlerine, katkıda bulundukları CPU proof-of-worker'a göre kademeli olarak dağıtılır, böylece boş CPU sürenize katkıda bulunarak onlardan bir pay alabilirsiniz.",
+    "post_id": "168",
+    "date": "6 Temmuz 2010"
+  },
+  {
+    "category": "general",
+    "medium": "bitcointalk",
+    "text": "Genel kitleler için bu şeyin bir açıklamasını yazmak çok zor. İlişkilendirilecek hiçbir şey yok.",
+    "post_id": "167",
+    "date": "5 Temmuz 2010"
+  },
+  {
+    "category": "bitcoin-economics",
+    "medium": "bitcointalk",
+    "text": "Kaybolan coinler, yalnızca diğer herkesin coinlerinin biraz daha değerli olmasını sağlar. Bunu herkese bir bağış olarak düşünün.",
+    "post_id": "131",
+    "date": "21 Haziran 2010"
+  },
+  {
+    "category": "general",
+    "medium": "bitcointalk",
+    "text": "İlk proje için mükemmel bir seçim, güzel çalışma. Başka biri yapmadıysa tam olarak bu şeyi yapmayı planlamıştım, bu yüzden 50BTC üretmek ölümlüler için çok zorlaştığında, yeni kullanıcılar hemen oynayabilecekleri bazı coinler alabilirlerdi. Bağışlar onu dolu tutabilmelidir. Dağıtıcıdaki bakiyeyi gösteren ekran, insanları onu doldurmaya teşvik ediyor.",
+    "post_id": "129",
+    "date": "18 Haziran 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "2007'den beri. Bir noktada, bunu hiç güven gerektirmeden yapmanın bir yolu olduğuna ikna oldum ve bu konuda düşünmekten kendimi alamadım. Kodlamadan çok tasarım işi vardı.",
+    "post_id": "127",
+    "date": "18 Haziran 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Bitcoin'in doğası gereği, 0.1 sürümü yayınlandıktan sonra, temel tasarım ömrünün geri kalanı için değişmez bir şekilde belirlendi. Bu nedenle, aklıma gelebilecek her türlü işlem türünü destekleyecek şekilde tasarlamak istedim. Sorun şu ki, her şey kullanılsın ya da kullanılmasın özel destek kodu ve veri alanları gerektiriyordu ve aynı anda yalnızca bir özel durumu kapsıyordu. Özel durumların patlaması olurdu. Çözüm, işlem yapan tarafların işlemlerini düğüm ağının değerlendirdiği bir yüklem olarak tanımlayabilmesi için sorunu genelleştiren komut dosyasıydı. Düğümlerin işlemi yalnızca gönderenin koşullarının karşılanıp karşılanmadığını değerlendirecek kadar anlaması gerekiyor.",
+    "post_id": "126",
+    "date": "17 Haziran 2010"
+  },
+  {
+    "category": "transactions, bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Tasarım, yıllar önce tasarladığım çok çeşitli olası işlem türlerini destekliyor. Emanet işlemleri, kefaletli sözleşmeler, üçüncü taraf tahkim, çok taraflı imza vb. Bitcoin büyük bir şekilde yaygınlaşırsa, bunlar gelecekte keşfetmek isteyeceğimiz şeyler, ancak daha sonra mümkün olacağından emin olmak için hepsinin başlangıçta tasarlanması gerekiyordu.",
+    "post_id": "126",
+    "date": "17 Haziran 2010"
+  },
+  {
+    "category": "encryption",
+    "medium": "bitcointalk",
+    "text": "SHA-256 çok güçlüdür. MD5'ten SHA1'e geçiş gibi artımlı bir adım değil. Bazı büyük atılım saldırıları olmadıkça birkaç on yıl dayanabilir.",
+    "post_id": "119",
+    "date": "14 Haziran 2010"
+  },
+  {
+    "category": "encryption",
+    "medium": "bitcointalk",
+    "text": "SHA-256 tamamen bozulursa, sorun başlamadan önceki dürüst blok zinciri hakkında bir anlaşmaya varabileceğimizi, bunu kilitleyebileceğimizi ve oradan yeni bir hash işleviyle devam edebileceğimizi düşünüyorum.",
+    "post_id": "119",
+    "date": "14 Haziran 2010"
+  },
+  {
+    "category": "releases",
+    "medium": "bitcointalk",
+    "text": "Bitcoin istemcisinin kendisini çevirmek isteyen var mı? 0.3 sürümünde en az bir dil daha olması harika olurdu.",
+    "post_id": "111",
+    "date": "26 Mayıs 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Basitleştirilmiş Ödeme Doğrulaması, yalnızca işlem yapan, oluşturmayan ve düğüm ağına katılmayan hafif, yalnızca istemci kullanıcılar içindir. Blokları indirmelerine gerek kalmaz, yalnızca şu anda yaklaşık 2 MB olan ve doğrulaması çok hızlı olan (tüm zinciri doğrulamak için bir saniyeden az) hash zincirine ihtiyaç duyarlar. Ağ çok büyürse, 100.000'den fazla düğüm gibi, sıradan kullanıcıların tam teşekküllü düğümler olmadan işlem yapmasına izin vermek için bunu kullanacağız. O aşamada, çoğu kullanıcı yalnızca istemci yazılımı çalıştırmaya başlamalı ve yalnızca uzman sunucu çiftlikleri, usenet ağının nasıl birleştiği gibi tam ağ düğümleri çalıştırmaya devam etmelidir. SPV henüz uygulanmadı ve yakın gelecekte uygulanmayacak, ancak mevcut uygulamanın tümü onu destekleyecek şekilde tasarlandı.",
+    "post_id": "105",
+    "date": "18 Mayıs 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Oluşturduğunuz Bitcoin adresleri sonsuza kadar saklanır. Bir Bitcoin adresi, ona gönderilen herhangi bir şeyin sahipliğini göstermek için saklanmalıdır. Bir Bitcoin adresini silebilseydiniz ve birisi ona para gönderseydi, para kaybolurdu. Yaklaşık 500 bayt büyüklüğündedirler.",
+    "post_id": "102",
+    "date": "16 Mayıs 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Yeni bir Bitcoin adresi oluşturduğunuzda, yalnızca kendi bilgisayarınızda disk alanı kaplar (yaklaşık 500 bayt gibi). Yeni bir PGP özel anahtarı oluşturmak gibi, ancak ECC olduğu için daha az CPU yoğun. Adres alanı etkili bir şekilde sınırsızdır. Kimseye zarar vermez, bu yüzden istediğiniz kadar oluşturun.",
+    "post_id": "98",
+    "date": "16 Mayıs 2010"
+  },
+  {
+    "category": "general",
+    "medium": "bitcointalk",
+    "text": ".com kayıtlarının fiyatı olması gerekenden daha düşük, bu nedenle aklınıza gelebilecek herhangi bir iyi isim her zaman bazı alan adı spekülatörleri tarafından alınmış durumda. Neyse ki, açık kaynak projelerinin .org olması standarttır.",
+    "post_id": "94",
+    "date": "23 Mart 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Dışarıdaki iki çizgili B sembolü hakkında herkes ne düşünüyor? Bunu logomuz olarak kabul edebilir miyiz?",
+    "post_id": "83",
+    "date": "26 Şubat 2010"
+  },
+  {
+    "category": "transactions",
+    "medium": "bitcointalk",
+    "text": "Bu, satış noktasında güzel olurdu. Yazar kasa, bir ekranda bir Bitcoin adresini ve tutarını kodlayan bir QR kodu görüntüler ve siz de cep telefonunuzla fotoğrafını çekersiniz.",
+    "post_id": "73",
+    "date": "24 Şubat 2010"
+  },
+  {
+    "category": "economics",
+    "medium": "bitcointalk",
+    "text": "Değerinin artması beklenen bir şeyin rasyonel bir piyasa fiyatı, beklenen gelecekteki artışların şimdiki değerini zaten yansıtacaktır. Kafanızda, artmaya devam etme olasılığını dengeleyen bir olasılık tahmini yaparsınız.",
+    "post_id": "65",
+    "date": "21 Şubat 2010"
+  },
+  {
+    "category": "economics, bitcoin-economics",
+    "medium": "bitcointalk",
+    "text": "Herhangi bir emtianın fiyatı, üretim maliyetine doğru yönelme eğilimindedir. Fiyat maliyetin altındaysa, üretim yavaşlar. Fiyat maliyetin üzerindeyse, daha fazla üretim ve satış yaparak kar elde edilebilir. Aynı zamanda, artan üretim zorluğu artıracak ve üretim maliyetini fiyata doğru itecektir.",
+    "post_id": "65",
+    "date": "21 Şubat 2010"
+  },
+  {
+    "category": "bitcoin-economics",
+    "medium": "bitcointalk",
+    "text": "Şu anda, üretim çabası hızla artıyor, bu da insanların şimdiki değeri mevcut üretim maliyetinden daha yüksek olarak tahmin ettiğini gösteriyor.",
+    "post_id": "65",
+    "date": "21 Şubat 2010"
+  },
+  {
+    "category": "bitcoin-economics",
+    "medium": "bitcointalk",
+    "text": "Eminim ki 20 yıl içinde ya çok büyük işlem hacmi olacak ya da hiç hacim olmayacak.",
+    "post_id": "57",
+    "date": "14 Şubat 2010"
+  },
+  {
+    "category": "bitcoin-economics, fees",
+    "medium": "bitcointalk",
+    "text": "Birkaç on yıl içinde ödül çok küçüldüğünde, işlem ücreti düğümler için ana tazminat haline gelecektir.",
+    "post_id": "57",
+    "date": "14 Şubat 2010"
+  },
+  {
+    "category": "nodes, mining, fees",
+    "medium": "bitcointalk",
+    "text": "Ücret ödemekten dolayı üzgünseniz, her zaman masaları çevirebilir ve kendiniz bir düğüm çalıştırabilir ve belki bir gün kendiniz 0,44 ücret alabilirsiniz.",
+    "post_id": "56",
+    "date": "14 Şubat 2010"
+  },
+  {
+    "category": "bitcoin-economics, bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Sonunda, gerçekten büyürse, dünyadaki 6,8 milyar insan için en fazla 21 milyon coin olacak.\n\nAncak endişelenmeyin, dahili olarak toplam 8 ondalık basamak için gösterilmeyen 6 ondalık basamak daha var. 1.00 gösteriyor ancak dahili olarak 1.00000000. Gelecekte büyük bir deflasyon olursa, yazılım daha fazla ondalık basamak gösterebilir.",
+    "post_id": "46",
+    "date": "6 Şubat 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Küçük sayılarla çalışmak yorucu hale gelirse, ondalık noktanın nerede göründüğünü değiştirebiliriz. Aynı miktar para, sadece \",\" ve \".\" lerin nereye gittiğine dair farklı kural. örneğin, ondalık basamağı 3 hane kaydırmak, önceden 1.00000'ınız varsa, şimdi 1.000,00 olarak gösterir.",
+    "post_id": "46",
+    "date": "6 Şubat 2010"
+  },
+  {
+    "category": "privacy",
+    "medium": "bitcointalk",
+    "text": "Bitcoin hala çok yeni ve bağımsız olarak analiz edilmedi. Gizlilik konusunda ciddiyseniz, TOR tavsiye edilen bir önlemdir.",
+    "post_id": "45",
+    "date": "6 Şubat 2010"
+  },
+  {
+    "category": "privacy",
+    "medium": "bitcointalk",
+    "text": "Bitcoin kullandığınızı kimsenin bilmesini istemiyorsanız TOR kullanabilirsiniz.",
+    "post_id": "45",
+    "date": "6 Şubat 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Kısa bir mesaj eklemenin bir yolunu bulmak çok istedim, ancak sorun şu ki, tüm dünya mesajı görebilecekti. Mesajın tamamen özel olmadığını insanlara ne kadar hatırlatırsanız hatırlatın, bu yaşanması beklenen bir kaza olurdu.",
+    "post_id": "33",
+    "date": "28 Ocak 2010"
+  },
+  {
+    "category": "mining",
+    "medium": "bitcointalk",
+    "text": "Ağda günlük olarak oluşturulan ortalama toplam coin aynı kalır. Daha hızlı makineler, daha yavaş makinelerden daha büyük bir pay alır. Herkes daha hızlı makineler satın alsaydı, eskisinden daha fazla coin almazlardı.",
+    "post_id": "20",
+    "date": "12 Aralık 2009"
+  },
+  {
+    "category": "madencilik",
+    "medium": "bitcointalk",
+    "text": "Ağın iyiliği için GPU silahlanma yarışını olabildiğince ertelemek için bir centilmenlik anlaşmamız olmalı. Yeni kullanıcıların GPU sürücüleri ve uyumluluğu hakkında endişelenmeleri gerekmiyorsa, işleri hızlandırmak çok daha kolay. Şu anda sadece CPU'su olan herkesin oldukça eşit bir şekilde rekabet edebilmesi güzel.",
+    "post_id": "20",
+    "date": "12 Aralık 2009"
+  },
+  {
+    "category": "bitcoin-ekonomisi",
+    "medium": "bitcointalk",
+    "text": "Bu coinler asla geri kazanılamaz ve toplam dolaşım azalır. Etkin dolaşım azaldığı için, kalan tüm coinlerin değeri biraz daha fazla olur. Bu, bir hükümetin para bastığı ve mevcut paranın değerinin düştüğü durumun tam tersidir.",
+    "post_id": "17",
+    "date": "10 Aralık 2009"
+  },
+  {
+    "category": "güvenilen-üçüncü-taraflar",
+    "text": "Açık kaynak olmak, herkesin kodu bağımsız olarak inceleyebileceği anlamına gelir. Eğer kapalı kaynak olsaydı, kimse güvenliği doğrulayamazdı. Bu nitelikteki bir programın açık kaynak olması bence çok önemli.",
+    "medium": "bitcointalk",
+    "post_id": "17",
+    "date": "10 Aralık 2009"
+  },
+  {
+    "category": "gizlilik, işlemler",
+    "medium": "bitcointalk",
+    "text": "Daha fazla gizlilik için, bitcoin adreslerini yalnızca bir kez kullanmak en iyisidir.",
+    "post_id": "11",
+    "date": "25 Kasım 2009"
+  },
+  {
+    "category": "madencilik",
+    "medium": "bitcointalk",
+    "text": "Bunu bir zincir oluşturmak için işbirliğine dayalı bir çaba olarak düşünün. Bir halka eklediğinizde, önce zincirin mevcut sonunu bulmanız gerekir. Eğer son halkayı bulup bir saatliğine ayrılsaydınız ve halkanızı oluştursaydınız, geri dönüp bir saat önce son olan halkaya bağlasaydınız, başkaları o zamandan beri birkaç halka eklemiş olabilir ve ortadan ayrılan halkanızı kullanmak istemezler.",
+    "post_id": "8",
+    "date": "22 Kasım 2009"
+  },
+  {
+    "category": "bitcoin-tasarımı",
+    "medium": "p2pfoundation",
+    "text": "Çoğunluğun izlediği bir dizi kurala dayanarak, çoğunluğun onayıyla veritabanına eklemeler yapılan küresel bir dağıtılmış veritabanıdır: \n\n- Birisi bir blok oluşturmak için iş kanıtı bulduğunda, bazı yeni coinler alır\n- İş kanıtı zorluğu, saatte ortalama 6 blok hedeflenerek her iki haftada bir ayarlanır (tüm ağ için)\n- Blok başına verilen coinler her 4 yılda bir yarıya indirilir",
+    "post_id": "3",
+    "date": "18 Şubat 2009"
+  },
+  {
+    "category": "bitcoin-ekonomisi",
+    "medium": "p2pfoundation",
+    "text": "Coinlerin çoğunluk tarafından ihraç edildiğini söyleyebilirsiniz. Sınırlı, önceden belirlenmiş bir miktarda ihraç edilirler.",
+    "post_id": "3",
+    "date": "18 Şubat 2009"
+  },
+  {
+    "category": "bitcoin-ekonomisi",
+    "medium": "p2pfoundation",
+    "text": "Sepp'in sorusuna cevaben, kullanıcı popülasyonu büyüdükçe para arzını ayarlayacak bir merkez bankası veya federal rezerv olarak hareket edecek kimse yok. Bu, değeri belirlemek için güvenilir bir taraf gerektirirdi çünkü yazılımın şeylerin gerçek dünya değerini bilmesinin bir yolunu bilmiyorum.",
+    "post_id": "3",
+    "date": "18 Şubat 2009"
+  },
+  {
+    "category": "bitcoin-ekonomisi",
+    "medium": "p2pfoundation",
+    "text": "Bu anlamda, daha çok bir değerli metale benziyor. Arzı aynı değeri korumak için değişmek yerine, arz önceden belirlenir ve değer değişir. Kullanıcı sayısı arttıkça, coin başına değer artar. Olumlu bir geri bildirim döngüsü potansiyeline sahiptir; kullanıcılar arttıkça, değer yükselir, bu da artan değerden yararlanmak için daha fazla kullanıcıyı çekebilir.",
+    "post_id": "3",
+    "date": "18 Şubat 2009"
+  },
+  {
+    "category": "kripto para",
+    "medium": "p2pfoundation",
+    "text": "Birçok insan, 1990'lardan beri başarısız olan tüm şirketler nedeniyle e-parayı otomatik olarak kayıp bir dava olarak görüyor. Umarım bu sistemlerin yalnızca merkezi olarak kontrol edilen doğasının onları mahkum ettiği açıktır. Sanırım bu, merkezi olmayan, güvene dayalı olmayan bir sistemi ilk kez deniyoruz.",
+    "post_id": "2",
+    "date": "15 Şubat 2009"
+  },
+  {
+    "category": "yayınlar, bitcoin-tasarımı",
+    "medium": "p2pfoundation",
+    "text": "Bitcoin adında yeni bir açık kaynaklı P2P e-nakit sistemi geliştirdim. Tamamen merkeziyetsizdir, merkezi sunucu veya güvenilir taraflar yoktur, çünkü her şey güven yerine kripto kanıtına dayanır. Bir deneyin veya ekran görüntülerine ve tasarım belgesine bir göz atın: \n\nBitcoin v0.1'i http://www.bitcoin.org adresinden indirin",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "ekonomi",
+    "medium": "p2pfoundation",
+    "text": "Geleneksel para birimindeki temel sorun, çalışması için gereken tüm güvendir. Merkez bankasına, para birimini değersizleştirmemesi için güvenilmelidir, ancak itibari para birimlerinin tarihi, bu güvenin ihlalleriyle doludur.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "mikro ödemeler, gizlilik, bankalar",
+    "medium": "p2pfoundation",
+    "text": "Bankalara, paramızı tutmaları ve elektronik olarak transfer etmeleri için güvenilmelidir, ancak bunu rezervde neredeyse hiçbir pay olmadan kredi balonları dalgaları halinde ödünç verirler. Gizliliğimiz için onlara güvenmek zorundayız, kimlik hırsızlarının hesaplarımızı boşaltmasına izin vermemelerine güvenmek zorundayız. Büyük genel gider maliyetleri, mikro ödemeleri imkansız hale getirir.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "şifreleme",
+    "medium": "p2pfoundation",
+    "text": "Bir nesil önce, çok kullanıcılı zaman paylaşım bilgisayar sistemleri benzer bir soruna sahipti. Güçlü şifrelemeden önce, kullanıcılar dosyalarını güvence altına almak için parola korumasına güvenmek zorundaydı, bu da sistem yöneticisine bilgilerini gizli tutma konusunda güven duymalarını gerektiriyordu. Gizlilik, yöneticinin gizlilik ilkesini diğer endişelere karşı tartarak veya üstlerinin emriyle her zaman geçersiz kılınabilirdi. Ardından güçlü şifreleme kitlelere sunuldu ve artık güven gerekli değildi. Veriler, ne sebeple olursa olsun, mazeret ne kadar iyi olursa olsun, ne olursa olsun başkalarının erişmesinin fiziksel olarak imkansız olduğu bir şekilde güvence altına alınabilirdi.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "kripto para",
+    "medium": "p2pfoundation",
+    "text": "Kriptografik kanıta dayalı e-para ile, bir üçüncü taraf aracıya güvenmeye gerek kalmadan, para güvende olabilir ve işlemler zahmetsiz olabilir.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "işlemler",
+    "medium": "p2pfoundation",
+    "text": "Dijital bir coin, sahibinin açık anahtarını içerir. Sahibi, coin'i bir sonraki sahibine aktarmak için, önceki işlemin bir hash'i ve bir sonraki sahibinin açık anahtarı ile birlikte coin'i imzalar. Herkes sahiplik zincirini doğrulamak için imzaları kontrol edebilir.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "çift-harcama",
+    "medium": "p2pfoundation",
+    "text": "Herhangi bir sahibi, zaten harcanmış bir coin'i başka bir sahibine tekrar imzalayarak yeniden harcamayı deneyebilir. Yaygın çözüm, çift harcamayı kontrol etmek için merkezi bir veritabanına sahip güvenilir bir şirketin kullanılmasıdır, ancak bu sadece güven modeline geri döner. Merkezi konumunda, şirket kullanıcılara müdahale edebilir ve şirketi desteklemek için gereken ücretler, mikro ödemeleri pratik olmaktan çıkarır. \nBitcoin'in çözümü, çift harcamayı kontrol etmek için eşler arası bir ağ kullanmaktır. Özetle, ağ, bir coin'i harcamak için ilk işlemi damgalayan dağıtılmış bir zaman damgası sunucusu gibi çalışır. Bilginin yayılmasının kolay ama engellenmesinin zor olmasının doğasından yararlanır.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "bitcoin-tasarımı",
+    "medium": "p2pfoundation",
+    "text": "Sonuç, tek bir arıza noktası olmayan dağıtılmış bir sistemdir. Kullanıcılar kendi paralarının kripto anahtarlarını tutarlar ve çift harcamayı kontrol etmek için P2P ağının yardımıyla doğrudan birbirleriyle işlem yaparlar.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "kimlik",
+    "medium": "p2pfoundation",
+    "text": "Ben Dorian Nakamoto değilim.",
+    "post_id": "4",
+    "date": "7 Mart 2014"
+  },
+  {
+    "category": "bitcoin-tasarımı",
+    "medium": "email",
+    "email_id": "1",
+    "text": "Tamamen eşler arası, güvenilir bir üçüncü tarafı olmayan yeni bir elektronik nakit sistemi üzerinde çalışıyorum.",
+    "date": "1 Kasım 2008"
+  },
+  {
+    "category": "bitcoin-tasarımı",
+    "medium": "email",
+    "email_id": "1",
+    "text": "Ana özellikler: \n Çift harcama, eşler arası bir ağ ile önlenir.\n Darphane veya diğer güvenilir taraflar yok.\n Katılımcılar anonim olabilir.\n Yeni coinler, Hashcash tarzı iş kanıtından yapılır.\n Yeni coin oluşturmak için kullanılan iş kanıtı, çift harcamayı önlemek için ağı da iş kanıtlar.",
+    "date": "1 Kasım 2008"
+  },
+  {
+    "category": "çift-harcama",
+    "medium": "email",
+    "email_id": "2",
+    "text": "Ağın bu kadar büyük bir boyuta yaklaşmasından çok önce, kullanıcıların çift harcamayı kontrol etmek için Basitleştirilmiş Ödeme Doğrulaması'nı (bölüm 8) kullanmaları güvenli olacaktır; bu, yalnızca blok başlıkları zincirine veya günde yaklaşık 12 KB'a sahip olmayı gerektirir.",
+    "date": "2 Kasım 2008"
+  },
+  {
+    "category": "düğümler",
+    "medium": "email",
+    "email_id": "2",
+    "text": "Sadece yeni coinler oluşturmaya çalışan kişilerin ağ düğümleri çalıştırması gerekir.",
+    "date": "2 Kasım 2008"
+  },
+  {
+    "category": "düğümler",
+    "medium": "email",
+    "email_id": "2",
+    "text": "Başlangıçta, çoğu kullanıcı ağ düğümleri çalıştıracaktır, ancak ağ belirli bir noktanın ötesine büyüdükçe, bu iş giderek uzmanlaşmış donanım sunucu çiftliklerine bırakılacaktır. Bir sunucu çiftliğinin ağda yalnızca bir düğümü olması gerekir ve LAN'daki diğerleri bu bir düğüme bağlanır.",
+    "date": "2 Kasım 2008"
+  },
+  {
+    "category": "madencilik",
+    "medium": "email",
+    "email_id": "3",
+    "text": "Gereksinim, iyi adamların topluca herhangi bir tek saldırgandan daha fazla CPU iş kanıtına sahip olmasıdır.",
+    "date": "3 Kasım 2008"
+  },
+  {
+    "category": "madencilik",
+    "medium": "email",
+    "email_id": "3",
+    "text": "Ağı iş kanıtlayacak kadar büyük olmayan birçok küçük zombi çiftliği olacaktır ve yine de bitcoin üreterek para kazanabilirler. Küçük çiftlikler daha sonra \"dürüst düğümler\"dir. (\"Dürüst\"ten daha iyi bir terime ihtiyacım var) Daha fazla küçük çiftlik bitcoin üretmeye başvurdukça, ağı iş kanıtlamak için gereken çıta yükselir, bu da daha büyük çiftlikleri de onu iş kanıtlamak için çok küçük hale getirir, böylece onlar da bitcoin üretebilirler. \"Uzun kuyruk\" teorisine göre, küçük, orta ve sadece büyük çiftlikler bir araya geldiğinde en büyük zombi çiftliğinden çok daha fazla etki yaratmalıdır.",
+    "date": "3 Kasım 2008"
+  },
+  {
+    "category": "madencilik",
+    "medium": "email",
+    "email_id": "3",
+    "text": "Kötü bir adam ağı iş kanıtlasa bile, anında zengin olacak gibi değil. Başarabileceği tek şey, kendi harcadığı parayı geri almak, tıpkı bir çeki karşılıksız çıkarmak gibi. Bunu kullanmak için, bir satıcıdan bir şey satın alması, gönderilene kadar beklemesi, ardından ağı iş kanıtlayıp parasını geri almaya çalışması gerekir. Bence böyle bir kart hırsızlığı planı yapmaya çalışarak, bitcoin üreterek kazanabileceğinden daha fazla para kazanamaz. Bu kadar büyük bir zombi çiftliğiyle, diğer herkesin toplamından daha fazla bitcoin üretebilir.",
+    "date": "3 Kasım 2008"
+  },
+  {
+    "category": "madencilik",
+    "medium": "email",
+    "email_id": "3",
+    "text": "Bitcoin ağı aslında zombi çiftliklerini bunun yerine bitcoin üretmeye yönlendirerek spam'i azaltabilir.",
+    "date": "3 Kasım 2008"
+  },
+  {
+    "category": "güdüler",
+    "medium": "email",
+    "email_id": "4",
+    "text": "Evet, ancak silahlanma yarışında büyük bir savaş kazanabilir ve birkaç yıl boyunca yeni bir özgürlük bölgesi kazanabiliriz.",
+    "date": "7 Kasım 2008"
+  },
+  {
+    "category": "p2p-ağları, hükümet",
+    "medium": "email",
+    "email_id": "4",
+    "text": "Hükümetler, Napster gibi merkezi olarak kontrol edilen ağların kafalarını kesmekte iyidir, ancak Gnutella ve Tor gibi saf P2P ağları kendi başlarının çaresine bakıyor gibi görünüyor.",
+    "date": "7 Kasım 2008"
+  },
+  {
+    "category": "madencilik",
+    "medium": "bitcointalk",
+    "text": "Ağda günlük olarak oluşturulan ortalama toplam coin aynı kalır. Daha hızlı makineler, daha yavaş makinelerden daha büyük bir pay alır. Herkes daha hızlı makineler satın alsaydı, eskisinden daha fazla coin almazlardı.",
+    "post_id": "20",
+    "date": "12 Aralık 2009"
+  },
+  {
+    "category": "madencilik",
+    "medium": "bitcointalk",
+    "text": "Ağın iyiliği için GPU silahlanma yarışını olabildiğince ertelemek için bir centilmenlik anlaşmamız olmalı. Yeni kullanıcıların GPU sürücüleri ve uyumluluğu hakkında endişelenmeleri gerekmiyorsa, işleri hızlandırmak çok daha kolay. Şu anda sadece CPU'su olan herkesin oldukça eşit bir şekilde rekabet edebilmesi güzel.",
+    "post_id": "20",
+    "date": "12 Aralık 2009"
+  },
+  {
+    "category": "bitcoin-ekonomisi",
+    "medium": "bitcointalk",
+    "text": "Bu coinler asla geri kazanılamaz ve toplam dolaşım azalır. Etkin dolaşım azaldığı için, kalan tüm coinlerin değeri biraz daha fazla olur. Bu, bir hükümetin para bastığı ve mevcut paranın değerinin düştüğü durumun tam tersidir.",
+    "post_id": "17",
+    "date": "10 Aralık 2009"
+  },
+  {
+    "category": "güvenilen-üçüncü-taraflar",
+    "text": "Açık kaynak olmak, herkesin kodu bağımsız olarak inceleyebileceği anlamına gelir. Eğer kapalı kaynak olsaydı, kimse güvenliği doğrulayamazdı. Bu nitelikteki bir programın açık kaynak olması bence çok önemli.",
+    "medium": "bitcointalk",
+    "post_id": "17",
+    "date": "10 Aralık 2009"
+  },
+  {
+    "category": "gizlilik, işlemler",
+    "medium": "bitcointalk",
+    "text": "Daha fazla gizlilik için, bitcoin adreslerini yalnızca bir kez kullanmak en iyisidir.",
+    "post_id": "11",
+    "date": "25 Kasım 2009"
+  },
+  {
+    "category": "madencilik",
+    "medium": "bitcointalk",
+    "text": "Bunu bir zincir oluşturmak için işbirliğine dayalı bir çaba olarak düşünün. Bir halka eklediğinizde, önce zincirin mevcut sonunu bulmanız gerekir. Eğer son halkayı bulup bir saatliğine ayrılsaydınız ve halkanızı oluştursaydınız, geri dönüp bir saat önce son olan halkaya bağlasaydınız, başkaları o zamandan beri birkaç halka eklemiş olabilir ve ortadan ayrılan halkanızı kullanmak istemezler.",
+    "post_id": "8",
+    "date": "22 Kasım 2009"
+  },
+  {
+    "category": "bitcoin-tasarımı",
+    "medium": "p2pfoundation",
+    "text": "Çoğunluğun izlediği bir dizi kurala dayanarak, çoğunluğun onayıyla veritabanına eklemeler yapılan küresel bir dağıtılmış veritabanıdır: \n\n- Birisi bir blok oluşturmak için iş kanıtı bulduğunda, bazı yeni coinler alır\n- İş kanıtı zorluğu, saatte ortalama 6 blok hedeflenerek her iki haftada bir ayarlanır (tüm ağ için)\n- Blok başına verilen coinler her 4 yılda bir yarıya indirilir",
+    "post_id": "3",
+    "date": "18 Şubat 2009"
+  },
+  {
+    "category": "bitcoin-ekonomisi",
+    "medium": "p2pfoundation",
+    "text": "Coinlerin çoğunluk tarafından ihraç edildiğini söyleyebilirsiniz. Sınırlı, önceden belirlenmiş bir miktarda ihraç edilirler.",
+    "post_id": "3",
+    "date": "18 Şubat 2009"
+  },
+  {
+    "category": "bitcoin-ekonomisi",
+    "medium": "p2pfoundation",
+    "text": "Sepp'in sorusuna cevaben, kullanıcı popülasyonu büyüdükçe para arzını ayarlayacak bir merkez bankası veya federal rezerv olarak hareket edecek kimse yok. Bu, değeri belirlemek için güvenilir bir taraf gerektirirdi çünkü yazılımın şeylerin gerçek dünya değerini bilmesinin bir yolunu bilmiyorum.",
+    "post_id": "3",
+    "date": "18 Şubat 2009"
+  },
+  {
+    "category": "bitcoin-ekonomisi",
+    "medium": "p2pfoundation",
+    "text": "Bu anlamda, daha çok bir değerli metale benziyor. Arzı aynı değeri korumak için değişmek yerine, arz önceden belirlenir ve değer değişir. Kullanıcı sayısı arttıkça, coin başına değer artar. Olumlu bir geri bildirim döngüsü potansiyeline sahiptir; kullanıcılar arttıkça, değer yükselir, bu da artan değerden yararlanmak için daha fazla kullanıcıyı çekebilir.",
+    "post_id": "3",
+    "date": "18 Şubat 2009"
+  },
+  {
+    "category": "kripto para",
+    "medium": "p2pfoundation",
+    "text": "Birçok insan, 1990'lardan beri başarısız olan tüm şirketler nedeniyle e-parayı otomatik olarak kayıp bir dava olarak görüyor. Umarım bu sistemlerin yalnızca merkezi olarak kontrol edilen doğasının onları mahkum ettiği açıktır. Sanırım bu, merkezi olmayan, güvene dayalı olmayan bir sistemi ilk kez deniyoruz.",
+    "post_id": "2",
+    "date": "15 Şubat 2009"
+  },
+  {
+    "category": "yayınlar, bitcoin-tasarımı",
+    "medium": "p2pfoundation",
+    "text": "Bitcoin adında yeni bir açık kaynaklı P2P e-nakit sistemi geliştirdim. Tamamen merkeziyetsizdir, merkezi sunucu veya güvenilir taraflar yoktur, çünkü her şey güven yerine kripto kanıtına dayanır. Bir deneyin veya ekran görüntülerine ve tasarım belgesine bir göz atın: \n\nBitcoin v0.1'i http://www.bitcoin.org adresinden indirin",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "ekonomi",
+    "medium": "p2pfoundation",
+    "text": "Geleneksel para birimindeki temel sorun, çalışması için gereken tüm güvendir. Merkez bankasına, para birimini değersizleştirmemesi için güvenilmelidir, ancak itibari para birimlerinin tarihi, bu güvenin ihlalleriyle doludur.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "mikro ödemeler, gizlilik, bankalar",
+    "medium": "p2pfoundation",
+    "text": "Bankalara, paramızı tutmaları ve elektronik olarak transfer etmeleri için güvenilmelidir, ancak bunu rezervde neredeyse hiçbir pay olmadan kredi balonları dalgaları halinde ödünç verirler. Gizliliğimiz için onlara güvenmek zorundayız, kimlik hırsızlarının hesaplarımızı boşaltmasına izin vermemelerine güvenmek zorundayız. Büyük genel gider maliyetleri, mikro ödemeleri imkansız hale getirir.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "şifreleme",
+    "medium": "p2pfoundation",
+    "text": "Bir nesil önce, çok kullanıcılı zaman paylaşım bilgisayar sistemleri benzer bir soruna sahipti. Güçlü şifrelemeden önce, kullanıcılar dosyalarını güvence altına almak için parola korumasına güvenmek zorundaydı, bu da sistem yöneticisine bilgilerini gizli tutma konusunda güven duymalarını gerektiriyordu. Gizlilik, yöneticinin gizlilik ilkesini diğer endişelere karşı tartarak veya üstlerinin emriyle her zaman geçersiz kılınabilirdi. Ardından güçlü şifreleme kitlelere sunuldu ve artık güven gerekli değildi. Veriler, ne sebeple olursa olsun, mazeret ne kadar iyi olursa olsun, ne olursa olsun başkalarının erişmesinin fiziksel olarak imkansız olduğu bir şekilde güvence altına alınabilirdi.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "kripto para",
+    "medium": "p2pfoundation",
+    "text": "Kriptografik kanıta dayalı e-para ile, bir üçüncü taraf aracıya güvenmeye gerek kalmadan, para güvende olabilir ve işlemler zahmetsiz olabilir.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "işlemler",
+    "medium": "p2pfoundation",
+    "text": "Dijital bir coin, sahibinin açık anahtarını içerir. Sahibi, coin'i bir sonraki sahibine aktarmak için, önceki işlemin bir hash'i ve bir sonraki sahibinin açık anahtarı ile birlikte coin'i imzalar. Herkes sahiplik zincirini doğrulamak için imzaları kontrol edebilir.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "çift-harcama",
+    "medium": "p2pfoundation",
+    "text": "Herhangi bir sahibi, zaten harcanmış bir coin'i başka bir sahibine tekrar imzalayarak yeniden harcamayı deneyebilir. Yaygın çözüm, çift harcamayı kontrol etmek için merkezi bir veritabanına sahip güvenilir bir şirketin kullanılmasıdır, ancak bu sadece güven modeline geri döner. Merkezi konumunda, şirket kullanıcılara müdahale edebilir ve şirketi desteklemek için gereken ücretler, mikro ödemeleri pratik olmaktan çıkarır. \nBitcoin'in çözümü, çift harcamayı kontrol etmek için eşler arası bir ağ kullanmaktır. Özetle, ağ, bir coin'i harcamak için ilk işlemi damgalayan dağıtılmış bir zaman damgası sunucusu gibi çalışır. Bilginin yayılmasının kolay ama engellenmesinin zor olmasının doğasından yararlanır.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "bitcoin-tasarımı",
+    "medium": "p2pfoundation",
+    "text": "Sonuç, tek bir arıza noktası olmayan dağıtılmış bir sistemdir. Kullanıcılar kendi paralarının kripto anahtarlarını tutarlar ve çift harcamayı kontrol etmek için P2P ağının yardımıyla doğrudan birbirleriyle işlem yaparlar.",
+    "post_id": "1",
+    "date": "11 Şubat 2009"
+  },
+  {
+    "category": "kimlik",
+    "medium": "p2pfoundation",
+    "text": "Ben Dorian Nakamoto değilim.",
+    "post_id": "4",
+    "date": "7 Mart 2014"
+  },
+  {
+    "category": "bitcoin-tasarımı",
+    "medium": "email",
+    "email_id": "1",
+    "text": "Tamamen eşler arası, güvenilir bir üçüncü tarafı olmayan yeni bir elektronik nakit sistemi üzerinde çalışıyorum.",
+    "date": "1 Kasım 2008"
+  },
+  {
+    "category": "bitcoin-tasarımı",
+    "medium": "email",
+    "email_id": "1",
+    "text": "Ana özellikler: \n Çift harcama, eşler arası bir ağ ile önlenir.\n Darphane veya diğer güvenilir taraflar yok.\n Katılımcılar anonim olabilir.\n Yeni coinler, Hashcash tarzı iş kanıtından yapılır.\n Yeni coin oluşturmak için kullanılan iş kanıtı, çift harcamayı önlemek için ağı da iş kanıtlar.",
+    "date": "1 Kasım 2008"
+  },
+  {
+    "category": "çift-harcama",
+    "medium": "email",
+    "email_id": "2",
+    "text": "Ağın bu kadar büyük bir boyuta yaklaşmasından çok önce, kullanıcıların çift harcamayı kontrol etmek için Basitleştirilmiş Ödeme Doğrulaması'nı (bölüm 8) kullanmaları güvenli olacaktır; bu, yalnızca blok başlıkları zincirine veya günde yaklaşık 12 KB'a sahip olmayı gerektirir.",
+    "date": "2 Kasım 2008"
+  },
+  {
+    "category": "düğümler",
+    "medium": "email",
+    "email_id": "2",
+    "text": "Sadece yeni coinler oluşturmaya çalışan kişilerin ağ düğümleri çalıştırması gerekir.",
+    "date": "2 Kasım 2008"
+  },
+  {
+    "category": "düğümler",
+    "medium": "email",
+    "email_id": "2",
+    "text": "Başlangıçta, çoğu kullanıcı ağ düğümleri çalıştıracaktır, ancak ağ belirli bir noktanın ötesine büyüdükçe, bu iş giderek uzmanlaşmış donanım sunucu çiftliklerine bırakılacaktır. Bir sunucu çiftliğinin ağda yalnızca bir düğümü olması gerekir ve LAN'daki diğerleri bu bir düğüme bağlanır.",
+    "date": "2 Kasım 2008"
+  },
+  {
+    "category": "madencilik",
+    "medium": "email",
+    "email_id": "3",
+    "text": "Gereksinim, iyi adamların topluca herhangi bir tek saldırgandan daha fazla CPU iş kanıtına sahip olmasıdır.",
+    "date": "3 Kasım 2008"
+  },
+  {
+    "category": "madencilik",
+    "medium": "email",
+    "email_id": "3",
+    "text": "Ağı iş kanıtlayacak kadar büyük olmayan birçok küçük zombi çiftliği olacaktır ve yine de bitcoin üreterek para kazanabilirler. Küçük çiftlikler daha sonra \"dürüst düğümler\"dir. (\"Dürüst\"ten daha iyi bir terime ihtiyacım var) Daha fazla küçük çiftlik bitcoin üretmeye başvurdukça, ağı iş kanıtlamak için gereken çıta yükselir, bu da daha büyük çiftlikleri de onu iş kanıtlamak için çok küçük hale getirir, böylece onlar da bitcoin üretebilirler. \"Uzun kuyruk\" teorisine göre, küçük, orta ve sadece büyük çiftlikler bir araya geldiğinde en büyük zombi çiftliğinden çok daha fazla etki yaratmalıdır.",
+    "date": "3 Kasım 2008"
+  },
+  {
+    "category": "madencilik",
+    "medium": "email",
+    "email_id": "3",
+    "text": "Kötü bir adam ağı iş kanıtlasa bile, anında zengin olacak gibi değil. Başarabileceği tek şey, kendi harcadığı parayı geri almak, tıpkı bir çeki karşılıksız çıkarmak gibi. Bunu kullanmak için, bir satıcıdan bir şey satın alması, gönderilene kadar beklemesi, ardından ağı iş kanıtlayıp parasını geri almaya çalışması gerekir. Bence böyle bir kart hırsızlığı planı yapmaya çalışarak, bitcoin üreterek kazanabileceğinden daha fazla para kazanamaz. Bu kadar büyük bir zombi çiftliğiyle, diğer herkesin toplamından daha fazla bitcoin üretebilir.",
+    "date": "3 Kasım 2008"
+  },
+  {
+    "category": "madencilik",
+    "medium": "email",
+    "email_id": "3",
+    "text": "Bitcoin ağı aslında zombi çiftliklerini bunun yerine bitcoin üretmeye yönlendirerek spam'i azaltabilir.",
+    "date": "3 Kasım 2008"
+  },
+  {
+    "category": "güdüler",
+    "medium": "email",
+    "email_id": "4",
+    "text": "Evet, ancak silahlanma yarışında büyük bir savaş kazanabilir ve birkaç yıl boyunca yeni bir özgürlük bölgesi kazanabiliriz.",
+    "date": "7 Kasım 2008"
+  },
+  {
+    "category": "p2p-ağları, hükümet",
+    "medium": "email",
+    "email_id": "4",
+    "text": "Hükümetler, Napster gibi merkezi olarak kontrol edilen ağların kafalarını kesmekte iyidir, ancak Gnutella ve Tor gibi saf P2P ağları kendi başlarının çaresine bakıyor gibi görünüyor.",
+    "date": "7 Kasım 2008"
+  },
+  {
+    "category": "p2p-ağları, hükümet",
+    "medium": "email",
+    "email_id": "4",
+    "text": "Hükümetler, Napster gibi merkezi olarak kontrol edilen ağların kafalarını koparmakta iyidir, ancak Gnutella ve Tor gibi saf P2P ağları kendi başlarının çaresine bakıyor gibi görünüyor.",
+    "date": "7 Kasım 2008"
+  },
+  {
+    "category": "madencilik, zorluk",
+    "medium": "email",
+    "email_id": "5",
+    "text": "Bilgisayarların hızları arttıkça ve bitcoin oluşturmak için uygulanan toplam bilgi işlem kanıtı arttıkça, toplam yeni üretim sabit kalacak şekilde zorluk orantılı olarak artar. Bu nedenle, gelecekte her yıl kaç yeni bitcoin oluşturulacağı önceden bilinmektedir.",
+    "date": "8 Kasım 2008"
+  },
+  {
+    "category": "bitcoin-ekonomisi",
+    "medium": "email",
+    "email_id": "5",
+    "text": "Yeni coinlerin üretilmesi, para arzının planlı bir miktarda arttığı anlamına gelir, ancak bu mutlaka enflasyona neden olmaz. Para arzı, onu kullanan insan sayısıyla aynı oranda artarsa, fiyatlar sabit kalır. Talep kadar hızlı artmazsa, deflasyon olur ve paranın ilk sahipleri değerinin arttığını görür. Coinler başlangıçta bir şekilde dağıtılmalıdır ve sabit bir oran en iyi formül gibi görünüyor.",
+    "date": "8 Kasım 2008"
+  },
+  {
+    "category": "düğümler",
+    "medium": "email",
+    "email_id": "6",
+    "text": "Doğru, düğümler, bir bloğa girene kadar işlemleri çalışma kümelerinde tutar. Bir işlem düğümlerin %90'ına ulaşırsa, yeni bir blok bulunduğunda, içinde olma olasılığı %90'dır.",
+    "date": "9 Kasım 2008"
+  },
+  {
+    "category": "işlemler",
+    "medium": "email",
+    "email_id": "6",
+    "text": "İşlemleri alanlar, bu tür bir olasılığın çözülmesi için genellikle bir saat veya daha fazla işlem tutmaları gerekecektir. Yine de coinleri hemen yeniden harcayabilirler, ancak mal göndermek gibi bir işlem yapmadan önce beklemelidirler.",
+    "date": "9 Kasım 2008"
+  },
+  {
+    "category": "çift-harcama",
+    "medium": "email",
+    "email_id": "6",
+    "text": "Saldırgan bloğu sona eklemiyor. İşleminin içinde olduğu bloğu ve ondan sonraki tüm blokları yeniden yapması gerekiyor, ayrıca ağın bunu yaparken sona eklemeye devam ettiği yeni blokları da. Tarihi yeniden yazıyor. Dalı daha uzun olduğunda, yeni geçerli olan o olur.",
+    "date": "9 Kasım 2008"
+  },
+  {
+    "category": "düğümler, madencilik, iş-kanıtı",
+    "medium": "email",
+    "email_id": "6",
+    "text": "En uzun zincirin her zaman geçerli kabul edilmesi kesinlikle gereklidir. Orada bulunan düğümler, bir dalın önce olduğunu ve diğeriyle değiştirildiğini hatırlayabilir, ancak orada bulunmayanları buna ikna etmelerinin bir yolu olmazdı. Önce olduğunu düşündükleri bir dala sıkı sıkıya bağlı düğümlerin alt gruplarına, başka bir dalı ilk görenlere ve daha sonra katılanlara ve ne olduğunu asla görmeyenlere sahip olamayız. CPU iş kanıtı oyu son sözü söylemelidir. Herkesin aynı sayfada kalmasının tek yolu, en uzun zincirin ne olursa olsun her zaman geçerli olduğuna inanmaktır.",
+    "date": "9 Kasım 2008"
+  },
+  {
+    "category": "işlemler",
+    "medium": "email",
+    "email_id": "6",
+    "text": "Alıcının, blok zincirinde yeterince geriye giden bir derinliğe kadar doğrulaması yeterlidir, bu da genellikle yalnızca 2 işlem derinliği gerektirecektir. Bundan önceki tüm işlemler atılabilir.",
+    "date": "9 Kasım 2008"
+  },
+  {
+    "category": "düğümler",
+    "medium": "email",
+    "email_id": "6",
+    "text": "Bir düğüm bir blok aldığında, içindeki her işlemin imzalarını önceki bloklardaki işlemlere göre kontrol eder. Bloklar yalnızca önceki bloklardaki veya aynı bloktaki geçerli işlemlere bağlı işlemleri içerebilir. İşlem C, aynı bloktaki işlem B'ye ve B de daha önceki bir bloktaki işlem A'ya bağlı olabilir.",
+    "date": "9 Kasım 2008"
+  },
+  {
+    "category": "işlemler",
+    "medium": "email",
+    "email_id": "7",
+    "text": "İşlemlerin bir bloğa girmek için bir veya birkaç ekstra döngü beklemesi sorun değil.",
+    "date": "9 Kasım 2008"
+  },
+  {
+    "category": "iş-kanıtı",
+    "medium": "email",
+    "email_id": "8",
+    "text": "İş kanıtı zinciri, senkronizasyon sorununa ve kimseye güvenmek zorunda kalmadan küresel olarak paylaşılan görüşün ne olduğunu bilmeye yönelik çözümdür.",
+    "date": "9 Kasım 2008"
+  },
+  {
+    "category": "düğümler",
+    "medium": "email",
+    "email_id": "8",
+    "text": "Bir işlem ağda hızla yayılacaktır, bu nedenle aynı işlemin iki sürümü aynı zamana yakın bir zamanda rapor edilirse, önde olanın önce çok daha fazla düğüme ulaşmada büyük bir avantajı olacaktır. Düğümler yalnızca ilk gördüklerini kabul edecek ve ikinci geleni reddedecektir, bu nedenle önceki işlemin birçoğunun bir sonraki iş kanıtına dahil etmek için çalışması daha olasıdır. Aslında, her düğüm, önce gördüğü işlemin kendi bakış açısına oy verirken, onu iş kanıtı çabasına dahil eder. İşlemler tam olarak aynı anda geldiyse ve eşit bir bölünme olsaydı, bu, bir iş kanıtına ilk giren hangisi olduğuna bağlı olarak bir yazı tura olacaktır ve bu, hangisinin geçerli olduğuna karar verir.",
+    "date": "9 Kasım 2008"
+  },
+  {
+    "category": "düğümler, iş-kanıtı",
+    "medium": "email",
+    "email_id": "8",
+    "text": "Bir düğüm bir iş kanıtı bulduğunda, yeni blok ağa yayılır ve herkes onu zincire ekler ve ondan sonraki bir sonraki blok üzerinde çalışmaya başlar. Diğer işleme sahip olan düğümler, kabul edilen zincire göre artık geçersiz olduğu için onu bir bloğa dahil etmeye çalışmayı bırakır.",
+    "date": "9 Kasım 2008"
+  },
+  {
+    "category": "iş-kanıtı",
+    "medium": "email",
+    "email_id": "8",
+    "text": "İş kanıtı zinciri, küresel olarak paylaşılan görüşten geldiğinin kendi kendine kanıtıdır. Ağın çoğunluğu, bu kadar zor bir iş kanıtı zinciri oluşturmak için birlikte yeterli CPU iş kanıtına sahiptir. Herhangi bir kullanıcı, iş kanıtı zincirini aldıktan sonra, ağın çoğunluğunun neyi onayladığını görebilir. Bir işlem zincirde birkaç bağlantı geriye işlendikten sonra, küresel tarihe sıkıca kazınmıştır.",
+    "date": "9 Kasım 2008"
+  },
+  {
+    "category": "ücretler, bitcoin-ekonomisi",
+    "medium": "email",
+    "email_id": "9",
+    "text": "Enflasyon sorunuyla ilgili sorun yaşıyorsanız, bunun yerine işlem ücretleri için ayarlamak kolaydır. Bu kadar basit: herhangi bir işlemden elde edilen çıktı değeri, girdi değerinden 1 sent daha az olsun. İstemci yazılımı, işlemleri amaçlanan ödeme değerinden 1 sent daha fazla otomatik olarak yazar veya ödenen tarafın tarafından çıkabilir. Bir düğüm bir blok için bir iş kanıtı bulduğunda teşvik değeri, bloktaki ücretlerin toplamı olabilir.",
+    "date": "10 Kasım 2008"
+  },
+  {
+    "category": "çift-harcama",
+    "medium": "email",
+    "email_id": "10",
+    "text": "Aynı işlemin birden çok kez çift harcanan sürümü olduğunda, bunlardan yalnızca biri geçerli olacaktır.",
+    "date": "11 Kasım 2008"
+  },
+  {
+    "category": "çift-harcama",
+    "medium": "email",
+    "email_id": "10",
+    "text": "Bir ödemeyi alan kişi, geçerli olduğuna inanmadan önce bir saat kadar beklemelidir. Ağ, o zamana kadar olası çift harcama yarışlarını çözecektir.",
+    "date": "11 Kasım 2008"
+  },
+  {
+    "category": "çift-harcama",
+    "medium": "email",
+    "email_id": "10",
+    "text": "Geçersiz hale gelen çift harcamayı alan adam, zaten hiçbir zaman sahip olduğunu düşünmemişti. Yazılımı, işlemin \"onaylanmamış\"tan \"geçersiz\"e geçtiğini gösterecektir. Gerekirse, kullanıcı arayüzü işlemler blok zincirinde yeterince derin olana kadar gizlenebilir.",
+    "date": "11 Kasım 2008"
+  },
+  {
+    "category": "zorluk",
+    "medium": "email",
+    "email_id": "10",
+    "text": "Bloklar arasındaki hedef süre muhtemelen 10 dakika olacaktır. Her blok oluşturulma zamanını içerir. Zaman 36 saatten fazla saparsa, diğer düğümler üzerinde çalışmaz. Son 6 * 24 * 30 blok üzerindeki zaman aralığı 15 günden azsa, bloklar çok hızlı oluşturuluyor demektir ve iş kanıtı zorluğu iki katına çıkar. Herkes aynı zincir verileriyle aynı hesaplamayı yapar, böylece zincirdeki aynı bağlantıda aynı sonucu alırlar.",
+    "date": "11 Kasım 2008"
+  },
+  {
+    "category": "işlemler",
+    "medium": "email",
+    "email_id": "10",
+    "text": "Anında inkar edilemezlik bir özellik değildir, ancak yine de mevcut sistemlerden çok daha hızlıdır. Kağıt çekler bir veya iki hafta sonra geri dönebilir. Kredi kartı işlemlerine 60 ila 180 gün sonra itiraz edilebilir. Bitcoin işlemleri bir veya iki saat içinde yeterince geri döndürülemez olabilir.",
+    "date": "11 Kasım 2008"
+  },
+  {
+    "category": "düğümler",
+    "medium": "email",
+    "email_id": "10",
+    "text": "Yakın zamanda yayınladığım işlem ücreti tabanlı teşvik sistemiyle, düğümler aldıkları tüm ödeme işlemlerini dahil etmek için bir teşvike sahip olacaktır.",
+    "date": "11 Kasım 2008"
+  },
+  {
+    "category": "iş-kanıtı",
+    "medium": "email",
+    "email_id": "11",
+    "text": "İş kanıtı zinciri, Bizans Generalleri Sorunu'na bir çözümdür. Bunu bu bağlamda yeniden ifade etmeye çalışacağım.\nBir dizi Bizans Generalinin her birinin bir bilgisayarı var ve Kral'ın kablosuz ağını kaba kuvvetle kırarak şifresini kırmak istiyorlar, bu şifrenin belirli sayıda karakter uzunluğunda olduğunu öğrendiler. Ağı bir paket oluşturmak için uyardıktan sonra, günlükleri kırmak ve silmek için sınırlı bir süre içinde şifreyi çözmeleri gerekir, aksi takdirde keşfedilirler ve başları belaya girer. Şifreyi yeterince hızlı kırmak için yalnızca çoğunluğu aynı anda saldırırsa yeterli CPU iş kanıtına sahipler.\nSaldırının ne zaman olacağını özellikle umursamıyorlar, sadece hepsinin aynı fikirde olması. İsteyen herkesin bir zaman ilan etmesine ve ilk duyulan zamanın resmi saldırı zamanı olmasına karar verildi. Sorun şu ki, ağ anlık değil ve iki general aynı zamana yakın farklı saldırı zamanları ilan ederse, bazıları birini önce ve diğerleri diğerini önce duyabilir. Sorunu çözmek için bir iş kanıtı zinciri kullanıyorlar. Her general ilk duyduğu saldırı zamanını aldıktan sonra, bilgisayarını saldırı zamanını karma içine alan son derece zor bir iş kanıtı sorununu çözmeye ayarlar. İş kanıtı o kadar zor ki, içlerinden birinin bir çözüm bulması için hepsinin aynı anda 10 dakika çalışması bekleniyor. Generallerden biri bir iş kanıtı bulduğunda, onu ağa yayınlar ve herkes mevcut iş kanıtı hesaplamasını, üzerinde çalıştıkları karma içine bu iş kanıtını dahil edecek şekilde değiştirir. Başka bir saldırı zamanı üzerinde çalışan varsa, bu iş kanıtı zinciri artık daha uzun olduğu için buna geçerler.\nİki saat sonra, bir saldırı zamanı 12 iş kanıtı zinciri tarafından karma haline getirilmelidir. Her general, yalnızca iş kanıtı zincirinin zorluğunu doğrulayarak, saatte ne kadar paralel CPU iş kanıtının harcandığını tahmin edebilir ve bu kadar iş kanıtı üretmek için bilgisayarların çoğunluğunun gerekmiş olması gerektiğini görebilir. Hepsi onu görmüş olmalıydı çünkü iş kanıtı, üzerinde çalıştıklarının kanıtıdır. İş kanıtı zinciri tarafından sergilenen CPU iş kanıtı, şifreyi kırmak için yeterliyse, kararlaştırılan zamanda güvenli bir şekilde saldırabilirler.\nİş kanıtı zinciri, sorduğunuz tüm senkronizasyon, dağıtılmış veritabanı ve küresel görüş sorunlarının nasıl çözüldüğüdür.",
+    "date": "13 Kasım 2008"
+  },
+  {
+    "category": "düğümler, madencilik",
+    "medium": "email",
+    "email_id": "12",
+    "text": "Yayınlar muhtemelen neredeyse tamamen güvenilir olacaktır. TCP iletimleri bugünlerde nadiren düşürülür ve yayın protokolünde verileri bir süre sonra diğer düğümlerden almak için bir yeniden deneme mekanizması bulunur. Yayınlar uygulamada beklenenden daha yavaş çıkarsa, kaynakların boşa harcanmasını önlemek için bloklar arasındaki hedef süre artırılmak zorunda kalabilir. Blokların genellikle onları oluşturmak için gereken süreden çok daha kısa sürede yayılmasını istiyoruz, aksi takdirde düğümler eski bloklar üzerinde çok fazla zaman harcayacaktır.",
+    "date": "14 Kasım 2008"
+  },
+  {
+    "category": "güdüler",
+    "medium": "email",
+    "email_id": "12",
+    "text": "Doğru açıklayabilirsek, özgürlükçü bakış açısına çok çekici geliyor. Ama ben kod konusunda kelimelerden daha iyiyim.",
+    "date": "13 Kasım 2008"
+  },
+  {
+    "category": "yayınlar",
+    "medium": "email",
+    "email_id": "13",
+    "text": "Tüm bu uygulama sorularını netleştirmeye yardımcı olacak bir referans olarak hizmet etmek için kaynak kodunu olabildiğince çabuk yayınlamaya çalışacağım.",
+    "date": "17 Kasım 2008"
+  },
+  {
+    "category": "işlemler",
+    "medium": "email",
+    "email_id": "13",
+    "text": "Temel bir işlem, bölüm 2'deki şekilde gördüğünüz gibidir. Önceki işlemin genel anahtarını karşılayan bir imza (alıcının) ve bir sonraki sefer harcamak için karşılanması gereken yeni bir genel anahtar (satıcının).",
+    "date": "17 Kasım 2008"
+  },
+  {
+    "category": "çift-harcama",
+    "medium": "email",
+    "email_id": "13",
+    "text": "Bu şekilde \"çift harcama kanıtı\" bildirmeye gerek yok. Aynı zincir her iki harcamayı da içeriyorsa, blok geçersizdir ve reddedilir.\nBir blokta yeterli iş kanıtı yoksa da aynı şey olur. Bu blok geçersizdir ve reddedilir. Bunun hakkında bir rapor dolaştırmaya gerek yok. Her düğüm bunu görebilir ve iletmeden önce reddedebilir.",
+    "date": "17 Kasım 2008"
+  },
+  {
+    "category": "çift-harcama",
+    "medium": "email",
+    "email_id": "13",
+    "text": "Alarmı çalmak ve hileyi yakalamak için \"çift harcamaları\" aramıyoruz. Sadece harcamalardan hangisinin geçerli olduğuna karar veriyoruz. İşlemleri alanlar, bu çözümün tamamlanması için zaman tanımak üzere birkaç blok beklemelidir. Hile yapmak isteyenler istedikleri kadar aynı anda çift harcama yapabilirler ve yaptıkları tek şey, birkaç blok içinde harcamalardan birinin geçerli ve diğerlerinin geçersiz hale gelmesidir. Zaten ana zincirde bir harcama olduğunda, daha sonraki tüm çift harcamalar hemen reddedilir.",
+    "date": "17 Kasım 2008"
+  },
+  {
+    "category": "iş-kanıtı, madencilik",
+    "medium": "email",
+    "email_id": "13",
+    "text": "İş kanıtı, Hashcash tarzı bir SHA-256 çakışması bulmaktır. Saniyede milyonlarca karma yaptığınız, hafızasız bir işlemdir ve her seferinde bir tane bulma şansınız düşüktür. En hızlı 3 veya 4 düğümün hakimiyeti, yalnızca toplam CPU iş kanıtındaki paylarıyla orantılı olacaktır. Herhangi birinin herhangi bir zamanda bir çözüm bulma şansı, CPU iş kanıtlarıyla orantılıdır.",
+    "date": "17 Kasım 2008"
+  },
+  {
+    "category": "bitcoin-ekonomisi",
+    "medium": "email",
+    "email_id": "13",
+    "text": "İşlem ücretleri olacaktır, bu nedenle düğümler aldıkları tüm işlemleri almak ve dahil etmek için bir teşvike sahip olacaktır. Toplam oluşturulan coin önceden belirlenmiş tavana ulaştığında, düğümler sonunda yalnızca işlem ücretleriyle tazmin edilecektir.",
+    "date": "17 Kasım 2008"
+  },
+  {
+    "category": "iş-kanıtı",
+    "medium": "email",
+    "email_id": "14",
+    "text": "Birini gerçek olarak tanımlayan kimlik bilgisi, CPU iş kanıtı sağlayabilme yeteneğidir.",
+    "date": "17 Kasım 2008"
+  },
+  {
+    "category": "çift-harcama",
+    "medium": "email",
+    "email_id": "14",
+    "text": "Yarış, işleminizi ağda ilk önce yaymaktır. 6 derece özgürlük gibi düşünün - katlanarak yayılır. Bir işlemin, geç başlayan bir rakibin, ilki tüm ağın üstesinden gelmeden çok fazla düğümü kapma şansının çok az olacağı kadar geniş bir şekilde yayılması yalnızca 2 dakika sürer. Bu 2 dakika boyunca, satıcının düğümleri çift harcanan bir işlemi izleyebilir. Çift harcayan, satıcının almadan alternatif işlemini dünyaya duyuramaz, bu yüzden başlamadan önce beklemek zorundadır.\nGerçek işlem %90'a ve çift harcanan işlem %10'a ulaşırsa, çift harcayanın ödeme yapmama şansı yalnızca %10'dur ve parasının harcanma şansı %90'dır. Neredeyse her tür mal için, bu dolandırıcı için buna değmeyecektir.",
+    "date": "17 Kasım 2008"
+  },
+  {
+    "category": "işlemler",
+    "medium": "email",
+    "email_id": "14",
+    "text": "Bir satıcının gerçekten hırsızlıkla ilgili bir sorunu varsa, müşteriyi 2 dakika bekletebilir veya bir e-postadaki bir şeyi bekleyebilir, ki birçoğu zaten yapıyor. Gerçekten optimize etmek isterlerse ve büyük bir indirme ise, işlem çift harcanmış olarak geri dönerse indirmeyi ortasında iptal edebilirler. Web sitesi erişimi ise, müşterinin 5 dakika erişmesine izin vermek ve ardından reddedilirse erişimi kesmek genellikle büyük bir sorun olmaz. Bu tür birçok sitenin zaten ücretsiz denemesi var.",
+    "date": "17 Kasım 2008"
+  },
+  {
+    "category": "yayınlar, bitcoin-tasarımı",
+    "medium": "email",
+    "email_id": "15",
+    "text": "Bir buçuk yıldır kodlarken tüm bu küçük detayları hallettiğime inanıyorum ve bunların çoğu vardı. İşlevsel detaylar makalede yer almıyor, ancak kaynak kodu yakında geliyor. Size ana dosyaları gönderdim. (şu anda istek üzerine mevcut, tam sürüm yakında)",
+    "date": "17 Kasım 2008"
+  },
+  {
+    "category": "yayınlar",
+    "medium": "email",
+    "email_id": "16",
+    "text": "Çift harcamayı önlemek için eşler arası bir ağ kullanan yeni bir elektronik nakit sistemi olan Bitcoin'in ilk sürümünü duyuruyoruz. Tamamen merkeziyetsizdir, sunucu veya merkezi otorite yoktur.",
+    "date": "9 Ocak 2009"
+  },
+  {
+    "category": "düğümler",
+    "medium": "email",
+    "email_id": "16",
+    "text": "Gelen bağlantıları kabul eden bir düğümü çalıştırabilirseniz, ağa gerçekten çok yardımcı olacaksınız. Güvenlik duvarınızdaki 8333 numaralı bağlantı noktasının gelen bağlantıları alması için açık olması gerekiyor.",
+    "date": "9 Ocak 2009"
+  },
+  {
+    "category": "madencilik",
+    "medium": "email",
+    "email_id": "16",
+    "text": "Birinden size biraz göndermesini sağlayarak veya bir düğümü çalıştırmak ve bloklar oluşturmak için Seçenekler->Coin Oluştur'u açarak coin alabilirsiniz. Başlamak için iş kanıtı zorluğunu gülünç derecede kolaylaştırdım, bu yüzden başlangıçta tipik bir PC birkaç saat içinde coin oluşturabilecek. Rekabet otomatik ayarlamanın zorluğu artırmasına neden olduğunda çok daha zorlaşacak. Oluşturulan coinlerin harcanabilmesi için 120 blok beklemesi gerekiyor.",
+    "date": "9 Ocak 2009"
+  },
+  {
+    "category": "işlemler",
+    "medium": "email",
+    "email_id": "16",
+    "text": "Para göndermenin iki yolu vardır. Alıcı çevrimiçiyse, IP adresini girebilirsiniz ve bağlanır, yeni bir genel anahtar alır ve işlemi yorumlarla gönderir. Alıcı çevrimiçi değilse, size verdikleri genel anahtarlarının bir karması olan Bitcoin adreslerine göndermek mümkündür. Bir dahaki sefere bağlandıklarında işlemi ve içinde bulunduğu bloğu alacaklar. Bu yöntemin hiçbir yorum bilgisinin gönderilmemesi ve adres birden çok kez kullanılırsa biraz gizliliğin kaybolması gibi bir dezavantajı vardır, ancak her iki kullanıcı da aynı anda çevrimiçi olamazsa veya alıcı gelen bağlantıları alamazsa yararlı bir alternatiftir.",
+    "date": "9 Ocak 2009"
+  },
+  {
+    "category": "bitcoin-ekonomisi",
+    "medium": "email",
+    "email_id": "16",
+    "text": "Toplam dolaşım 21.000.000 coin olacaktır. Blok yaptıklarında ağ düğümlerine dağıtılacak ve miktar her 4 yılda bir yarıya indirilecektir.\n\nilk 4 yıl: 10.500.000 coin\nsonraki 4 yıl: 5.250.000 coin\nsonraki 4 yıl: 2.625.000 coin\nsonraki 4 yıl: 1.312.500 coin\nvb...\n\nBu bittiğinde, sistem gerekirse işlem ücretlerini destekleyebilir. Açık piyasa rekabetine dayanıyor ve muhtemelen her zaman işlemleri ücretsiz olarak işlemeye istekli düğümler olacaktır.",
+    "date": "9 Ocak 2009"
+  },
+  {
+    "category": "kripto para",
+    "medium": "email",
+    "email_id": "17",
+    "text": "Güvenilir üçüncü taraf soğukkanlı davrandığında kaçınılmaz olarak aptallaşmayacak bir yolunu bildiğimiz için, 10 yıl sonra bir şekilde elektronik para kullanmıyor olursak şaşırırım.",
+    "date": "17 Ocak 2009"
+  },
+  {
+    "category": "mikro ödemeler",
+    "medium": "email",
+    "email_id": "17",
+    "text": "Zaten ödemeli e-posta göndermek için kullanılabilir. Gönder iletişim kutusu yeniden boyutlandırılabilir ve istediğiniz kadar uzun bir mesaj girebilirsiniz. Bağlandığında doğrudan gönderilir. Alıcı, tam mesajı görmek için işlem üzerine çift tıklayın. Ünlü biri okuyabileceğinden daha fazla e-posta alıyorsa, ancak yine de hayranlarının onlarla iletişim kurmasının bir yoluna sahip olmak istiyorsa, Bitcoin'i kurabilir ve IP adresini web sitelerinde verebilirler. \"Bu IP'deki öncelikli hattıma X bitcoin gönderin, mesajı bizzat okuyacağım.\"",
+    "date": "17 Ocak 2009"
+  },
+  {
+    "category": "mikro ödemeler",
+    "medium": "email",
+    "email_id": "17",
+    "text": "Aboneliklerin yamyamlaşmaması için ücretsiz denemeleri için biraz daha fazla iş kanıtına ihtiyaç duyan abonelik siteleri, deneme için bitcoin talep edebilir.",
+    "date": "17 Ocak 2009"
+  },
+  {
+    "category": "mikro ödemeler, bitcoin-ekonomisi",
+    "medium": "email",
+    "email_id": "17",
+    "text": "Yeterince insan aynı şekilde düşünürse, bu kendi kendini gerçekleştiren bir kehanet haline geldiği için biraz almak mantıklı olabilir. Bir kez başlatıldığında, bir otomat makinesine para atar gibi bir web sitesine zahmetsizce birkaç sent ödeyebilseydiniz çok fazla uygulama var.",
+    "date": "17 Ocak 2009"
+  },
+  {
+    "category": "kripto para",
+    "text": "Tamamen eşler arası bir elektronik nakit sürümü, çevrimiçi ödemelerin bir finans kurumundan geçmeden doğrudan bir taraftan diğerine gönderilmesine olanak tanır.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "iş-kanıtı, çift-harcama",
+    "text": "Eşler arası bir ağ kullanarak çift harcama sorununa bir çözüm öneriyoruz. Ağ, iş kanıtı karma tabanlı devam eden bir zincire karma yaparak işlemlere zaman damgası vurur ve iş kanıtını yeniden yapmadan değiştirilemeyen bir kayıt oluşturur. En uzun zincir sadece tanık olunan olayların sırasının kanıtı olarak değil, aynı zamanda en büyük CPU iş kanıtı havuzundan geldiğinin kanıtı olarak da hizmet eder. Bir CPU iş kanıtının çoğunluğu, ağa saldırmak için işbirliği yapmayan düğümler tarafından kontrol edildiği sürece, en uzun zinciri oluşturacak ve saldırganları geride bırakacaklardır. Ağın kendisi minimum yapı gerektirir.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "güvenilen-üçüncü-taraflar",
+    "text": "İnternet üzerindeki ticaret, elektronik ödemeleri işlemek için güvenilir üçüncü taraflar olarak hizmet veren finans kurumlarına neredeyse tamamen bağımlı hale geldi. Sistem çoğu işlem için yeterince iyi çalışsa da, yine de güven tabanlı modelin doğasında var olan zayıflıklardan muzdariptir.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "güvenilen-üçüncü-taraflar",
+    "text": "Finans kurumları anlaşmazlıklara aracılık etmekten kaçınamadığı için, tamamen geri döndürülemez işlemler gerçekten mümkün değildir. Aracılık maliyeti işlem maliyetlerini artırır, minimum pratik işlem boyutunu sınırlar ve küçük gündelik işlemler olasılığını ortadan kaldırır ve geri döndürülemez hizmetler için geri döndürülemez ödemeler yapma yeteneğinin kaybında daha geniş bir maliyet vardır. Geri alma olasılığı ile güven ihtiyacı yayılır.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "güvenilen-üçüncü-taraflar, kripto para",
+    "text": "Gerekli olan, güven yerine kriptografik kanıta dayalı, istekli iki tarafın güvenilir bir üçüncü tarafa ihtiyaç duymadan doğrudan işlem yapmasına olanak tanıyan bir elektronik ödeme sistemidir. Hesaplamalı olarak geri alınması pratik olmayan işlemler, satıcıları dolandırıcılıktan korur ve alıcıları korumak için rutin emanet mekanizmaları kolayca uygulanabilir.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "çift-harcama, iş-kanıtı",
+    "text": "Bu makalede, işlemlerin kronolojik sırasının hesaplamalı kanıtını oluşturmak için eşler arası dağıtılmış bir zaman damgası sunucusu kullanarak çift harcama sorununa bir çözüm öneriyoruz. Sistem, dürüst düğümler toplu olarak herhangi bir işbirlikçi saldırgan düğüm grubundan daha fazla CPU iş kanıtını kontrol ettiği sürece güvenlidir.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "işlemler",
+    "text": "Bir elektronik coini dijital imzalar zinciri olarak tanımlıyoruz. Her sahip, önceki işlemin bir karmasını ve bir sonraki sahibinin genel anahtarını dijital olarak imzalayarak ve bunları coinin sonuna ekleyerek coini bir sonraki sahibine aktarır. Bir ödeme alan kişi, sahiplik zincirini doğrulamak için imzaları doğrulayabilir.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "ekonomi, çift-harcama",
+    "text": "Sorun şu ki, ödeme alan kişi sahiplerden birinin coini çift harcamadığını doğrulayamaz. Yaygın bir çözüm, her işlemi çift harcama açısından kontrol eden güvenilir bir merkezi otorite veya darphane tanıtmaktır. Her işlemden sonra, yeni bir coin çıkarmak için coin darphaneye iade edilmelidir ve yalnızca doğrudan darphaneden çıkarılan coinlere çift harcanmamaları için güvenilir. Bu çözümle ilgili sorun, tüm para sisteminin kaderinin, tıpkı bir banka gibi, her işlemin içinden geçmek zorunda olduğu darphaneyi işleten şirkete bağlı olmasıdır.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "düğümler, kripto para, işlemler",
+    "text": "Ödeme alan kişinin, önceki sahiplerin herhangi bir önceki işlemi imzalamadığını bilmesinin bir yoluna ihtiyacımız var. Amaçlarımız doğrultusunda, en eski işlem önemli olandır, bu nedenle daha sonraki çift harcama girişimlerini umursamıyoruz. Bir işlemin yokluğunu onaylamanın tek yolu, tüm işlemlerden haberdar olmaktır. Darphane tabanlı modelde, darphane tüm işlemlerden haberdardı ve hangisinin ilk geldiğine karar verdi. Bunu güvenilir bir taraf olmadan başarmak için, işlemlerin herkese açık bir şekilde duyurulması gerekir ve katılımcıların hangi sırayla alındıklarına dair tek bir geçmiş üzerinde anlaşmaları için bir sisteme ihtiyacımız var. Ödeme alan kişinin, her işlemin yapıldığı anda, düğümlerin çoğunluğunun ilk alınan işlem olduğu konusunda hemfikir olduğunun kanıtına ihtiyacı vardır.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "işlemler",
+    "text": "Önerdiğimiz çözüm bir zaman damgası sunucusuyla başlar. Bir zaman damgası sunucusu, zaman damgası vurulacak bir öğe bloğunun karmasını alarak ve karmayı bir gazete veya Usenet gönderisi gibi geniş çapta yayınlayarak çalışır. Zaman damgası, karmaya girmek için verilerin o anda var olması gerektiğini kanıtlar.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "iş-kanıtı",
+    "text": "İş kanıtı, bir karma değeri bulmak için zorlu bir karma işlevini çözerek gerçekleştirilir; bu değer, sıfır bit dizisiyle başlar. Ortalama olarak, gerekli iş, gerekli sıfır bit sayısıyla orantılıdır ve tek bir karma hesaplanarak doğrulanabilir.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "iş-kanıtı",
+    "text": "Zaman damgası ağı, bir sonraki bloğa bir karma ekleyerek önceki bloğu zincirleyerek iş kanıtını uygular. Bu, önceki blokları değiştirmenin, sonraki tüm blokları yeniden yapmayı gerektirdiğinden, değiştirilmesini zorlaştırır.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "ağ",
+    "text": "Ağı çalıştırma adımları şu şekildedir:\n1) Yeni işlemler tüm düğümlere yayınlanır.\n2) Her düğüm, yeni işlemleri bir bloğa toplar.\n3) Her düğüm, bloğu için zor bir iş kanıtı bulmak için çalışır.\n4) Bir düğüm bir iş kanıtı bulduğunda, bloğu tüm düğümlere yayınlar.\n5) Düğümler, bloğun geçerli işlemler içerdiğini ve üzerine çalışarak geçerliliğini ifade ettiklerini kabul ederler; zincirdeki bir sonraki bloğu oluşturmaya başlarlar ve önceki bloğun karmasını kullanırlar.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "ağ",
+    "text": "Düğümler her zaman gördükleri en uzun zinciri doğru olarak kabul ederler ve bir sonraki blok üzerinde çalışmaya devam ederek onu genişletirler. İki düğüm aynı anda farklı sonraki blokları keşfederse, bazı düğümler birini veya diğerini önce alabilir. Bu durumda, üzerinde çalıştıkları ilk zincire göre çalışırlar, ancak daha uzun hale gelirse diğer dalı değiştirirler. Bağlar kırılana kadar bu devam eder ve bir dal diğerinden daha uzun hale gelir. Bu durumda, daha uzun olan kazanır ve kısa olanı üzerinde çalışanlar onu değiştirmeye başlar.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "ağ",
+    "text": "Yeni işlemlerin yayınlanması mutlaka tüm düğümlere ulaşmak zorunda değildir. Bir mesaj bazı düğümlere ulaşmazsa, bir sonraki bloğa girdiğinde sorun değil. Düğümler ayrıldığında ve ağa yeniden katıldığında, en uzun iş kanıtı zincirini kanıt olarak kabul ederler; yokken neler olup bittiğini kanıtlar.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "teşvik",
+    "text": "Kural olarak, bir bloğun ilk işlemi, bloğun yaratıcısına ait olan yeni bir coini başlatan özel bir işlemdir. Bu, blokları desteklemek için ağa teşvik sağlar ve coinleri ilk dolaşıma sokmanın bir yolunu sağlar, çünkü merkezi bir otorite tarafından ihraç edilmelerine gerek yoktur. Sabit bir oranda yeni coinlerin eklenmesi, altın madencilerinin kaynakları dolaşıma sokmak için harcamasına benzer bir teşviktir. Bu durumda, harcanan CPU zamanı ve elektrik enerjisidir.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "teşvik",
+    "text": "Teşvik, yeni coinlerle tamamen desteklenebilir veya işlem ücretleriyle desteklenebilir. Toplam coin sayısı sınırlı bir miktara ulaştığında, teşvik tamamen işlem ücretlerine geçebilir ve bu da enflasyondan arındırır.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "teşvik, çift-harcama",
+    "text": "Çift harcamaya karşı bir saldırı olasılığı, saldırganın dürüst düğümlerden daha hızlı bir alternatif zincir oluşturması için yeterli CPU gücüne sahip olmasını gerektirir. Geçmiş işlemleri değiştirmek isteyen bir saldırgan, bunları içeren bloğu ve o bloktan sonraki tüm blokları yeniden yapmak zorunda kalır ve ardından dürüst düğümlerin çalışmaya devam edip daha uzun bir zincir bulmasıyla yarışır. Yeni bir blok eklemek için gereken iş kanıtı, değiştirilen blokların sayısı arttıkça üstel olarak artar.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "teşvik, çift-harcama",
+    "text": "Dürüst düğümlerin çoğunluk CPU gücüne sahip olması durumunda, dürüst zincir saldırganı geride bırakarak daha hızlı büyüyecektir. Saldırganın daha hızlı bir zincir yakalamak için yeterli CPU gücüne sahip olması durumunda, dürüst düğümlerin yeni bir blok oluşturduğunda ve zincirine bir blok eklediğinde, saldırganın zinciri otomatik olarak geride bırakacak bir ödeme kuralı nedeniyle seçimi yapması gerekir. Dürüst zincir kazanırsa, saldırgan boşa harcadığı tüm iş için boşuna kandırılmasını sağlayamaz.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "teşvik",
+    "text": "Ayrıca, açgözlülük daha verimli bir teşvik olabilir. Ve tüm kurallara uymuyorsa, daha fazla bitcoin elde etmek için çalışmak, tüm sistemi baltalamaktan daha cazip olabilir.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "disk-alanı",
+    "text": "Tam blok zinciri depolaması, bağımsız olarak yönetilebilir. En son coin'ler hakkındaki işlem blok zincirinin tamamına gerek kalmadan atılabilir. Daha eski bloklar, daha sonra atılabilecek bir Merkle ağacında sıkıştırılabilir. Sadece blok başlıklarını saklamak 80 bayt/blok olacaktır. 2 haftada bir blok üretirsek, bu 52 KB/yıl ve 10 yıl sonra 520 KB olacaktır. Çok büyük olmasa bile, TREES'in [9] kullanılabilir olması durumunda, bu tamamen hariç tutulabilir.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "basitleştirilmiş-ödeme-doğrulaması",
+    "text": "Tüm ağ düğümünü çalıştırmadan, bir kullanıcı ödemenin alındığını nasıl doğrulayabilir? Ödeme alan kişi, blok başlıklarını en uzun iş kanıtı zincirinden bir kopyasını alarak, işlemin hangi blokta olduğunu doğrulayabilir ve işlemin blok zincirinde ne kadar derin olduğunu görmek için zincirdeki önceki bloklara geri dönebilir. Düğümlerin çoğunluğu dürüst düğümler olduğu sürece, saldırgan düğümlerin sahte işlemleri kabul etmeye veya geçersiz işlemleri kabul etmeye çalışarak zinciri kandırması hesaplamalı olarak uygulanabilir değildir. En güvenilir çözüm, düğümlerin çoğunluğunun kurallara uyduğu sürece, ağ tarafından kontrol edilen herhangi bir zamanda zinciri tahrif edememesidir.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "gizlilik",
+    "text": "Geleneksel bankacılık modeli, hesaplara ve yapılan işlemlere erişimi sınırlayarak bir düzeyde gizlilik sağlar. Ancak, tüm işlemleri herkese açık olarak duyurarak, yeni bir yaklaşım kullanılarak gizlilik sağlanabilir: Genel anahtarlar anonim olabilir. Birinin birine para gönderdiğini görebilirsiniz, ancak gönderenin kimliğini veya alıcının kimliğini belirleyemezsiniz. Bu, birinin işlemlerini ifşa etmenin, parayı gönderdiği herkesin de ifşa edildiği anlamına geldiği borsalarda gerekli ek bir ifşaya karşı ek bir koruma sağlar.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "gizlilik",
+    "text": "Ek bir güvenlik duvarı olarak, her işlem için yeni bir anahtar çifti kullanılmalıdır ve bir anahtar çiftini birden çok işlem için birbirine bağlamak yaygın bağlantı oluşturmaya yardımcı olur.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "hesaplamalar",
+    "text": "Bir saldırganın dürüst düğümlerden daha hızlı bir alternatif zincir oluşturmaya çalışması durumunda, dürüst zincir ne kadar uzun süre uzamaya devam ederse, saldırganın yakalaması o kadar zorlaşır. Saldırganın yakalaması ile yeni bir bloğun dürüst düğümler tarafından eklenmesi arasındaki gecikme, Poisson dağılımına doğru üstel olarak azalır. Ancak, dürüst düğümlerin saldırganın ayak uydurması için yeterince CPU kaynağına sahip olması durumunda, bu olasılık üstel olarak saldırgana karşı azalır. 10 yeni blok oluşturmak için gereken süre ile dürüst düğümlerin saldırganı yakalaması için gereken süre arasındaki oran, I = saldırganın dürüst madencilerin yüzdesi olarak CPU gücünü varsayarsak aşağıdaki gibi hesaplanabilir:",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "hesaplamalar",
+    "text": "P = e^(-λc) toplam blok sayısının bir Poisson dağılımı için olasılık, burada λ ortalama ve c saldırganın yakalaması için gereken blok sayısıdır.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "hesaplamalar",
+    "text": "10 dakikalık bir hedef blok aralığı varsayarak, her c değeri için bu sonucu hesaplayabiliriz. Bir saldırganın dürüst düğümlerden daha hızlı yakalaması için gereken olasılık, saldırganın kontrol ettiği CPU gücünün yüzdesi arttıkça üstel olarak azalır.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "sonuç",
+    "text": "Güvene dayalı bir sisteme ihtiyaç duymadan elektronik işlemler için bir sistem önerdik. Dijital imzalarla yapılan coinlerin olağan çerçevesiyle başladık, bu da sahipliğin güçlü kontrolünü sağlar, ancak çift harcamayı önlemenin bir yolu olmadan tamamlanamaz. Bunu çözmek için, dürüst düğümlerin çoğunluğu CPU iş kanıtını kontrol ettiği sürece, bir saldırganın değiştirmesi için hesaplamalı olarak pratik olmayan bir işlem geçmişini kaydetmek için iş kanıtını kullanan eşler arası bir ağ önerdik.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
+  },
+  {
+    "category": "düğümler, madencilik",
+    "text": "Ağ, yapılandırılmamış basitliğinde sağlamdır. Düğümler az koordinasyonla aynı anda çalışır. Mesajlar herhangi bir yere yönlendirilmediği ve yalnızca en iyi çaba temelinde teslim edilmesi gerektiği için tanımlanmalarına gerek yoktur. Düğümler, yokken neler olduğunu kanıtı olarak iş kanıtı zincirini kabul ederek istedikleri zaman ağdan ayrılabilir ve yeniden katılabilirler. Geçerli blokları genişleterek ve geçersiz bloklar üzerinde çalışmayı reddederek kabul ettiklerini ifade ederek CPU iş kanıtlarıyla oy kullanırlar. Gerekli tüm kurallar ve teşvikler bu fikir birliği mekanizması ile uygulanabilir.",
+    "medium": "whitepaper",
+    "date": "31 Ekim 2008"
   }
 ] 
