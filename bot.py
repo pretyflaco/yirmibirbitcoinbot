@@ -1166,6 +1166,99 @@ async def get_wallet_data():
         logger.error(f"Error getting wallet data: {str(e)}")
         return None
 
+async def send_lightning_payment(lightning_address, amount_sats):
+    """Send a payment to a Lightning Address."""
+    try:
+        # First, get the wallet data to find the BTC wallet ID
+        wallet_data = await get_wallet_data()
+        if not wallet_data:
+            logger.error("Failed to get wallet data")
+            return {"status": "ERROR", "errors": [{"message": "Failed to get wallet data"}]}
+        
+        # Find the BTC wallet
+        btc_wallet = None
+        for wallet in wallet_data:
+            if wallet.get('walletCurrency') == 'BTC':
+                btc_wallet = wallet
+                break
+        
+        if not btc_wallet:
+            logger.error("BTC wallet not found")
+            return {"status": "ERROR", "errors": [{"message": "BTC wallet not found"}]}
+        
+        # Get the wallet ID
+        wallet_id = btc_wallet.get('id')
+        if not wallet_id:
+            logger.error("Wallet ID not found")
+            return {"status": "ERROR", "errors": [{"message": "Wallet ID not found"}]}
+        
+        # GraphQL mutation to send payment
+        mutation = """
+        mutation LnAddressPaymentSend($input: LnAddressPaymentSendInput!) {
+          lnAddressPaymentSend(input: $input) {
+            status
+            errors {
+              code
+              message
+              path
+            }
+          }
+        }
+        """
+        
+        # Variables for the mutation - include the walletId
+        variables = {
+            "input": {
+                "walletId": wallet_id,
+                "lnAddress": lightning_address,
+                "amount": str(amount_sats),  # Convert to string as per the example
+                "memo": "TelegramBot Payment"
+            }
+        }
+        
+        # Log the request for debugging
+        logger.info(f"Sending Lightning payment to {lightning_address} for {amount_sats} sats")
+        logger.info(f"Request variables: {variables}")
+        
+        # Make the API request
+        response = requests.post(
+            BLINK_API_URL,
+            json={
+                "query": mutation,
+                "variables": variables
+            },
+            headers={
+                "X-API-KEY": BLINK_API_KEY
+            },
+            timeout=30
+        )
+        
+        # Log the response for debugging
+        logger.info(f"Lightning payment response status: {response.status_code}")
+        
+        # Check if the response is valid JSON
+        try:
+            data = response.json()
+            logger.info(f"Lightning payment response: {data}")
+        except ValueError:
+            logger.error(f"Invalid JSON response: {response.text}")
+            return {"status": "ERROR", "errors": [{"message": "Invalid JSON response"}]}
+        
+        # Extract payment result
+        if 'data' in data and 'lnAddressPaymentSend' in data['data']:
+            return data['data']['lnAddressPaymentSend']
+        
+        return {"status": "ERROR", "errors": [{"message": "Invalid API response"}]}
+    
+    except Exception as e:
+        logger.error(f"Error sending lightning payment: {str(e)}")
+        return {"status": "ERROR", "errors": [{"message": str(e)}]}
+
+async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Cancel the conversation."""
+    await update.message.reply_text("İşlem iptal edildi.")
+    return ConversationHandler.END
+
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token
