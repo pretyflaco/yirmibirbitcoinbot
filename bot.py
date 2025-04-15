@@ -7,6 +7,8 @@ import asyncio
 import requests
 import json
 import time
+import random
+from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
@@ -43,9 +45,35 @@ PUBLIC_GROUP_COOLDOWN = 3600  # 1 hour in seconds
 PRIVATE_CHAT_COOLDOWN = 900   # 15 minutes in seconds
 ADMIN_USERNAME = "pretyflaco"
 
+# Quote posting settings
+QUOTE_INTERVAL = 12 * 60 * 60  # 12 hours in seconds
+QUOTE_SOURCE_URL = "https://github.com/dergigi/QuotableSatoshi"
+
 # Store for rate limiting
 command_last_used = {}
 banned_users = set()
+quotes = []
+last_quote_time = {}
+replied_to_messages = set()
+
+# Load quotes from JSON file
+def load_quotes():
+    global quotes
+    try:
+        with open('quotes.json', 'r', encoding='utf-8') as f:
+            quotes = json.load(f)
+        logger.info(f"Loaded {len(quotes)} Satoshi quotes")
+    except Exception as e:
+        logger.error(f"Error loading quotes: {str(e)}")
+        quotes = []
+
+# Get a random quote
+def get_random_quote():
+    if not quotes:
+        load_quotes()
+    if quotes:
+        return random.choice(quotes)
+    return None
 
 async def is_banned(update: Update) -> bool:
     """Check if the user is banned."""
@@ -91,6 +119,84 @@ async def check_rate_limit(update: Update, command: str) -> bool:
     # Update the last used time
     command_last_used[key] = current_time
     return False
+
+async def post_quote(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Post a random Satoshi quote to all groups."""
+    quote = get_random_quote()
+    if not quote:
+        logger.error("No quotes available to post")
+        return
+    
+    # Get all chats where the bot is a member
+    for chat_id in context.bot_data.get('quote_chats', set()):
+        try:
+            # Check if it's time to post in this chat
+            current_time = time.time()
+            last_time = last_quote_time.get(chat_id, 0)
+            
+            if current_time - last_time >= QUOTE_INTERVAL:
+                # Post the quote
+                message = f"💬 *Satoshi Nakamoto*\n\n{quote['text']}"
+                await context.bot.send_message(
+                    chat_id=chat_id,
+                    text=message,
+                    parse_mode='Markdown'
+                )
+                
+                # Update the last quote time
+                last_quote_time[chat_id] = current_time
+                logger.info(f"Posted quote to chat {chat_id}")
+        except Exception as e:
+            logger.error(f"Error posting quote to chat {chat_id}: {str(e)}")
+
+async def handle_source_request(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle requests for quote source."""
+    # Check if this is a reply to a bot message
+    if not update.message.reply_to_message or not update.message.reply_to_message.from_user.is_bot:
+        return
+    
+    # Check if the message contains "source" or "kaynak"
+    message_text = update.message.text.lower()
+    if "source" not in message_text and "kaynak" not in message_text:
+        return
+    
+    # Check if we've already replied to this message
+    message_id = update.message.message_id
+    if message_id in replied_to_messages:
+        return
+    
+    # Get the quote from the bot's message
+    bot_message = update.message.reply_to_message.text
+    
+    # Find the quote in our database
+    for quote in quotes:
+        if quote['text'] in bot_message:
+            # Format the source information
+            source_info = f"*Source:* {quote['date']}\n"
+            if 'medium' in quote:
+                source_info += f"*Medium:* {quote['medium']}\n"
+            if 'post_id' in quote:
+                source_info += f"*Post ID:* {quote['post_id']}\n"
+            source_info += f"*More quotes:* {QUOTE_SOURCE_URL}"
+            
+            # Reply with the source information
+            await update.message.reply_text(
+                text=source_info,
+                parse_mode='Markdown'
+            )
+            
+            # Mark this message as replied to
+            replied_to_messages.add(message_id)
+            break
+
+async def track_new_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Track new chats where the bot is added."""
+    if update.my_chat_member and update.my_chat_member.new_chat_member.status == "member":
+        chat_id = update.effective_chat.id
+        if 'quote_chats' not in context.bot_data:
+            context.bot_data['quote_chats'] = set()
+        context.bot_data['quote_chats'].add(chat_id)
+        logger.info(f"Bot added to chat {chat_id}, now tracking for quote posts")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a welcome message when the command /start is issued."""
@@ -777,6 +883,9 @@ async def convert_100lira(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 def main() -> None:
     """Start the bot."""
+    # Load quotes
+    load_quotes()
+    
     # Create the Application and pass it your bot's token
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
@@ -788,6 +897,13 @@ def main() -> None:
     application.add_handler(CommandHandler("volume", volume_command))
     application.add_handler(CommandHandler("dollar", dollar_command))
     application.add_handler(CommandHandler("ban", ban_command))
+    
+    # Add handlers for tracking new chats and handling source requests
+    application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, track_new_chat))
+    application.add_handler(MessageHandler(filters.ChatType.GROUPS & filters.TEXT & ~filters.COMMAND, handle_source_request))
+    
+    # Add job for posting quotes every 12 hours
+    application.job_queue.run_repeating(post_quote, interval=QUOTE_INTERVAL, first=10)
 
     # Start the Bot
     logger.info("Starting bot...")
