@@ -367,22 +367,30 @@ async def get_btc_usd_price():
     try:
         logger.info("Fetching BTC/USD price from Blink API...")
         
-        # Try a simpler query that's more likely to succeed
-        simplified_query = """
-        query {
-          btcPrice {
+        # Use the correct query and variables as provided
+        query = """
+        query ExampleQuery($range: PriceGraphRange!) {
+          btcPriceList(range: $range) {
             price {
               base
+              currencyUnit
+              formattedAmount
               offset
             }
-            timestamp
           }
         }
         """
         
+        variables = {
+            "range": "ONE_DAY"
+        }
+        
         response = requests.post(
             BLINK_API_URL,
-            json={"query": simplified_query},
+            json={
+                "query": query,
+                "variables": variables
+            },
             timeout=10
         )
         
@@ -405,10 +413,14 @@ async def get_btc_usd_price():
             return None
             
         # Extract price from response
-        if 'data' in data and data['data'] and 'btcPrice' in data['data']:
-            price_data = data['data']['btcPrice']['price']
+        if ('data' in data and data['data'] and 'btcPriceList' in data['data'] and 
+            data['data']['btcPriceList'] and len(data['data']['btcPriceList']) > 0):
+            
+            # Use the first price in the list
+            price_data = data['data']['btcPriceList'][0]['price']
             base = float(price_data['base'])
             offset = int(price_data['offset'])
+            
             # Calculate the proper price
             price = base * (10 ** -offset)
             logger.info(f"Successfully fetched BTC price from Blink: {price}")
@@ -426,28 +438,26 @@ async def get_btc_try_price():
         logger.info("Fetching BTC/TRY price from BTCTurk API...")
         response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
         response.raise_for_status()
-        
-        # Ensure we're dealing with JSON data
-        content_type = response.headers.get('Content-Type', '')
-        if 'application/json' not in content_type:
-            logger.error(f"BTCTurk API returned non-JSON response: {content_type}")
-            logger.info(f"Response content: {response.text[:200]}...")
-            return None
             
         data = response.json()
         logger.info(f"BTCTurk API response type: {type(data)}")
         
         # Check if the response has the expected structure
-        if not isinstance(data, dict) or 'data' not in data:
-            logger.error(f"BTCTurk API response missing 'data' field or has unexpected format: {type(data)}")
+        if not isinstance(data, dict) or 'data' not in data or not data.get('success', False):
+            logger.error(f"BTCTurk API response has unexpected format: {data}")
             return None
         
         # Find the BTCTRY pair
         for pair_data in data.get('data', []):
             if isinstance(pair_data, dict) and pair_data.get('pair') == 'BTCTRY':
-                return float(pair_data.get('last', 0))
+                price = float(pair_data.get('last', 0))
+                logger.info(f"Found BTC/TRY price: {price}")
+                return price
         
         logger.error("BTCTRY pair not found in the API response")
+        # Debug: Log some of the pairs that were found
+        pairs = [p.get('pair') for p in data.get('data', [])[:5] if isinstance(p, dict)]
+        logger.info(f"First few pairs found: {pairs}")
         return None
     except Exception as e:
         logger.error(f"Error fetching BTC/TRY price from BTCTurk: {str(e)}")
@@ -674,20 +684,13 @@ async def get_usdt_try_rate():
         logger.info("Fetching USDT/TRY rate from BTCTurk API...")
         response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
         response.raise_for_status()
-        
-        # Ensure we're dealing with JSON data
-        content_type = response.headers.get('Content-Type', '')
-        if 'application/json' not in content_type:
-            logger.error(f"BTCTurk API returned non-JSON response: {content_type}")
-            logger.info(f"Response content: {response.text[:200]}...")
-            return None
             
         data = response.json()
         logger.info(f"BTCTurk API response type: {type(data)}")
         
         # Check if the response has the expected structure
-        if not isinstance(data, dict) or 'data' not in data:
-            logger.error(f"BTCTurk API response missing 'data' field or has unexpected format: {type(data)}")
+        if not isinstance(data, dict) or 'data' not in data or not data.get('success', False):
+            logger.error(f"BTCTurk API response has unexpected format: {data}")
             return None
         
         # Find the USDTTRY pair
@@ -698,6 +701,9 @@ async def get_usdt_try_rate():
                 return rate
         
         logger.error("USDTTRY pair not found in BTCTurk API response")
+        # Debug: Log some of the pairs that were found
+        pairs = [p.get('pair') for p in data.get('data', [])[:5] if isinstance(p, dict)]
+        logger.info(f"First few pairs found: {pairs}")
         return None
     except requests.exceptions.RequestException as e:
         logger.error(f"Network error fetching USDT/TRY rate: {str(e)}")
@@ -861,10 +867,43 @@ async def dollar_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
     
     try:
-        await update.message.reply_text("Döviz kurları alınıyor, lütfen bekleyin...")
+        # Send a loading message
+        loading_msg = await update.message.reply_text("Döviz kurları alınıyor, lütfen bekleyin...")
         
-        # Get USDT/TRY rate from BTCTurk
-        usdt_try_rate = await get_usdt_try_rate()
+        # Get USDT/TRY rate from BTCTurk with extra debugging
+        try:
+            raw_response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
+            logger.info(f"BTCTurk raw response status: {raw_response.status_code}")
+            
+            if raw_response.status_code == 200:
+                data = raw_response.json()
+                logger.info(f"BTCTurk response keys: {list(data.keys() if isinstance(data, dict) else [])}")
+                
+                if isinstance(data, dict) and 'data' in data and isinstance(data['data'], list):
+                    # Find the USDTTRY pair
+                    usdt_try_rate = None
+                    pairs_found = []
+                    
+                    for pair_data in data.get('data', []):
+                        pair = pair_data.get('pair')
+                        pairs_found.append(pair)
+                        
+                        if pair == 'USDTTRY':
+                            usdt_try_rate = float(pair_data.get('last', 0))
+                            logger.info(f"Found USDT/TRY rate: {usdt_try_rate}")
+                            break
+                    
+                    if usdt_try_rate is None:
+                        logger.error(f"USDTTRY pair not found. Available pairs: {', '.join(pairs_found[:10])}...")
+                else:
+                    logger.error(f"Unexpected BTCTurk API response structure: {data}")
+                    usdt_try_rate = None
+            else:
+                logger.error(f"BTCTurk API returned status {raw_response.status_code}")
+                usdt_try_rate = None
+        except Exception as e:
+            logger.error(f"Error processing BTCTurk API response: {str(e)}")
+            usdt_try_rate = None
         
         # Get USD/TRY rate from Yadio
         usd_try_rate = await get_usd_try_rate()
@@ -884,14 +923,41 @@ async def dollar_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
         message += "\n_Veri kaynakları: BTCTurk, Yadio_"
         
-        # Update the previous message with the results
-        await update.message.reply_text(message, parse_mode='Markdown')
+        # Update the loading message with the results
+        await loading_msg.edit_text(message, parse_mode='Markdown')
         
     except Exception as e:
         logger.error(f"Error in dollar command: {str(e)}")
         await update.message.reply_text(
             "Üzgünüm, bir hata oluştu. Lütfen daha sonra tekrar deneyin."
         )
+
+async def get_btcturk_btc_usd_price():
+    """Fetch current BTC/USD price from BTCTurk API."""
+    try:
+        logger.info("Fetching BTC/USD price from BTCTurk API...")
+        response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
+        response.raise_for_status()
+            
+        data = response.json()
+        
+        # Check if the response has the expected structure
+        if not isinstance(data, dict) or 'data' not in data or not data.get('success', False):
+            logger.error(f"BTCTurk API response has unexpected format: {data}")
+            return None
+        
+        # Find the BTCUSDT pair
+        for pair_data in data.get('data', []):
+            if isinstance(pair_data, dict) and pair_data.get('pair') == 'BTCUSDT':
+                price = float(pair_data.get('last', 0))
+                logger.info(f"Found BTC/USD price from BTCTurk: {price}")
+                return price
+        
+        logger.error("BTCUSDT pair not found in the API response")
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching BTC/USD price from BTCTurk: {str(e)}")
+        return None
 
 async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show current BTC/USD and BTC/TRY prices from multiple sources."""
@@ -915,6 +981,7 @@ async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         
         # Fetch BTC/USD prices from all sources
         blink_btc_usd = await get_btc_usd_price()
+        btcturk_btc_usd = await get_btcturk_btc_usd_price()
         binance_btc_usd = await get_binance_btc_usd_price()
         kraken_btc_usd = await get_kraken_btc_usd_price()
         paribu_btc_usd = await get_paribu_btc_usd_price()
@@ -926,7 +993,7 @@ async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         
         # Count successful data fetches
         try_prices_count = sum(1 for p in [btcturk_btc_try, binance_btc_try, bitfinex_btc_try, paribu_btc_try] if p is not None)
-        usd_prices_count = sum(1 for p in [blink_btc_usd, binance_btc_usd, kraken_btc_usd, paribu_btc_usd, 
+        usd_prices_count = sum(1 for p in [blink_btc_usd, btcturk_btc_usd, binance_btc_usd, kraken_btc_usd, paribu_btc_usd, 
                                           bitfinex_btc_usd, bitstamp_btc_usd, coinbase_btc_usd, okx_btc_usd, 
                                           bitflyer_btc_usd] if p is not None)
         
@@ -960,6 +1027,9 @@ async def price_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         # BTC/USD section
         if usd_prices_count > 0:
             message += "*BTC/USD*\n"
+            
+            if btcturk_btc_usd is not None:
+                message += f"BTCTurk: ${int(btcturk_btc_usd):,}\n"
             
             if binance_btc_usd is not None:
                 message += f"Binance: ${int(binance_btc_usd):,}\n"
