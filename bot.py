@@ -1206,13 +1206,12 @@ async def send_lightning_payment(lightning_address, amount_sats):
         }
         """
         
-        # Variables for the mutation - include the walletId
+        # Variables for the mutation - include the walletId but NOT memo (which is not supported)
         variables = {
             "input": {
                 "walletId": wallet_id,
                 "lnAddress": lightning_address,
-                "amount": str(amount_sats),  # Convert to string as per the example
-                "memo": "TelegramBot Payment"
+                "amount": str(amount_sats)  # Convert to string as per the example
             }
         }
         
@@ -1245,8 +1244,15 @@ async def send_lightning_payment(lightning_address, amount_sats):
             return {"status": "ERROR", "errors": [{"message": "Invalid JSON response"}]}
         
         # Extract payment result
-        if 'data' in data and 'lnAddressPaymentSend' in data['data']:
+        if 'data' in data and data['data'] and 'lnAddressPaymentSend' in data['data']:
             return data['data']['lnAddressPaymentSend']
+        
+        # Handle case where data['data'] is None
+        if 'errors' in data and data['errors']:
+            error_messages = [error.get('message', 'Unknown error') for error in data['errors']]
+            error_message = "; ".join(error_messages)
+            logger.error(f"API returned errors: {error_message}")
+            return {"status": "ERROR", "errors": [{"message": error_message}]}
         
         return {"status": "ERROR", "errors": [{"message": "Invalid API response"}]}
     
