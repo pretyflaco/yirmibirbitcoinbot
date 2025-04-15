@@ -994,8 +994,7 @@ def main() -> None:
         application.bot_data['quote_chats'] = set()
     
     # Manually add the YirmibirBitcoin group to tracked chats
-    # The group ID for @YirmibirBitcoin is -1001234567890 (replace with actual ID)
-    yirmibir_group_id = -1001234567890  # Replace with actual group ID
+    yirmibir_group_id = -1001431368885  # The actual group ID for @YirmibirBitcoin
     application.bot_data['quote_chats'].add(yirmibir_group_id)
     logger.info(f"Manually added YirmibirBitcoin group ({yirmibir_group_id}) to tracked chats")
     
