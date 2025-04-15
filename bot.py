@@ -1188,17 +1188,18 @@ async def send_lightning_payment(lightning_address, amount_sats):
         }
         """
         
-        # Variables for the mutation
+        # Variables for the mutation - make sure to use the correct input type
         variables = {
             "input": {
                 "lightningAddress": lightning_address,
-                "amount": amount_sats,
+                "amount": int(amount_sats),  # Ensure amount is an integer
                 "memo": "TelegramBot Payment"
             }
         }
         
         # Log the request for debugging
         logger.info(f"Sending Lightning payment to {lightning_address} for {amount_sats} sats")
+        logger.info(f"Request variables: {variables}")
         
         # Make the API request
         response = requests.post(
