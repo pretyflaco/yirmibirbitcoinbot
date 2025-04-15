@@ -9,8 +9,8 @@ import json
 import time
 import random
 from datetime import datetime, timedelta
-from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler
 
 # Set up logging
 logging.basicConfig(
@@ -24,7 +24,8 @@ from config import (
     BTCTURK_API_TICKER_URL,
     BLINK_API_URL,
     BLINK_PRICE_QUERY,
-    BLINK_PRICE_VARIABLES
+    BLINK_PRICE_VARIABLES,
+    BLINK_API_KEY
 )
 
 # Yadio API URL
@@ -49,6 +50,9 @@ ADMIN_USERNAME = "pretyflaco"
 QUOTE_INTERVAL = 12 * 60 * 60  # 12 hours in seconds
 QUOTE_SOURCE_URL = "https://github.com/dergigi/QuotableSatoshi"
 
+# Define conversation states for the gimmecheese command
+LIGHTNING_ADDRESS = 1
+
 # Store for rate limiting
 command_last_used = {}
 banned_users = set()
@@ -56,6 +60,7 @@ quotes = []
 last_quote_time = {}
 replied_to_messages = set()
 quote_task = None
+lightning_payment_in_progress = False
 
 # Load quotes from JSON file
 def load_quotes():
@@ -991,6 +996,215 @@ async def get_group_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     
     await update.message.reply_text(message, parse_mode='Markdown')
 
+async def gimmecheese_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Start the process of sending Bitcoin via Lightning Network."""
+    # Check if user is banned
+    if await is_banned(update):
+        return ConversationHandler.END
+    
+    # Check rate limit
+    if await check_rate_limit(update, "gimmecheese"):
+        return ConversationHandler.END
+    
+    # Only allow admin to use this command
+    if update.effective_user.username != ADMIN_USERNAME:
+        await update.message.reply_text("Bu komutu sadece bot yöneticisi kullanabilir.")
+        return ConversationHandler.END
+    
+    # Check if this is a private chat
+    if update.effective_chat.type != "private":
+        await update.message.reply_text("Bu komut sadece özel mesajlarda kullanılabilir.")
+        return ConversationHandler.END
+    
+    # Check if a payment is already in progress
+    global lightning_payment_in_progress
+    if lightning_payment_in_progress:
+        await update.message.reply_text("Zaten bir ödeme işlemi devam ediyor. Lütfen bekleyin.")
+        return ConversationHandler.END
+    
+    # Ask for Lightning Address
+    await update.message.reply_text(
+        "Lütfen Bitcoin göndermek istediğiniz Lightning Adresini girin.\n"
+        "Örnek: satoshi@lightning.com\n\n"
+        "İptal etmek için /cancel yazın."
+    )
+    
+    return LIGHTNING_ADDRESS
+
+async def process_lightning_address(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Process the Lightning Address and send Bitcoin."""
+    global lightning_payment_in_progress
+    
+    # Check if this is a cancel command
+    if update.message.text.lower() == "/cancel":
+        await update.message.reply_text("İşlem iptal edildi.")
+        return ConversationHandler.END
+    
+    # Get the Lightning Address
+    lightning_address = update.message.text.strip()
+    
+    # Validate the Lightning Address format
+    if not "@" in lightning_address:
+        await update.message.reply_text(
+            "Geçersiz Lightning Adresi formatı. Lütfen 'kullanıcı@domain.com' formatında bir adres girin."
+        )
+        return LIGHTNING_ADDRESS
+    
+    # Set payment in progress flag
+    lightning_payment_in_progress = True
+    
+    # Send a message that we're processing
+    processing_message = await update.message.reply_text("Lightning ödemesi işleniyor...")
+    
+    try:
+        # Get the wallet ID and check balance
+        wallet_data = await get_wallet_data()
+        if not wallet_data:
+            await processing_message.edit_text("Cüzdan bilgileri alınamadı. Lütfen daha sonra tekrar deneyin.")
+            lightning_payment_in_progress = False
+            return ConversationHandler.END
+        
+        # Find the BTC wallet
+        btc_wallet = None
+        for wallet in wallet_data:
+            if wallet.get('walletCurrency') == 'BTC':
+                btc_wallet = wallet
+                break
+        
+        if not btc_wallet:
+            await processing_message.edit_text("BTC cüzdanı bulunamadı.")
+            lightning_payment_in_progress = False
+            return ConversationHandler.END
+        
+        # Check if we have enough balance (at least 1000 sats)
+        if int(btc_wallet.get('balance', 0)) < 1000:
+            await processing_message.edit_text("Yetersiz bakiye. En az 1000 satoshi gerekiyor.")
+            lightning_payment_in_progress = False
+            return ConversationHandler.END
+        
+        # Send the payment
+        payment_result = await send_lightning_payment(lightning_address, 1000)
+        
+        if payment_result.get('status') == 'SUCCESS':
+            await processing_message.edit_text(
+                f"✅ Ödeme başarıyla gönderildi!\n\n"
+                f"Alıcı: {lightning_address}\n"
+                f"Miktar: 1000 satoshi"
+            )
+        else:
+            error_message = payment_result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
+            await processing_message.edit_text(f"❌ Ödeme gönderilemedi: {error_message}")
+    
+    except Exception as e:
+        logger.error(f"Error in lightning payment: {str(e)}")
+        await processing_message.edit_text(f"Bir hata oluştu: {str(e)}")
+    
+    finally:
+        # Reset payment in progress flag
+        lightning_payment_in_progress = False
+    
+    return ConversationHandler.END
+
+async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Cancel the conversation."""
+    await update.message.reply_text("İşlem iptal edildi.")
+    return ConversationHandler.END
+
+async def get_wallet_data():
+    """Get wallet data from Blink API."""
+    try:
+        # GraphQL query to get wallet data
+        query = """
+        query Me {
+          me {
+            defaultAccount {
+              wallets {
+                id
+                walletCurrency
+                balance
+              }
+            }
+          }
+        }
+        """
+        
+        # Make the API request
+        response = requests.post(
+            BLINK_API_URL,
+            json={
+                "query": query
+            },
+            headers={
+                "X-API-KEY": BLINK_API_KEY
+            },
+            timeout=10
+        )
+        
+        response.raise_for_status()
+        data = response.json()
+        
+        # Extract wallet data
+        if 'data' in data and 'me' in data['data'] and 'defaultAccount' in data['data']['me']:
+            return data['data']['me']['defaultAccount']['wallets']
+        
+        return None
+    
+    except Exception as e:
+        logger.error(f"Error getting wallet data: {str(e)}")
+        return None
+
+async def send_lightning_payment(lightning_address, amount_sats):
+    """Send a payment to a Lightning Address."""
+    try:
+        # GraphQL mutation to send payment
+        mutation = """
+        mutation LnAddressPaymentSend($input: LnAddressPaymentSendInput!) {
+          lnAddressPaymentSend(input: $input) {
+            status
+            errors {
+              code
+              message
+              path
+            }
+          }
+        }
+        """
+        
+        # Variables for the mutation
+        variables = {
+            "input": {
+                "lightningAddress": lightning_address,
+                "amount": amount_sats,
+                "memo": "TelegramBot Payment"
+            }
+        }
+        
+        # Make the API request
+        response = requests.post(
+            BLINK_API_URL,
+            json={
+                "query": mutation,
+                "variables": variables
+            },
+            headers={
+                "X-API-KEY": BLINK_API_KEY
+            },
+            timeout=30
+        )
+        
+        response.raise_for_status()
+        data = response.json()
+        
+        # Extract payment result
+        if 'data' in data and 'lnAddressPaymentSend' in data['data']:
+            return data['data']['lnAddressPaymentSend']
+        
+        return {"status": "ERROR", "errors": [{"message": "Invalid API response"}]}
+    
+    except Exception as e:
+        logger.error(f"Error sending lightning payment: {str(e)}")
+        return {"status": "ERROR", "errors": [{"message": str(e)}]}
+
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token
@@ -1022,6 +1236,16 @@ def main() -> None:
     application.add_handler(CommandHandler("dollar", dollar_command))
     application.add_handler(CommandHandler("ban", ban_command))
     application.add_handler(CommandHandler("groupid", get_group_id))
+    
+    # Add conversation handler for gimmecheese command
+    gimmecheese_conv_handler = ConversationHandler(
+        entry_points=[CommandHandler("gimmecheese", gimmecheese_command)],
+        states={
+            LIGHTNING_ADDRESS: [MessageHandler(filters.TEXT & ~filters.COMMAND, process_lightning_address)]
+        },
+        fallbacks=[CommandHandler("cancel", cancel_command)]
+    )
+    application.add_handler(gimmecheese_conv_handler)
     
     # Add handlers for tracking new chats and handling source requests
     application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, track_new_chat))
