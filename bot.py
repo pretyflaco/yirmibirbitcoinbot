@@ -129,13 +129,21 @@ async def post_quote(context: ContextTypes.DEFAULT_TYPE) -> None:
         return
     
     # Get all chats where the bot is a member
-    for chat_id in context.bot_data.get('quote_chats', set()):
+    tracked_chats = context.bot_data.get('quote_chats', set())
+    logger.info(f"Attempting to post quote to {len(tracked_chats)} tracked chats")
+    
+    if not tracked_chats:
+        logger.warning("No chats are being tracked for quote posts")
+        return
+    
+    for chat_id in tracked_chats:
         try:
             # Check if it's time to post in this chat
             current_time = time.time()
             last_time = last_quote_time.get(chat_id, 0)
             
-            if current_time - last_time >= QUOTE_INTERVAL:
+            # Force post if this is the first run (last_time is 0)
+            if last_time == 0 or current_time - last_time >= QUOTE_INTERVAL:
                 # Post the quote
                 message = f"💬 *Satoshi Nakamoto*\n\n{quote['text']}"
                 await context.bot.send_message(
@@ -147,6 +155,8 @@ async def post_quote(context: ContextTypes.DEFAULT_TYPE) -> None:
                 # Update the last quote time
                 last_quote_time[chat_id] = current_time
                 logger.info(f"Posted quote to chat {chat_id}")
+            else:
+                logger.info(f"Skipping quote post to chat {chat_id} - too soon since last post")
         except Exception as e:
             logger.error(f"Error posting quote to chat {chat_id}: {str(e)}")
 
@@ -220,10 +230,37 @@ async def track_new_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     """Track new chats where the bot is added."""
     if update.my_chat_member and update.my_chat_member.new_chat_member.status == "member":
         chat_id = update.effective_chat.id
+        chat_title = update.effective_chat.title or "Private Chat"
+        
+        # Initialize quote_chats if it doesn't exist
         if 'quote_chats' not in context.bot_data:
             context.bot_data['quote_chats'] = set()
+            logger.info("Initialized quote_chats set in bot_data")
+        
+        # Add the chat to tracked chats
         context.bot_data['quote_chats'].add(chat_id)
-        logger.info(f"Bot added to chat {chat_id}, now tracking for quote posts")
+        logger.info(f"Bot added to chat {chat_id} ({chat_title}), now tracking for quote posts")
+        
+        # Log the current number of tracked chats
+        tracked_chats_count = len(context.bot_data['quote_chats'])
+        logger.info(f"Currently tracking {tracked_chats_count} chats for quote posts")
+        
+        # Post a welcome message with a quote
+        try:
+            quote = get_random_quote()
+            if quote:
+                message = (
+                    f"👋 Merhaba! Ben Bitcoin fiyatları ve Satoshi Nakamoto alıntıları paylaşan bir botum.\n\n"
+                    f"💬 *İlk Satoshi Alıntısı:*\n\n{quote['text']}"
+                )
+                await context.bot.send_message(
+                    chat_id=chat_id,
+                    text=message,
+                    parse_mode='Markdown'
+                )
+                logger.info(f"Posted welcome message with quote to chat {chat_id}")
+        except Exception as e:
+            logger.error(f"Error posting welcome message to chat {chat_id}: {str(e)}")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a welcome message when the command /start is issued."""
@@ -255,7 +292,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if await check_rate_limit(update, "help"):
         return
     
-    await update.message.reply_text(
+    # Check if user is admin
+    is_admin = update.effective_user.username == ADMIN_USERNAME
+    
+    help_text = (
         "Türk Lirası'nı Bitcoin satoshi'ye çevirmenize yardımcı olabilirim.\n\n"
         "Kullanılabilir komutlar:\n"
         "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir\n"
@@ -263,6 +303,12 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/volume - En yüksek hacimli 5 para birimi çiftini göster\n"
         "/dollar - USDT/TRY ve USD/TRY kurlarını göster"
     )
+    
+    # Add admin commands if user is admin
+    if is_admin:
+        help_text += "\n\nAdmin komutları:\n/ban [kullanıcı_adı] - Kullanıcıyı banla\n/groupid - Mevcut sohbetin ID'sini göster"
+    
+    await update.message.reply_text(help_text)
 
 async def ban_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Ban a user from using the bot."""
@@ -908,6 +954,19 @@ async def convert_100lira(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             "Beklenmedik bir hata oluştu. Lütfen daha sonra tekrar deneyin."
         )
 
+async def get_group_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Get the ID of the current chat."""
+    # Only admin can use this command
+    if update.effective_user.username != ADMIN_USERNAME:
+        return
+    
+    chat_id = update.effective_chat.id
+    chat_title = update.effective_chat.title or "Private Chat"
+    
+    message = f"Chat ID: `{chat_id}`\nChat Title: {chat_title}"
+    
+    await update.message.reply_text(message, parse_mode='Markdown')
+
 def main() -> None:
     """Start the bot."""
     # Load quotes
@@ -924,10 +983,21 @@ def main() -> None:
     application.add_handler(CommandHandler("volume", volume_command))
     application.add_handler(CommandHandler("dollar", dollar_command))
     application.add_handler(CommandHandler("ban", ban_command))
+    application.add_handler(CommandHandler("groupid", get_group_id))
     
     # Add handlers for tracking new chats and handling source requests
     application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, track_new_chat))
     application.add_handler(MessageHandler(filters.ChatType.GROUPS & filters.TEXT & ~filters.COMMAND, handle_source_request))
+    
+    # Initialize quote_chats if it doesn't exist
+    if 'quote_chats' not in application.bot_data:
+        application.bot_data['quote_chats'] = set()
+    
+    # Manually add the YirmibirBitcoin group to tracked chats
+    # The group ID for @YirmibirBitcoin is -1001234567890 (replace with actual ID)
+    yirmibir_group_id = -1001234567890  # Replace with actual group ID
+    application.bot_data['quote_chats'].add(yirmibir_group_id)
+    logger.info(f"Manually added YirmibirBitcoin group ({yirmibir_group_id}) to tracked chats")
     
     # Try to use job queue if available, otherwise use asyncio task
     try:
