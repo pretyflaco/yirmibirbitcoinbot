@@ -1,0 +1,198 @@
+[
+  {
+    "category": "general",
+    "medium": "bitcointalk",
+    "text": "Bu ilgiyi başka bir bağlamda almak güzel olurdu. WikiLeaks eşek arısı yuvasını tekmeledi ve sürü bize doğru geliyor.",
+    "post_id": "542",
+    "date": "11 Aralık 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Projenin, yazılımın bu süreçte güçlendirilebilmesi için kademeli olarak büyümesi gerekiyor. WikiLeaks'e Bitcoin'i kullanmamaları için bu çağrıyı yapıyorum. Bitcoin, bebeklik dönemindeki küçük bir beta topluluğudur.",
+    "post_id": "523",
+    "date": "5 Aralık 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Sanatsal beceriye sahip birinin alternatifler katkıda bulunmak istemesi beni mutlu eder. İkon/logo, 16x16 ve 20x20 piksel boyutlarında iyi bir ikon olarak tasarlandı. Bence en iyi program ikonu, ancak web sitelerinde kullanım için daha büyük boyutlarda bir grafik olarak iyileştirme alanı var. Yazarlar grafiklerini kamu malı yapabilirse çok daha basit olacak.",
+    "post_id": "500",
+    "date": "13 Kasım 2010"
+  },
+  {
+    "category": "general",
+    "medium": "bitcointalk",
+    "text": "Makaleyi silmek yerine, bir uzunluk sınırlaması koymalarını isterdim. Bir şey yeterince ünlü değilse, en azından ne olduğunu belirten bir taslak makale olabilir. Wiki'nin en azından duymuş olması gereken şeylerin can sıkıcı kırmızı bağlantılarıyla sık sık karşılaşıyorum.\nMakale şu kadar basit olabilir: \"Bitcoin, eşler arası merkeziyetsiz bir /bağlantı/elektronik para/bağlantı/ sistemidir.\"\nDaha standart Wiki yaklaşımı, bizim bir örneği olduğumuz daha genel kategorilerden birinde, Elektronik Para veya Elektronik Nakit gibi, bir paragrafa sahip olmamız gerektiğidir. Muhtemelen orada bir paragraf oluşturabiliriz. Yine, kısa tutun. Sadece ne olduğunu belirtin.",
+    "post_id": "467",
+    "date": "30 Eylül 2010"
+  },
+  {
+    "category": "transactions",
+    "medium": "bitcointalk",
+    "text": "Anladığınız gibi, temel sorun, işlemleri en az 1 onay alana kadar saymamalı veya harcamamalıyız. 0/onaylanmamış işlemler kesinlikle ikinci sınıf vatandaşlardır. En fazla, bir şeyin alındığına dair bir tavsiye olabilirler, ancak bunları bakiye olarak saymak veya harcamak erken olur.",
+    "post_id": "464",
+    "date": "30 Eylül 2010"
+  },
+  {
+    "category": "general",
+    "medium": "bitcointalk",
+    "text": "Bitcoin, kredi kartı olmayan veya mevcut kartlarını kullanmak istemeyen kişiler için uygun olacaktır - ya eşinin faturada görmesini istemiyor ya da \"porno sitelerine\" numaralarını vermek istemiyor ya da tekrarlayan ödemelerden korkuyor.",
+    "post_id": "460",
+    "date": "23 Eylül 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Hata takip sistemleri hakkında hiçbir şey bilmiyorum. Eğer bir tane olsaydı, çok iyi araştırılmış bir seçim yapmamız gerekirdi. Şu anda forum kullanarak oldukça iyi yönetiyoruz. Hataları forumda görmeye daha yatkınım ve diğer kullanıcıların burada yardım etmeye ve takip soruları sormaya, bir hata takip sisteminde olacaklarından çok daha yatkın olduklarını düşünüyorum. Önemli bir adım, diğer kullanıcıların gerçekten bir hata olmayan ama bazı yanlış anlamalar veya karışıklıklar olan basit şeyleri çözmesine yardım etmesidir. Forumda gördüğüm çözülmemiş tüm hataların bir listesini tutuyorum. Bazı durumlarda, düzeltme için en iyi tasarımı düşünmeye devam ediyorum. Bu, çözülmemiş çok fazla hatayı bırakabileceğimiz türden bir yazılım değil.",
+    "post_id": "454",
+    "date": "19 Eylül 2010"
+  },
+  {
+    "category": "scalability",
+    "medium": "bitcointalk",
+    "text": "Eşik değeri gelecekte kolayca değiştirilebilir. Zamanı geldiğinde artırmaya karar verebiliriz. Bir devre kesici olarak düşük tutmak ve gerektiğinde artırmak iyi bir fikir. Şu anda eşiğe ulaşırsak, neredeyse kesinlikle bir tür sel olur ve gerçek kullanım olmaz. Eşiği düşük tutmak, böyle bir durumda boşa harcanan disk alanı miktarını sınırlamaya yardımcı olur.",
+    "post_id": "441",
+    "date": "8 Eylül 2010"
+  },
+  {
+    "category": "fees",
+    "medium": "bitcointalk",
+    "text": "Şu anda, ücret ödemesi -paytxfee anahtarı ile manuel olarak kontrol ediliyor. Yazılımın otomatik olarak son blokların boyutunu kontrol edip ücret ödemesi gerekip gerekmediğini görmesi çok kolay olurdu. Eşiğe ulaşmaktan çok uzaktayız, henüz buna ihtiyacımız yok. Her şeyin manuel kontrolle nasıl gittiğini görmek zaten iyi bir fikir.",
+    "post_id": "441",
+    "date": "8 Eylül 2010"
+  },
+  {
+    "category": "fees, nodes",
+    "medium": "bitcointalk",
+    "text": "Başka bir seçenek, işlem ücretleri gerekmeden önce blok başına izin verilen ücretsiz işlem sayısını azaltmaktır. Düğümler, en az 0.01 işlem ücreti talep etmeye başlamadan önce blok başına sadece belirli bir KB ücretsiz işlem alır. Eşik değeri muhtemelen şu anki değerinden daha düşük olmalı. Eşiğin asla 0 olmaması gerektiğini düşünüyorum. Her zaman en azından bazı ücretsiz işlemlere izin vermeliyiz.",
+    "post_id": "439",
+    "date": "7 Eylül 2010"
+  },
+  {
+    "category": "economics",
+    "medium": "bitcointalk",
+    "text": "Bir düşünce deneyi olarak, altın kadar nadir olan ancak aşağıdaki özelliklere sahip bir temel metal olduğunu hayal edin:\n- sıkıcı gri renkte\n- iyi bir elektrik iletkeni değil\n- özellikle güçlü değil, ama ne de sünek veya kolay şekillendirilebilir\n- herhangi bir pratik veya süs amaçlı kullanım için faydalı değil\n\nve bir özel, büyülü özellik:\n- bir iletişim kanalı üzerinden taşınabilir\n\nEğer herhangi bir nedenle bir değer kazanırsa, uzun mesafeler üzerinden servet transfer etmek isteyen herkes biraz satın alabilir, iletebilir ve alıcının satmasını sağlayabilir.\n\nBelki de önerdiğiniz gibi, insanların değişim için potansiyel kullanışlılığını öngörmesiyle dairesel olarak başlangıç değeri kazanabilir. (Kesinlikle biraz isterdim) Belki koleksiyoncular, herhangi bir rastgele neden bunu tetikleyebilir.\n\nPara için geleneksel niteliklerin, dünyada rekabet eden çok sayıda nesne olduğu varsayımıyla yazıldığını düşünüyorum, içsel değeri olan bir nesne kesinlikle içsel değeri olmayanların üzerinde kazanacaktır. Ama eğer dünyada para olarak kullanılabilecek içsel değeri olan hiçbir şey olmasaydı, sadece nadir ama içsel değeri olmayan şeyler olsaydı, bence insanlar yine de bir şeyler alırdı.\n\n(Burada nadir kelimesini sadece sınırlı potansiyel arz anlamında kullanıyorum)",
+    "post_id": "428",
+    "date": "27 Ağustos 2010"
+  },
+  {
+    "category": "bitcoin-economics",
+    "medium": "bitcointalk",
+    "text": "Bitcoin'lerin temettüsü veya potansiyel gelecek temettüsü yoktur, bu nedenle bir hisse senedi gibi değildir.\n\nDaha çok bir koleksiyon parçası veya emtia gibidir.",
+    "post_id": "427",
+    "date": "27 Ağustos 2010"
+  },
+  {
+    "category": "proof-of-work",
+    "medium": "bitcointalk",
+    "text": "Yazılımın bir zincirin diğerinden daha iyi olup olmadığını otomatik olarak bilmesinin tek yolu en büyük iş kanıtıdır. Tasarımda, ne kadar geriye gitmesi gerekirse gitsin, daha uzun bir zincire geçmesi gerekiyordu.",
+    "post_id": "394",
+    "date": "16 Ağustos 2010"
+  },
+  {
+    "category": "mining",
+    "medium": "bitcointalk",
+    "text": "Üretimin yönelme eğiliminde olacağı bazı yerler:\n1) en ucuz veya ücretsiz olduğu yerler\n2) ideolojik nedenlerle yardım etmek isteyenler\n3) onları satın almak için bir işlem yapma zahmetine girmeden biraz coin almak isteyenler\n\nÜcretsiz olduğu meşru yerler var. Üretim, temel olarak elektrikli ısıtmanın olduğu her yerde ücretsizdir, çünkü bilgisayarınızın ısısı elektrikli ısıtmanızı dengelemektedir. Birçok küçük daire kolaylık için elektrikli ısıtma kullanır.",
+    "post_id": "364",
+    "date": "15 Ağustos 2010"
+  },
+  {
+    "category": "general",
+    "medium": "bitcointalk",
+    "text": "O zaman ön ödeme sistemine de karşı olmalısınız, müşteri kaybeder.\nÖn ödeme: müşteri kaybeder ve hırsız parayı alır.\nBasit emanet: müşteri kaybeder ama hırsız da parayı alamaz.\nSizler ön ödemenin daha iyi olduğunu mu söylüyorsunuz, çünkü en azından hırsız parayı alır, yani en azından biri alır?\nBirinin sizden bir şey çaldığını hayal edin. Geri alamazsınız, ama alabilseydiniz, uzaktan tetiklenebilen bir öldürme düğmesi olsaydı, yapar mıydınız? Hırsızların sahip olduğunuz her şeyin bir öldürme düğmesi olduğunu ve çalarlarsa onlara işe yaramayacağını bilmeleri iyi bir şey olur muydu, siz de kaybetseniz bile? Eğer geri verirlerse, yeniden etkinleştirebilirsiniz.\nAltının çalındığında kurşuna dönüştüğünü hayal edin. Hırsız geri verirse, tekrar altına dönüşür.\nBana hala sorun, bunu doğru şekilde sunmakla ilgili olabilir gibi görünüyor. Bir şey için, oyun teorisi tartışması amacıyla \"para yakma\" konusunda bu kadar açık olmamak. Para asla gerçekten yakılmaz. İstediğiniz zaman serbest bırakma seçeneğiniz sonsuza dek var.",
+    "post_id": "340",
+    "date": "11 Ağustos 2010"
+  },
+  {
+    "category": "mining",
+    "medium": "bitcointalk",
+    "text": "Eğer evinizi ısıtmanız gerekiyorsa, bilgisayarınızın ısısı boşa gitmez. Yaşadığınız yerde elektrikli ısıtma kullanıyorsanız, bilgisayarınızın ısısı bir israf değildir. Isıyı bilgisayarınızla üretmek eşit maliyettedir.\nEğer elektrikten daha ucuz başka bir ısıtmanız varsa, israf sadece maliyet farkıdır.\nYazsa ve klima kullanıyorsanız, iki katıdır.\nBitcoin üretimi en ucuz olduğu yerde sonuçlanmalıdır. Belki de elektrikli ısıtmanın olduğu soğuk iklimlerde olacak, orada temel olarak ücretsiz olacaktır.",
+    "post_id": "337",
+    "date": "9 Ağustos 2010"
+  },
+  {
+    "category": "bitcoin-economics",
+    "medium": "bitcointalk",
+    "text": "Altın ve altın madenciliği ile aynı durum. Altın madenciliğinin marjinal maliyeti altın fiyatının yakınında kalma eğilimindedir. Altın madenciliği bir israftır, ancak bu israf, altının bir değişim aracı olarak kullanılabilir olmasının faydasından çok daha azdır.\nBitcoin için de durumun aynı olacağını düşünüyorum. Bitcoin'in mümkün kıldığı değişimlerin faydası, kullanılan elektriğin maliyetini çok aşacaktır. Bu nedenle, Bitcoin'in olmaması net bir israf olurdu.",
+    "post_id": "327",
+    "date": "7 Ağustos 2010"
+  },
+  {
+    "category": "proof-of-work",
+    "medium": "bitcointalk",
+    "text": "İş kanıtının güzel bir özelliği, güvenilmeyen aracılar üzerinden iletilmesidir. İletişimin zincirini takip etmek konusunda endişelenmemize gerek yok. En uzun zinciri kimin söylediği önemli değil, iş kanıtı kendisi için konuşur.",
+    "post_id": "327",
+    "date": "7 Ağustos 2010"
+  },
+  {
+    "category": "micropayments",
+    "medium": "bitcointalk",
+    "text": "Mikro ödemeler hakkındaki iyi kısmı eklemeyi unuttum. Bitcoin'in şu anda daha küçük mikro ödemeler için pratik olduğunu düşünmüyorum, ancak depolama ve bant genişliği maliyetleri düşmeye devam ettikçe sonunda öyle olacak. Bitcoin büyük ölçekte tutarsa, o zamana kadar zaten öyle olabilir. Daha pratik hale gelmelerinin başka bir yolu, sadece istemci modunu uygulamam ve ağ düğümlerinin daha az sayıda profesyonel sunucu çiftliğinde birleşmesidir. İhtiyaç duyduğunuz mikro ödeme boyutu ne olursa olsun sonunda pratik olacaktır. 5 veya 10 yıl içinde, bant genişliği ve depolama önemsiz görünecektir.",
+    "post_id": "318",
+    "date": "5 Ağustos 2010"
+  },
+  {
+    "category": "micropayments",
+    "medium": "bitcointalk",
+    "text": "Bitcoin şu anda çok küçük mikro ödemeler için pratik değil. Arama başına veya sayfa görüntüleme başına ödeme gibi şeyler için, bir toplama mekanizması olmadan, 0.01'den az ödeme gerektiren şeyler için değil. Toz spam sınırı, bu tür aşırı küçük mikro ödemeleri önlemek için bilinçli olarak yapılan ilk denemedir.\nBitcoin, mevcut ödeme yöntemleriyle pratik olanlardan daha küçük işlemler için pratiktir. Mikro ödeme aralığının üst kısmını içerecek kadar küçük. Ancak keyfi olarak küçük mikro ödemeler için pratik olduğunu iddia etmiyor.",
+    "post_id": "317",
+    "date": "4 Ağustos 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Aslında, bana özel mesaj göndermek iyi çalışıyor. Onu düzeltecek olan benim. Bir güvenlik açığı bulursanız, kesinlikle halka açılmadan önce düzeltmek için sizden özel olarak duymak isterim.",
+    "post_id": "294",
+    "date": "29 Temmuz 2010"
+  },
+  {
+    "category": "nodes",
+    "medium": "bitcointalk",
+    "text": "Her kullanıcının bir ağ düğümü olduğu mevcut sistem, büyük ölçek için tasarlanan yapılandırma değildir. Bu, her Usenet kullanıcısının kendi NNTP sunucusunu çalıştırması gibi olurdu. Tasarım, kullanıcıların sadece kullanıcı olmasına izin veriyor. Bir düğüm çalıştırmak ne kadar yük olursa, o kadar az düğüm olacak. O birkaç düğüm büyük sunucu çiftlikleri olacak. Geri kalanı sadece işlem yapan ve üretmeyen istemci düğümleri olacak.",
+    "post_id": "287",
+    "date": "29 Temmuz 2010"
+  },
+  {
+    "category": "general",
+    "medium": "bitcointalk",
+    "text": "Gelecekte referans olması için, işte benim açık anahtarım. bitcoin.org sitesi ilk kez 2008'de kurulduğundan beri orada olan aynı anahtar. İhtiyacınız olursa diye şimdi alın. http://www.bitcoin.org/Satoshi_Nakamoto.asc",
+    "post_id": "276",
+    "date": "25 Temmuz 2010"
+  },
+  {
+    "category": "bitcoin-design",
+    "medium": "bitcointalk",
+    "text": "Veritabanı ayarlarında bazı değişiklikler yaparak, ilk blok indirmesini yaklaşık 5 kat daha hızlı hale getirebildim. Yaklaşık 30 dakikada indiriyor.\n\nVeritabanı varsayılanı, her bloğu diske senkron olarak yazıyordu, bu gerekli değil. Değişiklikleri bellekte önbelleğe almasına ve toplu olarak yazmasına izin vermek için ayarları değiştirdim. Bloklar hala işlemsel olarak yazılıyor, yani ya tam değişiklik gerçekleşiyor ya da hiçbiri gerçekleşmiyor, her iki durumda da veri geçerli bir durumda kalıyor.\n\nBu değişikliği sadece ilk blok indirmesi sırasında etkinleştirdim. En son bloktan 2000 blok içine girdiğinizde, bu değişiklikler kapanıyor ve eski yavaş haline dönüyor.",
+    "post_id": "258",
+    "date": "23 Temmuz 2010"
+  },
+  {
+    "category": "general",
+    "medium": "bitcointalk",
+    "text": "Zamanlama garip, slashdot'ta yer aldıktan sonra 3. taraf kapsamında hızlı bir artış elde ederken. Umarım tartışmayı sarmak ve karar vermek için büyük bir acele yoktur. Wikipedia genellikle böyle bir soruyu ne kadar süre yorum için açık bırakır?\nMakaleyi mümkün olan en kısa sürede yoğunlaştırmak ve daha az tanıtım gibi görünmesini sağlamak yardımcı olacaktır. Sadece insanlara ne olduğunu, elektronik para alanına nerede sığdığını bildirmek, onları iyi olduğuna ikna etmeye çalışmamak. Muhtemelen ne olduğunu genel olarak tanımlayan, nasıl çalıştığını açıklamaya çalışmayan bir şey istiyorlar.",
+    "post_id": "249",
+    "date": "10 Temmuz 2010"
+  },
+  {
+    "category": "difficulty",
+    "medium": "bitcointalk",
+    "text": "Doğru, zorluk ayarı, ağın bir bütün olarak saatte ortalama 6 blok üretmesini sağlamaya çalışıyor. Bloğunuzun olgunlaşma süresi her zaman yaklaşık 20 saat olacaktır.",
+    "post_id": "225",
+    "date": "16 Temmuz 2010"
+  },
+  {
+    "category": "difficulty",
+    "medium": "bitcointalk",
+    "text": "Zorluk 4 kat arttı, şimdi maliyetiniz US$0.02/BTC.",
+    "post_id": "223",
+    "date": "16 Temmuz 2010"
+  },
+  {
+    "category": "scalability, nodes",
+    "medium": "bitcointalk",
+    "text": "Tasarım, tam blok zincirine ihtiyaç duymayan hafif bir istemci özetliyor. Tasarım PDF'inde Basitleştirilmiş Ödeme Doğrulaması olarak adlandırılıyor. Hafif istemci işlem gönderebilir ve alabilir, sadece blok üretemez. Ödemeleri doğrulamak için bir düğüme güvenmesine gerek yok, hala kendisi doğrulayabilir.\nHafif istemci henüz uygulanmadı, ancak plan ihtiyaç duyulduğunda uygulamak. Şimdilik, herkes sadece tam bir ağ düğümü çalıştırıyor.",
+    "post_id": "188",
+    "date": "14 Temmuz 2010"
+  }
+] 

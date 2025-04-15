@@ -61,12 +61,20 @@ quote_task = None
 def load_quotes():
     global quotes
     try:
-        with open('quotes.json', 'r', encoding='utf-8') as f:
+        # Use Turkish quotes file
+        with open('quotes_tr.json', 'r', encoding='utf-8') as f:
             quotes = json.load(f)
-        logger.info(f"Loaded {len(quotes)} Satoshi quotes")
+        logger.info(f"Loaded {len(quotes)} Turkish Satoshi quotes")
     except Exception as e:
-        logger.error(f"Error loading quotes: {str(e)}")
-        quotes = []
+        logger.error(f"Error loading Turkish quotes: {str(e)}")
+        # Fallback to English quotes if Turkish file is not available
+        try:
+            with open('quotes.json', 'r', encoding='utf-8') as f:
+                quotes = json.load(f)
+            logger.info(f"Loaded {len(quotes)} English Satoshi quotes (fallback)")
+        except Exception as e:
+            logger.error(f"Error loading English quotes: {str(e)}")
+            quotes = []
 
 # Get a random quote
 def get_random_quote():
@@ -144,7 +152,7 @@ async def post_quote(context: ContextTypes.DEFAULT_TYPE) -> None:
             
             # Force post if this is the first run (last_time is 0)
             if last_time == 0 or current_time - last_time >= QUOTE_INTERVAL:
-                # Post the quote
+                # Post the quote with Turkish formatting
                 message = f"💬 *Satoshi Nakamoto*\n\n{quote['text']}"
                 await context.bot.send_message(
                     chat_id=chat_id,
@@ -154,7 +162,7 @@ async def post_quote(context: ContextTypes.DEFAULT_TYPE) -> None:
                 
                 # Update the last quote time
                 last_quote_time[chat_id] = current_time
-                logger.info(f"Posted quote to chat {chat_id}")
+                logger.info(f"Posted Turkish quote to chat {chat_id}")
             else:
                 logger.info(f"Skipping quote post to chat {chat_id} - too soon since last post")
         except Exception as e:
@@ -179,7 +187,7 @@ async def quote_scheduler(application):
                             parse_mode='Markdown'
                         )
                         last_quote_time[chat_id] = current_time
-                        logger.info(f"Posted quote to chat {chat_id}")
+                        logger.info(f"Posted Turkish quote to chat {chat_id}")
         except Exception as e:
             logger.error(f"Error in quote scheduler: {str(e)}")
         
