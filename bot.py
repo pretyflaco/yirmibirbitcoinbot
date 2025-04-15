@@ -55,6 +55,7 @@ banned_users = set()
 quotes = []
 last_quote_time = {}
 replied_to_messages = set()
+quote_task = None
 
 # Load quotes from JSON file
 def load_quotes():
@@ -148,6 +149,32 @@ async def post_quote(context: ContextTypes.DEFAULT_TYPE) -> None:
                 logger.info(f"Posted quote to chat {chat_id}")
         except Exception as e:
             logger.error(f"Error posting quote to chat {chat_id}: {str(e)}")
+
+async def quote_scheduler(application):
+    """Schedule quote posting using asyncio."""
+    while True:
+        try:
+            # Post quotes to all tracked chats
+            for chat_id in application.bot_data.get('quote_chats', set()):
+                current_time = time.time()
+                last_time = last_quote_time.get(chat_id, 0)
+                
+                if current_time - last_time >= QUOTE_INTERVAL:
+                    quote = get_random_quote()
+                    if quote:
+                        message = f"💬 *Satoshi Nakamoto*\n\n{quote['text']}"
+                        await application.bot.send_message(
+                            chat_id=chat_id,
+                            text=message,
+                            parse_mode='Markdown'
+                        )
+                        last_quote_time[chat_id] = current_time
+                        logger.info(f"Posted quote to chat {chat_id}")
+        except Exception as e:
+            logger.error(f"Error in quote scheduler: {str(e)}")
+        
+        # Wait for the next interval
+        await asyncio.sleep(QUOTE_INTERVAL)
 
 async def handle_source_request(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle requests for quote source."""
@@ -902,8 +929,20 @@ def main() -> None:
     application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, track_new_chat))
     application.add_handler(MessageHandler(filters.ChatType.GROUPS & filters.TEXT & ~filters.COMMAND, handle_source_request))
     
-    # Add job for posting quotes every 12 hours
-    application.job_queue.run_repeating(post_quote, interval=QUOTE_INTERVAL, first=10)
+    # Try to use job queue if available, otherwise use asyncio task
+    try:
+        if application.job_queue:
+            application.job_queue.run_repeating(post_quote, interval=QUOTE_INTERVAL, first=10)
+            logger.info("Using job queue for quote scheduling")
+        else:
+            # Create a task for quote scheduling
+            asyncio.create_task(quote_scheduler(application))
+            logger.info("Using asyncio task for quote scheduling")
+    except Exception as e:
+        logger.error(f"Error setting up quote scheduling: {str(e)}")
+        # Fallback to asyncio task
+        asyncio.create_task(quote_scheduler(application))
+        logger.info("Using asyncio task for quote scheduling (fallback)")
 
     # Start the Bot
     logger.info("Starting bot...")
