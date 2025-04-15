@@ -3,7 +3,7 @@ import sys
 import re
 
 # Telegram Bot Token - Get from environment variable
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "your_bot_token_here")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "7762709630:AAFTymiOSgaBIW7Yf4eZTtvBqXbbo0vd7gQ")
 
 # Validate token format (simple validation)
 def is_valid_token_format(token):
@@ -34,22 +34,22 @@ elif not is_valid_token_format(TELEGRAM_BOT_TOKEN):
 
 # BTCTurk API URLs
 BTCTURK_API_BASE_URL = "https://api.btcturk.com"
-BTCTURK_API_TICKER_URL = f"{BTCTURK_API_BASE_URL}/api/v2/ticker"
+BTCTURK_API_TICKER_URL = "https://api.btcturk.com/api/v2/server/exchangeinfo"
 
 # Blink API URLs and Queries
 BLINK_API_URL = "https://api.blink.sv/graphql"
+BLINK_API_KEY = "YOUR_BLINK_API_KEY_HERE"  # Replace with your actual API key with Write scope
 BLINK_PRICE_QUERY = """
-query ExampleQuery($range: PriceGraphRange!) {
-  btcPriceList(range: $range) {
+query BtcPriceList($first: Int!) {
+  btcPriceList(first: $first) {
     price {
       base
-      currencyUnit
-      formattedAmount
       offset
     }
+    timestamp
   }
 }
 """
 BLINK_PRICE_VARIABLES = {
-    "range": "ONE_DAY"
+    "first": 1
 }
