@@ -185,19 +185,25 @@ async def quote_scheduler(application):
             # Post quotes to all tracked chats
             for chat_id in application.bot_data.get('quote_chats', set()):
                 current_time = time.time()
-                last_time = last_quote_time.get(chat_id, 0)
+                last_time = application.bot_data.get('last_quote_time', {}).get(str(chat_id), 0)
                 
                 if current_time - last_time >= QUOTE_INTERVAL:
-                    quote = get_random_quote()
-                    if quote:
-                        message = f"💬 *Satoshi Nakamoto*\n\n{quote['text']}"
+                    quotes = application.bot_data.get('quotes', [])
+                    if quotes:
+                        quote = random.choice(quotes)
+                        message = f"💭 *Satoshi Nakamoto'dan bir alıntı:*\n\n_{quote['text']}_"
                         await application.bot.send_message(
                             chat_id=chat_id,
                             text=message,
                             parse_mode='Markdown'
                         )
-                        last_quote_time[chat_id] = current_time
+                        # Update last quote time for this specific chat
+                        if 'last_quote_time' not in application.bot_data:
+                            application.bot_data['last_quote_time'] = {}
+                        application.bot_data['last_quote_time'][str(chat_id)] = current_time
                         logger.info(f"Posted Turkish quote to chat {chat_id}")
+                    else:
+                        logger.error("No quotes available to post")
         except Exception as e:
             logger.error(f"Error in quote scheduler: {str(e)}")
         
@@ -987,11 +993,25 @@ async def get_group_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 def main() -> None:
     """Start the bot."""
-    # Load quotes
-    load_quotes()
-    
     # Create the Application and pass it your bot's token
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+
+    # Load quotes and store them in application.bot_data
+    try:
+        # Try to load Turkish quotes first
+        with open('quotes_tr.json', 'r', encoding='utf-8') as f:
+            application.bot_data['quotes'] = json.load(f)
+        logger.info(f"Loaded {len(application.bot_data['quotes'])} Turkish Satoshi quotes")
+    except Exception as e:
+        logger.error(f"Error loading Turkish quotes: {str(e)}")
+        # Fallback to English quotes if Turkish file is not available
+        try:
+            with open('quotes.json', 'r', encoding='utf-8') as f:
+                application.bot_data['quotes'] = json.load(f)
+            logger.info(f"Loaded {len(application.bot_data['quotes'])} English Satoshi quotes (fallback)")
+        except Exception as e:
+            logger.error(f"Error loading English quotes: {str(e)}")
+            application.bot_data['quotes'] = []
 
     # Add command handlers
     application.add_handler(CommandHandler("start", start))
