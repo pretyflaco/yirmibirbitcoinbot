@@ -448,11 +448,10 @@ class BlinkAPI(BaseAPI):
             # Try to extract the amount from the invoice
             try:
                 # The amount is encoded after the 'lnbc' prefix
-                # For example: lnbc10n... means 1 satoshi (10^0)
-                # lnbc100n... means 10 satoshis (10^1)
+                # For example: lnbc21n... means 21 satoshis (not 210)
                 # lnbc1m... means 100,000 satoshis (10^5)
 
-                # Extract the amount part
+                # Extract the amount part (numeric part after 'lnbc')
                 amount_part = ''
                 for char in input_text[4:]:  # Skip 'lnbc'
                     if char.isdigit():
@@ -460,32 +459,41 @@ class BlinkAPI(BaseAPI):
                     else:
                         break
 
-                # Get the multiplier
+                # Get the multiplier character (the letter after the amount)
                 multiplier_char = input_text[4 + len(amount_part):4 + len(amount_part) + 1]
 
-                # If there's no amount (just 1 digit followed by a letter)
-                if len(amount_part) <= 1:
+                # If there's just 1 digit followed by 'p', it's a no-amount invoice
+                if len(amount_part) == 1 and multiplier_char == 'p':
                     return {
                         "type": "bolt11_no_amount",
                         "value": input_text.strip()
                     }
 
-                # Calculate the amount based on the multiplier
+                # Parse the amount correctly based on the multiplier
                 amount = int(amount_part)
                 if multiplier_char == 'n':
                     # Nano-bitcoin (0.000000001 BTC = 0.1 satoshi)
-                    # But since we can't have partial satoshis, this is usually 1 sat
-                    amount = amount * (10 ** 0)
+                    # For invoices with 'n', the amount is exactly the number before 'n'
+                    # e.g., lnbc21n = 21 sats (not 210)
+                    amount = amount
                 elif multiplier_char == 'p':
                     # Pico-bitcoin (0.000000000001 BTC = 0.0001 satoshi)
-                    # But since we can't have partial satoshis, this is usually very small
-                    amount = amount * (10 ** -3)
+                    # For invoices with 'p', it's typically a no-amount invoice
+                    return {
+                        "type": "bolt11_no_amount",
+                        "value": input_text.strip()
+                    }
                 elif multiplier_char == 'u':
                     # Micro-bitcoin (0.000001 BTC = 100 satoshis)
-                    amount = amount * (10 ** 2)
+                    # For invoices with 'u', multiply by 100
+                    amount = amount * 100
                 elif multiplier_char == 'm':
                     # Milli-bitcoin (0.001 BTC = 100,000 satoshis)
-                    amount = amount * (10 ** 5)
+                    # For invoices with 'm', multiply by 100,000
+                    amount = amount * 100000
+
+                # Log the detected amount for debugging
+                logger.info(f"Detected amount {amount} sats from invoice {input_text[:15]}...")
 
                 return {
                     "type": "bolt11_with_amount",
