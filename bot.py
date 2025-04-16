@@ -421,8 +421,8 @@ async def get_btc_usd_price():
             base = float(price_data['base'])
             offset = int(price_data['offset'])
             
-            # Calculate the proper price
-            price = base * (10 ** -offset)
+            # Calculate the proper price (corrected by dividing by 100)
+            price = (base * (10 ** -offset)) / 100
             logger.info(f"Successfully fetched BTC price from Blink: {price}")
             return price
         
@@ -439,25 +439,32 @@ async def get_btc_try_price():
         response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
         response.raise_for_status()
             
-        data = response.json()
-        logger.info(f"BTCTurk API response type: {type(data)}")
+        raw_data = response.json()
+        logger.info(f"BTCTurk API response type: {type(raw_data)}")
         
         # Check if the response has the expected structure
-        if not isinstance(data, dict) or 'data' not in data or not data.get('success', False):
-            logger.error(f"BTCTurk API response has unexpected format: {data}")
+        if not isinstance(raw_data, dict) or 'data' not in raw_data:
+            logger.error(f"BTCTurk API response has unexpected format: {raw_data}")
             return None
         
+        # Debug: Print the first few pairs in the response
+        pairs_found = []
+        for i, pair_data in enumerate(raw_data['data'][:5]):
+            if isinstance(pair_data, dict):
+                pair = pair_data.get('pair', 'unknown')
+                last_price = pair_data.get('last', 'unknown')
+                pairs_found.append(f"{pair}:{last_price}")
+        
+        logger.info(f"First few pairs in BTCTurk response: {pairs_found}")
+        
         # Find the BTCTRY pair
-        for pair_data in data.get('data', []):
+        for pair_data in raw_data['data']:
             if isinstance(pair_data, dict) and pair_data.get('pair') == 'BTCTRY':
-                price = float(pair_data.get('last', 0))
+                price = float(pair_data['last'])
                 logger.info(f"Found BTC/TRY price: {price}")
                 return price
         
         logger.error("BTCTRY pair not found in the API response")
-        # Debug: Log some of the pairs that were found
-        pairs = [p.get('pair') for p in data.get('data', [])[:5] if isinstance(p, dict)]
-        logger.info(f"First few pairs found: {pairs}")
         return None
     except Exception as e:
         logger.error(f"Error fetching BTC/TRY price from BTCTurk: {str(e)}")
@@ -870,36 +877,53 @@ async def dollar_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         # Send a loading message
         loading_msg = await update.message.reply_text("Döviz kurları alınıyor, lütfen bekleyin...")
         
-        # Get USDT/TRY rate from BTCTurk with extra debugging
+        # Get USDT/TRY rate from BTCTurk
         try:
-            raw_response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
-            logger.info(f"BTCTurk raw response status: {raw_response.status_code}")
+            logger.info("Fetching USDT/TRY rate from BTCTurk API...")
+            response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
+            response.raise_for_status()
             
-            if raw_response.status_code == 200:
-                data = raw_response.json()
-                logger.info(f"BTCTurk response keys: {list(data.keys() if isinstance(data, dict) else [])}")
+            # Log raw response for debugging
+            logger.info(f"BTCTurk raw response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                raw_data = response.json()
+                logger.info(f"BTCTurk response keys: {list(raw_data.keys() if isinstance(raw_data, dict) else [])}")
                 
-                if isinstance(data, dict) and 'data' in data and isinstance(data['data'], list):
-                    # Find the USDTTRY pair
+                # Check response structure
+                if isinstance(raw_data, dict) and 'data' in raw_data and isinstance(raw_data['data'], list):
                     usdt_try_rate = None
                     pairs_found = []
                     
-                    for pair_data in data.get('data', []):
-                        pair = pair_data.get('pair')
-                        pairs_found.append(pair)
-                        
-                        if pair == 'USDTTRY':
-                            usdt_try_rate = float(pair_data.get('last', 0))
+                    # Debug: Print the first few pairs in the response
+                    for i, pair_data in enumerate(raw_data['data'][:5]):
+                        if isinstance(pair_data, dict):
+                            pair = pair_data.get('pair', 'unknown')
+                            last_price = pair_data.get('last', 'unknown')
+                            pairs_found.append(f"{pair}:{last_price}")
+                    
+                    logger.info(f"First few pairs in BTCTurk response: {pairs_found}")
+                    
+                    # Find USDTTRY pair
+                    for pair_data in raw_data['data']:
+                        if isinstance(pair_data, dict) and pair_data.get('pair') == 'USDTTRY':
+                            usdt_try_rate = float(pair_data['last'])
                             logger.info(f"Found USDT/TRY rate: {usdt_try_rate}")
                             break
                     
                     if usdt_try_rate is None:
-                        logger.error(f"USDTTRY pair not found. Available pairs: {', '.join(pairs_found[:10])}...")
+                        logger.error("USDTTRY pair not found in BTCTurk response")
+                        # Try case-insensitive search as fallback
+                        for pair_data in raw_data['data']:
+                            if isinstance(pair_data, dict) and pair_data.get('pair', '').upper() == 'USDTTRY':
+                                usdt_try_rate = float(pair_data['last'])
+                                logger.info(f"Found USDT/TRY rate (case-insensitive): {usdt_try_rate}")
+                                break
                 else:
-                    logger.error(f"Unexpected BTCTurk API response structure: {data}")
+                    logger.error(f"Unexpected BTCTurk API response structure: {raw_data}")
                     usdt_try_rate = None
             else:
-                logger.error(f"BTCTurk API returned status {raw_response.status_code}")
+                logger.error(f"BTCTurk API returned status {response.status_code}")
                 usdt_try_rate = None
         except Exception as e:
             logger.error(f"Error processing BTCTurk API response: {str(e)}")
@@ -939,17 +963,27 @@ async def get_btcturk_btc_usd_price():
         response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
         response.raise_for_status()
             
-        data = response.json()
+        raw_data = response.json()
         
         # Check if the response has the expected structure
-        if not isinstance(data, dict) or 'data' not in data or not data.get('success', False):
-            logger.error(f"BTCTurk API response has unexpected format: {data}")
+        if not isinstance(raw_data, dict) or 'data' not in raw_data:
+            logger.error(f"BTCTurk API response has unexpected format: {raw_data}")
             return None
         
+        # Debug: Print the first few pairs in the response
+        pairs_found = []
+        for i, pair_data in enumerate(raw_data['data'][:5]):
+            if isinstance(pair_data, dict):
+                pair = pair_data.get('pair', 'unknown')
+                last_price = pair_data.get('last', 'unknown')
+                pairs_found.append(f"{pair}:{last_price}")
+        
+        logger.info(f"First few pairs in BTCTurk response: {pairs_found}")
+        
         # Find the BTCUSDT pair
-        for pair_data in data.get('data', []):
+        for pair_data in raw_data['data']:
             if isinstance(pair_data, dict) and pair_data.get('pair') == 'BTCUSDT':
-                price = float(pair_data.get('last', 0))
+                price = float(pair_data['last'])
                 logger.info(f"Found BTC/USD price from BTCTurk: {price}")
                 return price
         
@@ -1081,66 +1115,75 @@ async def convert_100lira(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return
     
     try:
+        # Send a loading message
+        loading_msg = await update.message.reply_text("Hesaplanıyor, lütfen bekleyin...")
+        
         # Fetch current exchange rate from BTCTurk
-        response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        
-        data = response.json()
-        
-        # Find the BTCTRY pair
-        btc_try_data = None
-        for pair_data in data.get('data', []):
-            if pair_data.get('pair') == 'BTCTRY':
-                btc_try_data = pair_data
-                break
-        
-        if not btc_try_data:
-            logger.error("BTCTRY pair not found in the API response")
-            await update.message.reply_text(
-                "Üzgünüm, BTC/TRY kurunu bulamadım. Lütfen daha sonra tekrar deneyin."
+        try:
+            logger.info("Fetching BTC/TRY rate for 100lira command...")
+            response = requests.get(BTCTURK_API_TICKER_URL, timeout=10)
+            response.raise_for_status()
+            
+            data = response.json()
+            logger.info(f"BTCTurk response type: {type(data)}")
+            
+            # Check if response is valid
+            if not isinstance(data, dict) or 'data' not in data:
+                logger.error(f"Invalid BTCTurk response structure: {data}")
+                await loading_msg.edit_text("Üzgünüm, borsa verilerini alırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.")
+                return
+            
+            # Find the BTCTRY pair
+            btc_try_data = None
+            pairs_found = []
+            
+            for pair_data in data.get('data', []):
+                pair = pair_data.get('pair', '')
+                pairs_found.append(pair)
+                
+                if pair == 'BTCTRY':
+                    btc_try_data = pair_data
+                    break
+            
+            if not btc_try_data:
+                logger.error(f"BTCTRY pair not found. Available pairs: {', '.join(pairs_found[:10])}...")
+                await loading_msg.edit_text("Üzgünüm, BTC/TRY kurunu bulamadım. Lütfen daha sonra tekrar deneyin.")
+                return
+            
+            # Extract the last price
+            btc_try_rate = float(btc_try_data.get('last', 0))
+            
+            if btc_try_rate <= 0:
+                logger.error(f"Invalid exchange rate: {btc_try_rate}")
+                await loading_msg.edit_text("Üzgünüm, geçersiz bir kur aldım. Lütfen daha sonra tekrar deneyin.")
+                return
+            
+            # Calculate satoshi equivalent (1 BTC = 100,000,000 satoshi)
+            lira_amount = 100
+            btc_amount = lira_amount / btc_try_rate
+            satoshi_amount = btc_amount * 100000000  # Convert BTC to satoshi
+            
+            # Format the response
+            message = (
+                f"💰 *100 Türk Lirası = {satoshi_amount:.0f} satoshi*\n\n"
+                f"Kur: 1 BTC = ₺{int(btc_try_rate):,}\n"
+                f"Veri kaynağı: BTCTurk\n"
+                f"_Şu anda güncellendi_"
             )
-            return
-        
-        # Extract the last price
-        btc_try_rate = float(btc_try_data.get('last', 0))
-        
-        if btc_try_rate <= 0:
-            logger.error(f"Invalid exchange rate: {btc_try_rate}")
-            await update.message.reply_text(
-                "Üzgünüm, geçersiz bir kur aldım. Lütfen daha sonra tekrar deneyin."
-            )
-            return
-        
-        # Calculate satoshi equivalent (1 BTC = 100,000,000 satoshi)
-        lira_amount = 100
-        btc_amount = lira_amount / btc_try_rate
-        satoshi_amount = btc_amount * 100000000  # Convert BTC to satoshi
-        
-        # Format the response
-        message = (
-            f"💰 *100 Türk Lirası = {satoshi_amount:.0f} satoshi*\n\n"
-            f"Kur: 1 BTC = ₺{int(btc_try_rate):,}\n"
-            f"Veri kaynağı: BTCTurk\n"
-            f"_Şu anda güncellendi_"
-        )
-        
-        await update.message.reply_text(message, parse_mode='Markdown')
-        
+            
+            await loading_msg.edit_text(message, parse_mode='Markdown')
+            
+        except Exception as e:
+            logger.error(f"Error in 100lira command inner block: {str(e)}")
+            await loading_msg.edit_text("Üzgünüm, bir hata oluştu. Lütfen daha sonra tekrar deneyin.")
+            
     except requests.RequestException as e:
         logger.error(f"API request error: {str(e)}")
-        await update.message.reply_text(
-            "Üzgünüm, borsaya bağlanamadım. Lütfen daha sonra tekrar deneyin."
-        )
-    except (ValueError, KeyError, TypeError) as e:
-        logger.error(f"Data processing error: {str(e)}")
-        await update.message.reply_text(
-            "Üzgünüm, borsa verilerini işlerken bir hata ile karşılaştım. Lütfen daha sonra tekrar deneyin."
-        )
+        await update.message.reply_text("Üzgünüm, borsaya bağlanamadım. Lütfen daha sonra tekrar deneyin.")
+        
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        await update.message.reply_text(
-            "Beklenmedik bir hata oluştu. Lütfen daha sonra tekrar deneyin."
-        )
+        logger.error(f"Unexpected error in 100lira command: {str(e)}")
+        await update.message.reply_text("Beklenmedik bir hata oluştu. Lütfen daha sonra tekrar deneyin.")
 
 async def get_group_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Get the ID of the current chat."""
