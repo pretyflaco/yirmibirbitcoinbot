@@ -1,4 +1,4 @@
-# Telegram Bitcoin Converter Bot
+# Yirmibir Bitcoin Telegram Bot
 
 A Telegram bot that provides Bitcoin price information, currency conversion, and Satoshi Nakamoto quotes. All responses are in Turkish.
 
@@ -30,9 +30,9 @@ Admin commands:
 
 ## Usage
 
-You can use the bot on Telegram by searching for `@100liratosatoshi_bot` or clicking this link: [https://t.me/100liratosatoshi_bot](https://t.me/100liratosatoshi_bot)
+You can use the bot on Telegram by searching for `@yirmibir21bot` or clicking this link: [https://t.me/yirmibir21bot](https://t.me/yirmibir21bot)
 
-Just send the command `/100lira` and the bot will reply with the current satoshi value of 100 TRY.
+The bot provides multiple commands including `/100lira` to convert 100 TRY to satoshi, `/price` to check current Bitcoin prices, and more. All responses are in Turkish.
 
 ## Installation and Setup
 
@@ -46,8 +46,8 @@ Just send the command `/100lira` and the bot will reply with the current satoshi
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/TelegramBitcoinConverter.git
-   cd TelegramBitcoinConverter
+   git clone https://github.com/pretyflaco/yirmibirbitcoinbot.git
+   cd yirmibirbitcoinbot
    ```
 
 2. Install the required dependencies:
@@ -79,7 +79,7 @@ Just send the command `/100lira` and the bot will reply with the current satoshi
 ## Project Structure
 
 ```
-TelegramBitcoinConverter/
+yirmibirbitcoinbot/
 ├── README.md
 ├── requirements.txt
 ├── main.py
@@ -147,11 +147,11 @@ If you prefer using Docker:
 
 2. Build and run the Docker container:
    ```bash
-   docker build -t telegram-bitcoin-converter .
+   docker build -t yirmibirbitcoinbot .
    docker run -e TELEGRAM_BOT_TOKEN=your_bot_token_here \
               -e BLINK_API_KEY=your_blink_api_key_here \
               -e ADMIN_USERNAME=your_admin_username_here \
-              telegram-bitcoin-converter
+              yirmibirbitcoinbot
    ```
 
 ## Deployment
