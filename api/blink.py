@@ -245,3 +245,92 @@ class BlinkAPI(BaseAPI):
         except Exception as e:
             logger.error(f"Error sending lightning payment: {str(e)}")
             return {"status": "ERROR", "errors": [{"message": str(e)}]}
+
+    @classmethod
+    async def pay_lightning_invoice(cls, payment_request: str) -> Dict[str, Any]:
+        """Pay a Lightning Network invoice (Bolt11).
+
+        Args:
+            payment_request: The Bolt11 invoice to pay
+
+        Returns:
+            Dictionary with payment status and any errors
+        """
+        try:
+            # First, get the wallet data to find the BTC wallet ID
+            wallet_data = await cls.get_wallet_data()
+            if not wallet_data:
+                logger.error("Failed to get wallet data")
+                return {"status": "ERROR", "errors": [{"message": "Failed to get wallet data"}]}
+
+            # Find the BTC wallet
+            btc_wallet = None
+            for wallet in wallet_data:
+                if wallet.get('walletCurrency') == 'BTC':
+                    btc_wallet = wallet
+                    break
+
+            if not btc_wallet:
+                logger.error("BTC wallet not found")
+                return {"status": "ERROR", "errors": [{"message": "BTC wallet not found"}]}
+
+            # Get the wallet ID
+            wallet_id = btc_wallet.get('id')
+            if not wallet_id:
+                logger.error("Wallet ID not found")
+                return {"status": "ERROR", "errors": [{"message": "Wallet ID not found"}]}
+
+            # GraphQL mutation to pay invoice
+            mutation = """
+            mutation LnInvoicePaymentSend($input: LnInvoicePaymentInput!) {
+              lnInvoicePaymentSend(input: $input) {
+                status
+                errors {
+                  message
+                  path
+                  code
+                }
+              }
+            }
+            """
+
+            # Variables for the mutation
+            variables = {
+                "input": {
+                    "walletId": wallet_id,
+                    "paymentRequest": payment_request
+                }
+            }
+
+            # Log the request for debugging
+            logger.info(f"Paying Lightning invoice: {payment_request}")
+            logger.info(f"Request variables: {variables}")
+
+            # Make the API request
+            response_data = cls.make_request(
+                url=BLINK_API_URL,
+                method="POST",
+                json_data={
+                    "query": mutation,
+                    "variables": variables
+                },
+                headers={"X-API-KEY": BLINK_API_KEY},
+                timeout=30
+            )
+
+            # Extract payment result
+            if 'data' in response_data and response_data['data'] and 'lnInvoicePaymentSend' in response_data['data']:
+                return response_data['data']['lnInvoicePaymentSend']
+
+            # Handle case where data['data'] is None
+            if 'errors' in response_data and response_data['errors']:
+                error_messages = [error.get('message', 'Unknown error') for error in response_data['errors']]
+                error_message = "; ".join(error_messages)
+                logger.error(f"API returned errors: {error_message}")
+                return {"status": "ERROR", "errors": [{"message": error_message}]}
+
+            return {"status": "ERROR", "errors": [{"message": "Invalid API response"}]}
+
+        except Exception as e:
+            logger.error(f"Error paying Lightning invoice: {str(e)}")
+            return {"status": "ERROR", "errors": [{"message": str(e)}]}
