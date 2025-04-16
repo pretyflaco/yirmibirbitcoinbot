@@ -1,13 +1,53 @@
+"""Configuration settings for the Telegram Bitcoin Converter Bot.
+
+This module contains all configuration settings, API endpoints, and environment variables
+used throughout the application. It validates critical settings like the Telegram Bot Token
+and provides helpful error messages if configuration is incorrect.
+
+Environment Variables:
+    TELEGRAM_BOT_TOKEN: The token for the Telegram Bot API
+    BLINK_API_KEY: API key for the Blink API
+    ADMIN_USERNAME: Username of the bot administrator
+
+API Endpoints:
+    Various API endpoints for cryptocurrency exchanges
+
+GraphQL Queries:
+    Predefined GraphQL queries for the Blink API
+"""
+
 import os
 import sys
 import re
+from dotenv import load_dotenv
+
+# Load environment variables from .env file if it exists
+load_dotenv()
 
 # Telegram Bot Token - Get from environment variable
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "7762709630:AAFTymiOSgaBIW7Yf4eZTtvBqXbbo0vd7gQ")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+# Admin username for special commands
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "pretyflaco")
+
+# Rate limiting settings
+PUBLIC_GROUP_COOLDOWN = int(os.getenv("PUBLIC_GROUP_COOLDOWN", "3600"))  # 1 hour in seconds
+PRIVATE_CHAT_COOLDOWN = int(os.getenv("PRIVATE_CHAT_COOLDOWN", "900"))   # 15 minutes in seconds
+
+# Quote posting settings
+QUOTE_INTERVAL = int(os.getenv("QUOTE_INTERVAL", "43200"))  # 12 hours in seconds
+QUOTE_SOURCE_URL = "https://github.com/dergigi/QuotableSatoshi"
 
 # Validate token format (simple validation)
 def is_valid_token_format(token):
-    """Simple validation of Telegram bot token format."""
+    """Simple validation of Telegram bot token format.
+
+    Args:
+        token (str): The Telegram bot token to validate
+
+    Returns:
+        bool: True if the token format is valid, False otherwise
+    """
     if not token:
         return False
     # Basic format check (numbers:letters+numbers)
@@ -17,19 +57,16 @@ def is_valid_token_format(token):
 # Exit with error if the token is not set or invalid format
 if not TELEGRAM_BOT_TOKEN:
     print("Error: TELEGRAM_BOT_TOKEN environment variable is not set.")
-    print("\nTo set the token in Replit:")
-    print("1. Click on the 'Secrets (Environment variables)' tab in the sidebar")
-    print("2. Click 'Add new secret'")
-    print("3. Key: TELEGRAM_BOT_TOKEN")
-    print("4. Value: Your telegram token (without any quotes)")
-    print("5. Click 'Add secret'")
-    print("\nFor local development:")
+    print("\nTo set the token:")
+    print("1. Create a .env file in the project root")
+    print("2. Add the line: TELEGRAM_BOT_TOKEN=your_token_here (without quotes)")
+    print("\nOr set it directly in your environment:")
     print("export TELEGRAM_BOT_TOKEN=your_token_here (without quotes)")
     sys.exit(1)
 elif not is_valid_token_format(TELEGRAM_BOT_TOKEN):
     print("Error: The TELEGRAM_BOT_TOKEN format appears to be invalid.")
     print("A valid token typically looks like: 123456789:ABCDefGhIJklmNoPQRsTUVwxyZ")
-    print("Please check your token and update it in the Secrets tab.")
+    print("Please check your token and update it in your .env file or environment variables.")
     sys.exit(1)
 
 # BTCTurk API URLs
@@ -38,7 +75,9 @@ BTCTURK_API_TICKER_URL = "https://api.btcturk.com/api/v2/server/exchangeinfo"
 
 # Blink API URLs and Queries
 BLINK_API_URL = "https://api.blink.sv/graphql"
-BLINK_API_KEY = "YOUR_BLINK_API_KEY_HERE"  # Replace with your actual API key with Write scope
+BLINK_API_KEY = os.getenv("BLINK_API_KEY", "")
+
+# Blink GraphQL queries
 BLINK_PRICE_QUERY = """
 query BtcPriceList($first: Int!) {
   btcPriceList(first: $first) {
@@ -50,6 +89,20 @@ query BtcPriceList($first: Int!) {
   }
 }
 """
+
 BLINK_PRICE_VARIABLES = {
     "first": 1
 }
+
+# Yadio API URL for currency exchange rates
+YADIO_API_URL = "https://api.yadio.io/exrates/USD"
+
+# Additional cryptocurrency exchange API URLs
+BINANCE_API_URL = "https://api.binance.com/api/v3/ticker/price"
+KRAKEN_API_URL = "https://api.kraken.com/0/public/Ticker"
+PARIBU_API_URL = "https://www.paribu.com/ticker"
+BITFINEX_API_URL = "https://api-pub.bitfinex.com/v2/ticker"
+BITSTAMP_API_URL = "https://www.bitstamp.net/api/v2/ticker"
+COINBASE_API_URL = "https://api.coinbase.com/v2/prices"
+OKX_API_URL = "https://www.okx.com/api/v5/market/ticker"
+BITFLYER_API_URL = "https://api.bitflyer.com/v1/ticker"
