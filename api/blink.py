@@ -42,7 +42,7 @@ class BlinkAPI(BaseAPI):
             """
 
             variables = {
-                "range": "ONE_HOUR"
+                "range": "ONE_DAY"
             }
 
             # Make the API request
@@ -59,16 +59,26 @@ class BlinkAPI(BaseAPI):
             logger.info(f"Blink API response status: {response_data is not None}")
 
             # Check for errors in response
+            if response_data is None:
+                logger.error("Blink API returned None response")
+                return None
+
             if 'errors' in response_data:
                 error_messages = [error.get('message', 'Unknown error') for error in response_data.get('errors', [])]
                 error_message = "; ".join(error_messages)
                 logger.error(f"Blink API returned errors: {error_message}")
                 return None
 
-            # Extract price from response
-            if ('data' in response_data and response_data['data'] and 'btcPriceList' in response_data['data'] and
-                response_data['data']['btcPriceList'] and len(response_data['data']['btcPriceList']) > 0):
+            if 'data' not in response_data:
+                logger.error(f"Blink API response missing 'data' field: {response_data}")
+                return None
 
+            if 'btcPriceList' not in response_data['data'] or not response_data['data']['btcPriceList']:
+                logger.error(f"Blink API response missing or empty 'btcPriceList': {response_data['data']}")
+                return None
+
+            # Extract price from response
+            try:
                 # Get all prices and sort by timestamp to get the most recent one
                 price_list = response_data['data']['btcPriceList']
 
@@ -76,7 +86,11 @@ class BlinkAPI(BaseAPI):
                 logger.info(f"Received {len(price_list)} price points from Blink API")
 
                 # Sort by timestamp in descending order (most recent first)
-                sorted_prices = sorted(price_list, key=lambda x: x.get('timestamp', 0), reverse=True)
+                sorted_prices = sorted(price_list, key=lambda x: int(x.get('timestamp', 0)), reverse=True)
+
+                # Log the timestamps for debugging
+                timestamps = [p.get('timestamp') for p in sorted_prices[:5]]
+                logger.info(f"First few timestamps after sorting: {timestamps}")
 
                 # Use the most recent price (first after sorting)
                 price_data = sorted_prices[0]['price']
@@ -88,8 +102,10 @@ class BlinkAPI(BaseAPI):
                 logger.info(f"Successfully fetched BTC price from Blink: {price}")
                 return price
 
-            logger.error(f"Unexpected Blink API response format: {response_data}")
-            return None
+            except (KeyError, IndexError, ValueError, TypeError) as e:
+                logger.error(f"Error extracting price from Blink API response: {str(e)}")
+                logger.error(f"Unexpected Blink API response format: {response_data}")
+                return None
 
         except Exception as e:
             logger.error(f"Error fetching BTC/USD price from Blink: {str(e)}")
