@@ -71,7 +71,7 @@ elif not is_valid_token_format(TELEGRAM_BOT_TOKEN):
 
 # BTCTurk API URLs
 BTCTURK_API_BASE_URL = "https://api.btcturk.com"
-BTCTURK_API_TICKER_URL = "https://api.btcturk.com/api/v2/server/exchangeinfo"
+BTCTURK_API_TICKER_URL = "https://api.btcturk.com/api/v2/ticker"
 
 # Blink API URLs and Queries
 BLINK_API_URL = "https://api.blink.sv/graphql"
