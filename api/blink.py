@@ -98,7 +98,9 @@ class BlinkAPI(BaseAPI):
                 offset = int(price_data['offset'])
 
                 # Calculate the proper price
-                price = base * (10 ** -offset)
+                # The Blink API returns prices that are 100x the actual value, so we need to divide by 100
+                # This is because the API returns prices in cents (1/100 of a dollar)
+                price = (base * (10 ** -offset)) / 100
                 logger.info(f"Successfully fetched BTC price from Blink: {price}")
                 return price
 
