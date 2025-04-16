@@ -17,9 +17,7 @@ from config import ADMIN_USERNAME
 logger = logging.getLogger(__name__)
 
 # Define conversation states for the gimmecheese command
-PAYMENT_TYPE = 1
-LIGHTNING_ADDRESS = 2
-LIGHTNING_INVOICE = 3
+PAYMENT_INPUT = 1
 
 # Flag to track if a lightning payment is in progress
 lightning_payment_in_progress = False
@@ -69,62 +67,19 @@ async def gimmecheese_command(update: Update, context: ContextTypes.DEFAULT_TYPE
         )
         return ConversationHandler.END
 
-    # Ask for payment type
+    # Ask for payment input
     await update.message.reply_text(
-        "Bitcoin göndermek için bir yöntem seçin:\n\n"
-        "1️⃣ Lightning Adresi (örn: satoshi@lightning.com)\n"
-        "2️⃣ Lightning Faturası (BOLT11 invoice)\n\n"
-        "Lütfen 1 veya 2 yazarak seçiminizi yapın.\n"
+        "Bitcoin göndermek için lütfen bir Lightning Adresi veya Lightning Faturası (BOLT11 invoice) girin.\n\n"
+        "Lightning Adresi örneği: satoshi@lightning.com\n"
+        "Lightning Faturası örneği: lnbc...\n\n"
+        "Sadece 21 satoshi gönderebilirim.\n"
         "İptal etmek için /cancel yazın."
     )
 
-    return PAYMENT_TYPE
+    return PAYMENT_INPUT
 
-async def process_payment_type(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Process the payment type selection.
-
-    Args:
-        update: The update object from Telegram
-        context: The context object for the bot
-
-    Returns:
-        The next conversation state
-    """
-    # Check if this is a cancel command
-    if update.message.text.lower() == "/cancel":
-        await update.message.reply_text("İşlem iptal edildi.")
-        return ConversationHandler.END
-
-    # Get the payment type
-    payment_type = update.message.text.strip()
-
-    # Process based on selection
-    if payment_type == "1":
-        # User chose Lightning Address
-        await update.message.reply_text(
-            "Lütfen Bitcoin göndermek istediğiniz Lightning Adresini girin.\n"
-            "Örnek: satoshi@lightning.com\n\n"
-            "İptal etmek için /cancel yazın."
-        )
-        return LIGHTNING_ADDRESS
-    elif payment_type == "2":
-        # User chose Lightning Invoice
-        await update.message.reply_text(
-            "Lütfen ödemek istediğiniz Lightning Faturasını (BOLT11 invoice) girin.\n"
-            "Örnek: lnbc...\n\n"
-            "İptal etmek için /cancel yazın."
-        )
-        return LIGHTNING_INVOICE
-    else:
-        # Invalid selection
-        await update.message.reply_text(
-            "Geçersiz seçim. Lütfen 1 (Lightning Adresi) veya 2 (Lightning Faturası) yazın.\n"
-            "İptal etmek için /cancel yazın."
-        )
-        return PAYMENT_TYPE
-
-async def process_lightning_address(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Process the Lightning Address and send Bitcoin.
+async def process_payment_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Process the payment input and handle different payment types.
 
     Args:
         update: The update object from Telegram
@@ -140,15 +95,12 @@ async def process_lightning_address(update: Update, context: ContextTypes.DEFAUL
         await update.message.reply_text("İşlem iptal edildi.")
         return ConversationHandler.END
 
-    # Get the Lightning Address
-    lightning_address = update.message.text.strip()
+    # Get the payment input
+    payment_input = update.message.text.strip()
 
-    # Validate the Lightning Address format
-    if not "@" in lightning_address:
-        await update.message.reply_text(
-            "Geçersiz Lightning Adresi formatı. Lütfen 'kullanıcı@domain.com' formatında bir adres girin."
-        )
-        return LIGHTNING_ADDRESS
+    # Detect the payment type
+    payment_info = BlinkAPI.detect_payment_type(payment_input)
+    payment_type = payment_info.get('type')
 
     # Set payment in progress flag
     lightning_payment_in_progress = True
@@ -157,46 +109,107 @@ async def process_lightning_address(update: Update, context: ContextTypes.DEFAUL
     processing_message = await update.message.reply_text("Lightning ödemesi işleniyor...")
 
     try:
-        # Get the wallet ID and check balance
-        wallet_data = await BlinkAPI.get_wallet_data()
-        if not wallet_data:
-            await processing_message.edit_text("Cüzdan bilgileri alınamadı. Lütfen daha sonra tekrar deneyin.")
-            lightning_payment_in_progress = False
-            return ConversationHandler.END
+        # Handle different payment types
+        if payment_type == "lightning_address":
+            # Process Lightning Address
+            lightning_address = payment_info.get('value')
 
-        # Find the BTC wallet
-        btc_wallet = None
-        for wallet in wallet_data:
-            if wallet.get('walletCurrency') == 'BTC':
-                btc_wallet = wallet
-                break
+            # Get the wallet ID and check balance
+            wallet_data = await BlinkAPI.get_wallet_data()
+            if not wallet_data:
+                await processing_message.edit_text("Cüzdan bilgileri alınamadı. Lütfen daha sonra tekrar deneyin.")
+                lightning_payment_in_progress = False
+                return ConversationHandler.END
 
-        if not btc_wallet:
-            await processing_message.edit_text("BTC cüzdanı bulunamadı.")
-            lightning_payment_in_progress = False
-            return ConversationHandler.END
+            # Find the BTC wallet
+            btc_wallet = None
+            for wallet in wallet_data:
+                if wallet.get('walletCurrency') == 'BTC':
+                    btc_wallet = wallet
+                    break
 
-        # Check if we have enough balance (at least CHEESE_AMOUNT_SATS)
-        if int(btc_wallet.get('balance', 0)) < CHEESE_AMOUNT_SATS:
-            await processing_message.edit_text(f"Yetersiz bakiye. En az {CHEESE_AMOUNT_SATS} satoshi gerekiyor.")
-            lightning_payment_in_progress = False
-            return ConversationHandler.END
+            if not btc_wallet:
+                await processing_message.edit_text("BTC cüzdanı bulunamadı.")
+                lightning_payment_in_progress = False
+                return ConversationHandler.END
 
-        # Send the payment
-        payment_result = await BlinkAPI.send_lightning_payment(lightning_address, CHEESE_AMOUNT_SATS)
+            # Check if we have enough balance
+            if int(btc_wallet.get('balance', 0)) < CHEESE_AMOUNT_SATS:
+                await processing_message.edit_text(f"Yetersiz bakiye. En az {CHEESE_AMOUNT_SATS} satoshi gerekiyor.")
+                lightning_payment_in_progress = False
+                return ConversationHandler.END
 
-        if payment_result.get('status') == 'SUCCESS':
+            # Send the payment
+            payment_result = await BlinkAPI.send_lightning_payment(lightning_address, CHEESE_AMOUNT_SATS)
+
+            if payment_result.get('status') == 'SUCCESS':
+                await processing_message.edit_text(
+                    f"✅ Ödeme başarıyla gönderildi!\n\n"
+                    f"Alıcı: {lightning_address}\n"
+                    f"Miktar: {CHEESE_AMOUNT_SATS} satoshi"
+                )
+            else:
+                error_message = payment_result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
+                await processing_message.edit_text(f"\u274c Ödeme gönderilemedi: {error_message}")
+
+        elif payment_type == "bolt11_with_amount":
+            # Process Bolt11 invoice with amount
+            invoice = payment_info.get('value')
+            invoice_amount = payment_info.get('amount', 0)
+
+            # Check if the invoice amount is greater than our limit
+            if invoice_amount > CHEESE_AMOUNT_SATS:
+                await processing_message.edit_text(
+                    f"\u274c Fatura tutarı ({invoice_amount} satoshi) izin verilen maksimum tutarı ({CHEESE_AMOUNT_SATS} satoshi) aşıyor.\n"
+                    f"Lütfen {CHEESE_AMOUNT_SATS} satoshi veya daha az bir fatura oluşturun."
+                )
+                lightning_payment_in_progress = False
+                return ConversationHandler.END
+
+            # Pay the invoice
+            payment_result = await BlinkAPI.pay_lightning_invoice(invoice)
+
+            if payment_result.get('status') == 'SUCCESS':
+                await processing_message.edit_text(
+                    f"✅ Ödeme başarıyla gönderildi!\n\n"
+                    f"Fatura: {invoice[:20]}...{invoice[-10:]}\n"
+                    f"Miktar: {invoice_amount} satoshi"
+                )
+            else:
+                error_message = payment_result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
+                await processing_message.edit_text(f"\u274c Ödeme gönderilemedi: {error_message}")
+
+        elif payment_type == "bolt11_no_amount":
+            # Process Bolt11 invoice with no amount
+            invoice = payment_info.get('value')
+
+            # Pay the invoice with our fixed amount
+            payment_result = await BlinkAPI.pay_no_amount_lightning_invoice(invoice, CHEESE_AMOUNT_SATS)
+
+            if payment_result.get('status') == 'SUCCESS':
+                await processing_message.edit_text(
+                    f"✅ Ödeme başarıyla gönderildi!\n\n"
+                    f"Fatura: {invoice[:20]}...{invoice[-10:]}\n"
+                    f"Miktar: {CHEESE_AMOUNT_SATS} satoshi"
+                )
+            else:
+                error_message = payment_result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
+                await processing_message.edit_text(f"\u274c Ödeme gönderilemedi: {error_message}")
+
+        elif payment_type == "bolt11_unknown":
+            # Unknown Bolt11 invoice format
             await processing_message.edit_text(
-                f"✅ Ödeme başarıyla gönderildi!\n\n"
-                f"Alıcı: {lightning_address}\n"
-                f"Miktar: {CHEESE_AMOUNT_SATS} satoshi"
+                "\u274c Fatura formatı tanınamadı. Lütfen geçerli bir Lightning Adresi veya BOLT11 faturası girin."
             )
+
         else:
-            error_message = payment_result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
-            await processing_message.edit_text(f"❌ Ödeme gönderilemedi: {error_message}")
+            # Unknown payment type
+            await processing_message.edit_text(
+                "\u274c Geçersiz ödeme formatı. Lütfen geçerli bir Lightning Adresi (kullanıcı@domain.com) veya BOLT11 faturası (lnbc...) girin."
+            )
 
     except Exception as e:
-        logger.error(f"Error in lightning payment: {str(e)}")
+        logger.error(f"Error processing payment: {str(e)}")
         await processing_message.edit_text(f"Bir hata oluştu: {str(e)}")
 
     finally:
@@ -205,62 +218,9 @@ async def process_lightning_address(update: Update, context: ContextTypes.DEFAUL
 
     return ConversationHandler.END
 
-async def process_lightning_invoice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Process the Lightning Invoice and pay it.
 
-    Args:
-        update: The update object from Telegram
-        context: The context object for the bot
 
-    Returns:
-        The next conversation state
-    """
-    global lightning_payment_in_progress
 
-    # Check if this is a cancel command
-    if update.message.text.lower() == "/cancel":
-        await update.message.reply_text("İşlem iptal edildi.")
-        return ConversationHandler.END
-
-    # Get the Lightning Invoice
-    payment_request = update.message.text.strip()
-
-    # Basic validation of the invoice format
-    if not payment_request.startswith("ln"):
-        await update.message.reply_text(
-            "Geçersiz Lightning Faturası formatı. Fatura 'ln' ile başlamalıdır.\n"
-            "Lütfen geçerli bir BOLT11 faturası girin."
-        )
-        return LIGHTNING_INVOICE
-
-    # Set payment in progress flag
-    lightning_payment_in_progress = True
-
-    # Send a message that we're processing
-    processing_message = await update.message.reply_text("Lightning ödemesi işleniyor...")
-
-    try:
-        # Pay the invoice
-        payment_result = await BlinkAPI.pay_lightning_invoice(payment_request)
-
-        if payment_result.get('status') == 'SUCCESS':
-            await processing_message.edit_text(
-                f"✅ Ödeme başarıyla gönderildi!\n\n"
-                f"Fatura: {payment_request[:20]}...{payment_request[-10:]}\n"
-            )
-        else:
-            error_message = payment_result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
-            await processing_message.edit_text(f"\u274c Ödeme gönderilemedi: {error_message}")
-
-    except Exception as e:
-        logger.error(f"Error in lightning invoice payment: {str(e)}")
-        await processing_message.edit_text(f"Bir hata oluştu: {str(e)}")
-
-    finally:
-        # Reset payment in progress flag
-        lightning_payment_in_progress = False
-
-    return ConversationHandler.END
 
 async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancel the conversation.

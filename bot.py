@@ -42,13 +42,9 @@ from handlers.command_handlers import (
 )
 from handlers.conversation_handlers import (
     gimmecheese_command,
-    process_payment_type,
-    process_lightning_address,
-    process_lightning_invoice,
+    process_payment_input,
     cancel_command,
-    PAYMENT_TYPE,
-    LIGHTNING_ADDRESS,
-    LIGHTNING_INVOICE
+    PAYMENT_INPUT
 )
 from handlers.message_handlers import (
     handle_source_request,
@@ -94,9 +90,7 @@ def main() -> None:
     gimmecheese_conv_handler = ConversationHandler(
         entry_points=[CommandHandler("gimmecheese", gimmecheese_command)],
         states={
-            PAYMENT_TYPE: [MessageHandler(filters.TEXT & ~filters.COMMAND, process_payment_type)],
-            LIGHTNING_ADDRESS: [MessageHandler(filters.TEXT & ~filters.COMMAND, process_lightning_address)],
-            LIGHTNING_INVOICE: [MessageHandler(filters.TEXT & ~filters.COMMAND, process_lightning_invoice)]
+            PAYMENT_INPUT: [MessageHandler(filters.TEXT & ~filters.COMMAND, process_payment_input)]
         },
         fallbacks=[CommandHandler("cancel", cancel_command)]
     )

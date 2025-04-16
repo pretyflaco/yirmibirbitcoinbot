@@ -334,3 +334,174 @@ class BlinkAPI(BaseAPI):
         except Exception as e:
             logger.error(f"Error paying Lightning invoice: {str(e)}")
             return {"status": "ERROR", "errors": [{"message": str(e)}]}
+
+    @classmethod
+    async def pay_no_amount_lightning_invoice(cls, payment_request: str, amount_sats: int) -> Dict[str, Any]:
+        """Pay a Lightning Network invoice with no amount (Bolt11).
+
+        Args:
+            payment_request: The Bolt11 invoice to pay
+            amount_sats: The amount to pay in satoshis
+
+        Returns:
+            Dictionary with payment status and any errors
+        """
+        try:
+            # First, get the wallet data to find the BTC wallet ID
+            wallet_data = await cls.get_wallet_data()
+            if not wallet_data:
+                logger.error("Failed to get wallet data")
+                return {"status": "ERROR", "errors": [{"message": "Failed to get wallet data"}]}
+
+            # Find the BTC wallet
+            btc_wallet = None
+            for wallet in wallet_data:
+                if wallet.get('walletCurrency') == 'BTC':
+                    btc_wallet = wallet
+                    break
+
+            if not btc_wallet:
+                logger.error("BTC wallet not found")
+                return {"status": "ERROR", "errors": [{"message": "BTC wallet not found"}]}
+
+            # Get the wallet ID
+            wallet_id = btc_wallet.get('id')
+            if not wallet_id:
+                logger.error("Wallet ID not found")
+                return {"status": "ERROR", "errors": [{"message": "Wallet ID not found"}]}
+
+            # GraphQL mutation to pay no-amount invoice
+            mutation = """
+            mutation LnNoAmountInvoicePaymentSend($input: LnNoAmountInvoicePaymentInput!) {
+              lnNoAmountInvoicePaymentSend(input: $input) {
+                status
+                errors {
+                  message
+                  path
+                  code
+                }
+              }
+            }
+            """
+
+            # Variables for the mutation
+            variables = {
+                "input": {
+                    "walletId": wallet_id,
+                    "paymentRequest": payment_request,
+                    "amount": str(amount_sats)
+                }
+            }
+
+            # Log the request for debugging
+            logger.info(f"Paying Lightning no-amount invoice: {payment_request} with amount: {amount_sats} sats")
+            logger.info(f"Request variables: {variables}")
+
+            # Make the API request
+            response_data = cls.make_request(
+                url=BLINK_API_URL,
+                method="POST",
+                json_data={
+                    "query": mutation,
+                    "variables": variables
+                },
+                headers={"X-API-KEY": BLINK_API_KEY},
+                timeout=30
+            )
+
+            # Extract payment result
+            if 'data' in response_data and response_data['data'] and 'lnNoAmountInvoicePaymentSend' in response_data['data']:
+                return response_data['data']['lnNoAmountInvoicePaymentSend']
+
+            # Handle case where data['data'] is None
+            if 'errors' in response_data and response_data['errors']:
+                error_messages = [error.get('message', 'Unknown error') for error in response_data['errors']]
+                error_message = "; ".join(error_messages)
+                logger.error(f"API returned errors: {error_message}")
+                return {"status": "ERROR", "errors": [{"message": error_message}]}
+
+            return {"status": "ERROR", "errors": [{"message": "Invalid API response"}]}
+
+        except Exception as e:
+            logger.error(f"Error paying Lightning no-amount invoice: {str(e)}")
+            return {"status": "ERROR", "errors": [{"message": str(e)}]}
+
+    @classmethod
+    def detect_payment_type(cls, input_text: str) -> Dict[str, Any]:
+        """Detect the type of payment from user input.
+
+        Args:
+            input_text: The user input text
+
+        Returns:
+            Dictionary with payment type and additional info
+        """
+        # Check if it's a Lightning Address
+        if '@' in input_text and not input_text.startswith('ln'):
+            return {
+                "type": "lightning_address",
+                "value": input_text.strip()
+            }
+
+        # Check if it's a Bolt11 invoice
+        if input_text.lower().startswith('lnbc'):
+            # Try to extract the amount from the invoice
+            try:
+                # The amount is encoded after the 'lnbc' prefix
+                # For example: lnbc10n... means 1 satoshi (10^0)
+                # lnbc100n... means 10 satoshis (10^1)
+                # lnbc1m... means 100,000 satoshis (10^5)
+
+                # Extract the amount part
+                amount_part = ''
+                for char in input_text[4:]:  # Skip 'lnbc'
+                    if char.isdigit():
+                        amount_part += char
+                    else:
+                        break
+
+                # Get the multiplier
+                multiplier_char = input_text[4 + len(amount_part):4 + len(amount_part) + 1]
+
+                # If there's no amount (just 1 digit followed by a letter)
+                if len(amount_part) <= 1:
+                    return {
+                        "type": "bolt11_no_amount",
+                        "value": input_text.strip()
+                    }
+
+                # Calculate the amount based on the multiplier
+                amount = int(amount_part)
+                if multiplier_char == 'n':
+                    # Nano-bitcoin (0.000000001 BTC = 0.1 satoshi)
+                    # But since we can't have partial satoshis, this is usually 1 sat
+                    amount = amount * (10 ** 0)
+                elif multiplier_char == 'p':
+                    # Pico-bitcoin (0.000000000001 BTC = 0.0001 satoshi)
+                    # But since we can't have partial satoshis, this is usually very small
+                    amount = amount * (10 ** -3)
+                elif multiplier_char == 'u':
+                    # Micro-bitcoin (0.000001 BTC = 100 satoshis)
+                    amount = amount * (10 ** 2)
+                elif multiplier_char == 'm':
+                    # Milli-bitcoin (0.001 BTC = 100,000 satoshis)
+                    amount = amount * (10 ** 5)
+
+                return {
+                    "type": "bolt11_with_amount",
+                    "value": input_text.strip(),
+                    "amount": amount
+                }
+            except Exception as e:
+                logger.error(f"Error parsing Bolt11 invoice amount: {str(e)}")
+                # If we can't parse the amount, assume it's a no-amount invoice
+                return {
+                    "type": "bolt11_unknown",
+                    "value": input_text.strip()
+                }
+
+        # Unknown payment type
+        return {
+            "type": "unknown",
+            "value": input_text.strip()
+        }
