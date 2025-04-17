@@ -9,6 +9,7 @@ import os
 import logging
 import asyncio
 import json
+import time
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -18,6 +19,9 @@ from telegram.ext import (
     filters,
     ConversationHandler
 )
+
+# Import API clients
+from api.lnbits import LNBitsAPI
 
 # Set up logging
 logging.basicConfig(
@@ -85,6 +89,7 @@ def main() -> None:
     application.add_handler(CommandHandler("dollar", dollar_command))
     application.add_handler(CommandHandler("ban", ban_command))
     application.add_handler(CommandHandler("groupid", get_group_id))
+    application.add_handler(CommandHandler("wallet", wallet_command))
 
     # Add conversation handler for gimmecheese command
     gimmecheese_conv_handler = ConversationHandler(
@@ -394,6 +399,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "/price - Güncel BTC/USD ve BTC/TRY kurlarını göster\n"
         "/volume - En yüksek hacimli 5 para birimi çiftini göster\n"
         "/dollar - USDT/TRY ve USD/TRY kurlarını göster\n"
+        "/wallet - LNBits cüzdanı oluştur\n"
+        "/gimmecheese - 21 satoshi gönder\n"
         "/help - Yardım mesajını göster"
     )
 
@@ -416,7 +423,9 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/100lira - 100 TL'yi anlık kur ile satoshi'ye çevir\n"
         "/price - Güncel BTC/USD ve BTC/TRY kurlarını göster\n"
         "/volume - En yüksek hacimli 5 para birimi çiftini göster\n"
-        "/dollar - USDT/TRY ve USD/TRY kurlarını göster"
+        "/dollar - USDT/TRY ve USD/TRY kurlarını göster\n"
+        "/wallet - LNBits cüzdanı oluştur\n"
+        "/gimmecheese - 21 satoshi gönder"
     )
 
     # Add admin commands if user is admin
@@ -1542,6 +1551,48 @@ async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     """Cancel the conversation."""
     await update.message.reply_text("İşlem iptal edildi.")
     return ConversationHandler.END
+
+async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Create a new LNBits wallet for the user."""
+    # Check if user is banned
+    if await is_banned(update):
+        return
+
+    # Check rate limit
+    if await check_rate_limit(update, "wallet"):
+        return
+
+    # Get the user ID
+    user_id = update.effective_user.id
+
+    # Send a message that we're creating the wallet
+    processing_message = await update.message.reply_text("LNBits cüzdanı oluşturuluyor...")
+
+    try:
+        # Create the wallet
+        result = await LNBitsAPI.create_wallet(str(user_id))
+
+        if result.get('status') == 'SUCCESS':
+            wallet_data = result.get('wallet', {})
+
+            # Format the wallet information
+            wallet_info = (
+                f"✅ LNBits cüzdanı başarıyla oluşturuldu!\n\n"
+                f"🆔 Cüzdan ID: `{wallet_data.get('id')}`\n"
+                f"💰 Bakiye: {wallet_data.get('balance_msat', 0) // 1000} satoshi\n\n"
+                f"🔑 Admin Anahtarı: `{wallet_data.get('adminkey')}`\n"
+                f"🔑 Giriş Anahtarı: `{wallet_data.get('inkey')}`\n\n"
+                f"⚠️ Bu anahtarları güvenli bir yerde saklayın! Bunlar cüzdanınıza erişim için gereklidir."
+            )
+
+            await processing_message.edit_text(wallet_info, parse_mode='Markdown')
+        else:
+            error_message = result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
+            await processing_message.edit_text(f"❌ Cüzdan oluşturulamadı: {error_message}")
+
+    except Exception as e:
+        logger.error(f"Error creating LNBits wallet: {str(e)}")
+        await processing_message.edit_text(f"❌ Cüzdan oluşturulurken bir hata oluştu: {str(e)}")
 
 def main() -> None:
     """Start the bot."""

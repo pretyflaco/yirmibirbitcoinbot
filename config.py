@@ -106,3 +106,7 @@ BITSTAMP_API_URL = "https://www.bitstamp.net/api/v2/ticker"
 COINBASE_API_URL = "https://api.coinbase.com/v2/prices"
 OKX_API_URL = "https://www.okx.com/api/v5/market/ticker"
 BITFLYER_API_URL = "https://api.bitflyer.com/v1/ticker"
+
+# LNBits API
+LNBITS_API_URL = "https://lnbits.ideasarelikeflames.org/api/v1"
+LNBITS_API_KEY = os.getenv("LNBITS_API_KEY", "9b5fa6838ebe4002879000d3cb57a3f9")
