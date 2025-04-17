@@ -78,6 +78,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/volume - En yüksek hacimli 5 para birimi çiftini göster\n"
         "/dollar - USDT/TRY ve USD/TRY kurlarını göster\n"
         "/wallet - LNBits cüzdanı oluştur\n"
+        "/invoice [miktar] - Belirtilen miktar için ödeme talebi oluştur\n"
         "/gimmecheese - 21 satoshi gönder"
     )
 
@@ -366,44 +367,20 @@ async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
             # Format the wallet information without showing sensitive keys
             wallet_info = (
-                f"✅ LNBits cüzdanı başarıyla oluşturuldu!\n\n"
-                f"🆔 Cüzdan ID: `{wallet_data.get('id')}`\n"
-                f"💰 Bakiye: {wallet_data.get('balance_msat', 0) // 1000} satoshi\n\n"
-                f"Cüzdanınıza erişmek için LNBits'e giriş yapın:\n"
-                f"https://lnbits.ideasarelikeflames.org/\n\n"
-                f"Giriş bilgileriniz size özel mesaj olarak gönderildi."
+                f"✅ Cüzdan başarıyla oluşturuldu!\n"
+                f"💰 Bakiye: 0 SAT"
             )
 
-            # Send sensitive keys privately to the user
-            private_info = (
-                f"🔐 LNBits Cüzdan Giriş Bilgileriniz:\n\n"
-                f"🔑 Admin Anahtarı: `{wallet_data.get('adminkey')}`\n"
-                f"🔑 Giriş Anahtarı: `{wallet_data.get('inkey')}`\n\n"
-                f"⚠️ Bu anahtarları güvenli bir yerde saklayın! Bunlar cüzdanınıza erişim için gereklidir."
-            )
+            # Store wallet keys in user data for future use
+            if not hasattr(context, 'user_data'):
+                context.user_data = {}
 
-            # Send private message with keys
-            try:
-                await context.bot.send_message(
-                    chat_id=user_id,
-                    text=private_info,
-                    parse_mode='Markdown'
-                )
+            context.user_data['wallet_id'] = wallet_data.get('id')
+            context.user_data['wallet_adminkey'] = wallet_data.get('adminkey')
+            context.user_data['wallet_inkey'] = wallet_data.get('inkey')
 
-                # Send wallet info to the chat (only after private message succeeds)
-                await processing_message.edit_text(wallet_info, parse_mode='Markdown')
-
-            except Exception as e:
-                logger.error(f"Failed to send private wallet info: {str(e)}")
-                # If private message fails, don't show sensitive info in public chat
-                safe_wallet_info = (
-                    f"✅ LNBits cüzdanı başarıyla oluşturuldu!\n\n"
-                    f"🆔 Cüzdan ID: `{wallet_data.get('id')}`\n"
-                    f"💰 Bakiye: {wallet_data.get('balance_msat', 0) // 1000} satoshi\n\n"
-                    f"⚠️ Giriş bilgilerinizi özel mesaj olarak gönderemedim.\n"
-                    f"Lütfen benimle özel sohbet başlatın (/start) ve komutu tekrar deneyin."
-                )
-                await processing_message.edit_text(safe_wallet_info, parse_mode='Markdown')
+            # Send wallet info to the chat
+            await processing_message.edit_text(wallet_info, parse_mode='Markdown')
         else:
             error_message = result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
             await processing_message.edit_text(f"❌ Cüzdan oluşturulamadı: {error_message}")
@@ -411,3 +388,83 @@ async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     except Exception as e:
         logger.error(f"Error creating LNBits wallet: {str(e)}")
         await processing_message.edit_text(f"❌ Cüzdan oluşturulurken bir hata oluştu: {str(e)}")
+
+async def invoice_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Create a new invoice (Bolt11) for receiving funds.
+
+    Args:
+        update: The update object from Telegram
+        context: The context object for the bot
+    """
+    # Check if user is banned
+    if await is_banned(update):
+        return
+
+    # Check rate limit
+    if await check_rate_limit(update, "invoice"):
+        return
+
+    # Get the user ID
+    user_id = update.effective_user.id
+
+    # Check if amount is provided
+    if not context.args or len(context.args) != 1:
+        await update.message.reply_text(
+            "❌ Kullanım: /invoice [miktar]\n"
+            "Örnek: /invoice 21"
+        )
+        return
+
+    # Parse the amount
+    try:
+        amount = int(context.args[0])
+        if amount <= 0:
+            await update.message.reply_text("❌ Miktar pozitif bir sayı olmalıdır.")
+            return
+    except ValueError:
+        await update.message.reply_text("❌ Geçersiz miktar. Lütfen bir sayı girin.")
+        return
+
+    # Check if user has a wallet
+    if not hasattr(context, 'user_data') or 'wallet_inkey' not in context.user_data:
+        await update.message.reply_text(
+            "❌ Önce bir cüzdan oluşturmanız gerekiyor.\n"
+            "/wallet komutunu kullanarak bir cüzdan oluşturun."
+        )
+        return
+
+    # Get the wallet inkey
+    wallet_inkey = context.user_data.get('wallet_inkey')
+
+    # Send a message that we're creating the invoice
+    processing_message = await update.message.reply_text(f"{amount} satoshi için fatura oluşturuluyor...")
+
+    try:
+        # Create the invoice
+        memo = f"Yirmibir Bitcoin Bot - {amount} satoshi"
+        result = await LNBitsAPI.create_invoice(wallet_inkey, amount, memo)
+
+        if result.get('status') == 'SUCCESS':
+            invoice_data = result.get('invoice', {})
+            payment_request = invoice_data.get('payment_request', '')
+
+            if not payment_request:
+                await processing_message.edit_text("❌ Fatura oluşturulurken bir hata oluştu.")
+                return
+
+            # Format the invoice information
+            invoice_info = (
+                f"✅ {amount} satoshi için fatura oluşturuldu!\n\n"
+                f"`{payment_request}`\n\n"
+                f"Bu fatura ödendikten sonra, bakiyeniz otomatik olarak güncellenecektir."
+            )
+
+            # Send invoice info to the chat
+            await processing_message.edit_text(invoice_info, parse_mode='Markdown')
+        else:
+            error_message = result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
+            await processing_message.edit_text(f"❌ Fatura oluşturulamadı: {error_message}")
+
+    except Exception as e:
+        logger.error(f"Error creating invoice: {str(e)}")
+        await processing_message.edit_text(f"❌ Fatura oluşturulurken bir hata oluştu: {str(e)}")

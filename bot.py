@@ -43,7 +43,8 @@ from handlers.command_handlers import (
     dollar_command,
     convert_100lira,
     get_group_id,
-    wallet_command
+    wallet_command,
+    invoice_command
 )
 from handlers.conversation_handlers import (
     gimmecheese_command,
@@ -91,6 +92,7 @@ def main() -> None:
     application.add_handler(CommandHandler("ban", ban_command))
     application.add_handler(CommandHandler("groupid", get_group_id))
     application.add_handler(CommandHandler("wallet", wallet_command))
+    application.add_handler(CommandHandler("invoice", invoice_command))
 
     # Add conversation handler for gimmecheese command
     gimmecheese_conv_handler = ConversationHandler(
@@ -401,6 +403,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "/volume - En yüksek hacimli 5 para birimi çiftini göster\n"
         "/dollar - USDT/TRY ve USD/TRY kurlarını göster\n"
         "/wallet - LNBits cüzdanı oluştur\n"
+        "/invoice [miktar] - Belirtilen miktar için ödeme talebi oluştur\n"
         "/gimmecheese - 21 satoshi gönder\n"
         "/help - Yardım mesajını göster"
     )
