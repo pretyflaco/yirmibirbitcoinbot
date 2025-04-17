@@ -19,7 +19,11 @@ GraphQL Queries:
 import os
 import sys
 import re
+import logging
 from dotenv import load_dotenv
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Load environment variables from .env file if it exists
 load_dotenv()
@@ -109,4 +113,8 @@ BITFLYER_API_URL = "https://api.bitflyer.com/v1/ticker"
 
 # LNBits API
 LNBITS_API_URL = "https://lnbits.ideasarelikeflames.org/api/v1"
-LNBITS_API_KEY = os.getenv("LNBITS_API_KEY", "9b5fa6838ebe4002879000d3cb57a3f9")
+LNBITS_API_KEY = os.getenv("LNBITS_API_KEY", "")
+
+# Check if LNBits API key is set
+if not LNBITS_API_KEY:
+    logger.warning("LNBITS_API_KEY environment variable is not set. /wallet command will not work.")

@@ -42,7 +42,8 @@ from handlers.command_handlers import (
     volume_command,
     dollar_command,
     convert_100lira,
-    get_group_id
+    get_group_id,
+    wallet_command
 )
 from handlers.conversation_handlers import (
     gimmecheese_command,
@@ -1575,17 +1576,46 @@ async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         if result.get('status') == 'SUCCESS':
             wallet_data = result.get('wallet', {})
 
-            # Format the wallet information
+            # Format the wallet information without showing sensitive keys
             wallet_info = (
                 f"✅ LNBits cüzdanı başarıyla oluşturuldu!\n\n"
                 f"🆔 Cüzdan ID: `{wallet_data.get('id')}`\n"
                 f"💰 Bakiye: {wallet_data.get('balance_msat', 0) // 1000} satoshi\n\n"
+                f"Cüzdanınıza erişmek için LNBits'e giriş yapın:\n"
+                f"https://lnbits.ideasarelikeflames.org/\n\n"
+                f"Giriş bilgileriniz size özel mesaj olarak gönderildi."
+            )
+
+            # Send sensitive keys privately to the user
+            private_info = (
+                f"🔐 LNBits Cüzdan Giriş Bilgileriniz:\n\n"
                 f"🔑 Admin Anahtarı: `{wallet_data.get('adminkey')}`\n"
                 f"🔑 Giriş Anahtarı: `{wallet_data.get('inkey')}`\n\n"
                 f"⚠️ Bu anahtarları güvenli bir yerde saklayın! Bunlar cüzdanınıza erişim için gereklidir."
             )
 
-            await processing_message.edit_text(wallet_info, parse_mode='Markdown')
+            # Send private message with keys
+            try:
+                await context.bot.send_message(
+                    chat_id=user_id,
+                    text=private_info,
+                    parse_mode='Markdown'
+                )
+
+                # Send wallet info to the chat (only after private message succeeds)
+                await processing_message.edit_text(wallet_info, parse_mode='Markdown')
+
+            except Exception as e:
+                logger.error(f"Failed to send private wallet info: {str(e)}")
+                # If private message fails, don't show sensitive info in public chat
+                safe_wallet_info = (
+                    f"✅ LNBits cüzdanı başarıyla oluşturuldu!\n\n"
+                    f"🆔 Cüzdan ID: `{wallet_data.get('id')}`\n"
+                    f"💰 Bakiye: {wallet_data.get('balance_msat', 0) // 1000} satoshi\n\n"
+                    f"⚠️ Giriş bilgilerinizi özel mesaj olarak gönderemedim.\n"
+                    f"Lütfen benimle özel sohbet başlatın (/start) ve komutu tekrar deneyin."
+                )
+                await processing_message.edit_text(safe_wallet_info, parse_mode='Markdown')
         else:
             error_message = result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
             await processing_message.edit_text(f"❌ Cüzdan oluşturulamadı: {error_message}")
