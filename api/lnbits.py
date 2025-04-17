@@ -112,13 +112,36 @@ class LNBitsAPI(BaseAPI):
                 timeout=30
             )
 
+            # Log the response for debugging
+            logger.info(f"Invoice creation response: {response_data}")
+
             # Check if the response has the expected structure
-            if isinstance(response_data, dict) and "payment_hash" in response_data:
-                logger.info(f"Successfully created invoice: {response_data['payment_hash']}")
-                return {
-                    "status": "SUCCESS",
-                    "invoice": response_data
-                }
+            if isinstance(response_data, dict):
+                # The payment_hash field indicates success
+                if "payment_hash" in response_data:
+                    logger.info(f"Successfully created invoice: {response_data['payment_hash']}")
+
+                    # Extract the payment_request (Bolt11 invoice)
+                    payment_request = response_data.get('payment_request', '')
+                    if not payment_request:
+                        # Try alternate field names that might contain the invoice
+                        payment_request = response_data.get('bolt11', '')
+
+                    if payment_request:
+                        logger.info(f"Payment request: {payment_request[:30]}...")
+                        return {
+                            "status": "SUCCESS",
+                            "invoice": {
+                                "payment_hash": response_data.get('payment_hash', ''),
+                                "payment_request": payment_request
+                            }
+                        }
+                    else:
+                        logger.error("Payment request not found in response")
+                        return {
+                            "status": "ERROR",
+                            "errors": [{"message": "Payment request not found in response"}]
+                        }
 
             # Handle error response
             logger.error(f"Unexpected response format from LNBits API: {response_data}")
