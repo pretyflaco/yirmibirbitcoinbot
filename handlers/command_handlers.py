@@ -362,23 +362,42 @@ async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     try:
         # Check if user already has a wallet
         if user_has_wallet(user_id):
-            # Get existing wallet info
+            # Get existing wallet info from database
             wallet_data = get_wallet(user_id)
 
             if wallet_data:
-                # Format the wallet information
-                wallet_info = (
-                    f"✅ Cüzdanınız zaten mevcut!\n"
-                    f"💰 Bakiye: {wallet_data.get('balance_sat', 0)} SAT"
-                )
+                # Get the admin key for checking balance
+                admin_key = wallet_data.get('admin_key')
 
                 # Store wallet keys in user data for this session
                 if not hasattr(context, 'user_data'):
                     context.user_data = {}
 
                 context.user_data['wallet_id'] = wallet_data.get('wallet_id')
-                context.user_data['wallet_adminkey'] = wallet_data.get('admin_key')
+                context.user_data['wallet_adminkey'] = admin_key
                 context.user_data['wallet_inkey'] = wallet_data.get('inkey')
+
+                # Get real-time balance from LNBits API
+                await processing_message.edit_text("Cüzdan bakiyesi kontrol ediliyor...")
+                balance_result = await LNBitsAPI.get_wallet_balance(admin_key)
+
+                if balance_result.get('status') == 'SUCCESS':
+                    # Update balance in database
+                    balance_sat = balance_result.get('balance_sat', 0)
+                    from database.db import update_wallet_balance
+                    update_wallet_balance(user_id, balance_sat)
+
+                    # Format the wallet information with real-time balance
+                    wallet_info = (
+                        f"✅ Cüzdanınız zaten mevcut!\n"
+                        f"💰 Bakiye: {balance_sat} SAT"
+                    )
+                else:
+                    # Use stored balance if API call fails
+                    wallet_info = (
+                        f"✅ Cüzdanınız zaten mevcut!\n"
+                        f"💰 Bakiye: {wallet_data.get('balance_sat', 0)} SAT"
+                    )
 
                 # Send wallet info to the chat
                 await processing_message.edit_text(wallet_info, parse_mode='Markdown')
@@ -503,6 +522,9 @@ async def invoice_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 await processing_message.edit_text("❌ Fatura oluşturulurken bir hata oluştu.")
                 return
 
+            # Get the payment hash for later checking
+            payment_hash = invoice_data.get('payment_hash', '')
+
             # Format the invoice information
             invoice_info = (
                 f"✅ {amount} satoshi için fatura oluşturuldu!\n\n"
@@ -512,6 +534,36 @@ async def invoice_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
             # Send invoice info to the chat
             await processing_message.edit_text(invoice_info, parse_mode='Markdown')
+
+            # Schedule a task to check payment status after a delay
+            if payment_hash:
+                # Wait 30 seconds before checking payment status
+                await asyncio.sleep(30)
+
+                # Get wallet data again to ensure we have the latest keys
+                wallet_data = get_wallet(user_id)
+                if not wallet_data:
+                    logger.error(f"Failed to get wallet data for payment check: {user_id}")
+                    return
+
+                # Check if payment was received
+                admin_key = wallet_data.get('admin_key')
+                payment_result = await LNBitsAPI.check_payment_status(admin_key, payment_hash)
+
+                if payment_result.get('status') == 'SUCCESS' and payment_result.get('paid', False):
+                    # Payment received, update balance
+                    balance_result = await LNBitsAPI.get_wallet_balance(admin_key)
+
+                    if balance_result.get('status') == 'SUCCESS':
+                        # Update balance in database
+                        balance_sat = balance_result.get('balance_sat', 0)
+                        from database.db import update_wallet_balance
+                        update_wallet_balance(user_id, balance_sat)
+
+                        # Send notification to user
+                        await update.message.reply_text(
+                            f"💰 Ödeme alındı! Yeni bakiyeniz: {balance_sat} SAT"
+                        )
         else:
             error_message = result.get('errors', [{}])[0].get('message', 'Bilinmeyen hata')
             await processing_message.edit_text(f"❌ Fatura oluşturulamadı: {error_message}")
