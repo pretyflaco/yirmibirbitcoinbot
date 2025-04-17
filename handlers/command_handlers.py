@@ -14,6 +14,7 @@ from api.btcturk import BTCTurkAPI
 from api.blink import BlinkAPI
 from api.exchanges import ExchangesAPI
 from api.lnbits import LNBitsAPI
+from database.db import user_has_wallet, save_wallet, get_wallet
 from utils.rate_limiting import is_banned, check_rate_limit, ban_user
 from utils.quotes import get_random_quote
 from utils.formatting import (
@@ -338,7 +339,7 @@ async def get_group_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await update.message.reply_text(message, parse_mode='Markdown')
 
 async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Create a new LNBits wallet for the user.
+    """Create a new LNBits wallet for the user or show existing wallet info.
 
     Args:
         update: The update object from Telegram
@@ -353,17 +354,58 @@ async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
 
     # Get the user ID
-    user_id = update.effective_user.id
+    user_id = str(update.effective_user.id)
 
-    # Send a message that we're creating the wallet
-    processing_message = await update.message.reply_text("LNBits cüzdanı oluşturuluyor...")
+    # Send a processing message
+    processing_message = await update.message.reply_text("Cüzdan bilgileri kontrol ediliyor...")
 
     try:
+        # Check if user already has a wallet
+        if user_has_wallet(user_id):
+            # Get existing wallet info
+            wallet_data = get_wallet(user_id)
+
+            if wallet_data:
+                # Format the wallet information
+                wallet_info = (
+                    f"✅ Cüzdanınız zaten mevcut!\n"
+                    f"💰 Bakiye: {wallet_data.get('balance_sat', 0)} SAT"
+                )
+
+                # Store wallet keys in user data for this session
+                if not hasattr(context, 'user_data'):
+                    context.user_data = {}
+
+                context.user_data['wallet_id'] = wallet_data.get('wallet_id')
+                context.user_data['wallet_adminkey'] = wallet_data.get('admin_key')
+                context.user_data['wallet_inkey'] = wallet_data.get('inkey')
+
+                # Send wallet info to the chat
+                await processing_message.edit_text(wallet_info, parse_mode='Markdown')
+                return
+            else:
+                # This shouldn't happen, but just in case
+                logger.error(f"Database inconsistency: user {user_id} has wallet but data not found")
+
+        # User doesn't have a wallet, create a new one
+        await processing_message.edit_text("LNBits cüzdanı oluşturuluyor...")
+
         # Create the wallet
-        result = await LNBitsAPI.create_wallet(str(user_id))
+        result = await LNBitsAPI.create_wallet(user_id)
 
         if result.get('status') == 'SUCCESS':
             wallet_data = result.get('wallet', {})
+
+            # Save wallet to database
+            save_success = save_wallet(
+                telegram_id=user_id,
+                wallet_id=wallet_data.get('id'),
+                admin_key=wallet_data.get('adminkey'),
+                inkey=wallet_data.get('inkey')
+            )
+
+            if not save_success:
+                logger.error(f"Failed to save wallet to database for user {user_id}")
 
             # Format the wallet information without showing sensitive keys
             wallet_info = (
@@ -371,7 +413,7 @@ async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 f"💰 Bakiye: 0 SAT"
             )
 
-            # Store wallet keys in user data for future use
+            # Store wallet keys in user data for this session
             if not hasattr(context, 'user_data'):
                 context.user_data = {}
 
@@ -386,8 +428,8 @@ async def wallet_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             await processing_message.edit_text(f"❌ Cüzdan oluşturulamadı: {error_message}")
 
     except Exception as e:
-        logger.error(f"Error creating LNBits wallet: {str(e)}")
-        await processing_message.edit_text(f"❌ Cüzdan oluşturulurken bir hata oluştu: {str(e)}")
+        logger.error(f"Error in wallet command: {str(e)}")
+        await processing_message.edit_text(f"❌ Cüzdan işlemi sırasında bir hata oluştu: {str(e)}")
 
 async def invoice_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Create a new invoice (Bolt11) for receiving funds.
@@ -405,7 +447,7 @@ async def invoice_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return
 
     # Get the user ID
-    user_id = update.effective_user.id
+    user_id = str(update.effective_user.id)
 
     # Check if amount is provided
     if not context.args or len(context.args) != 1:
@@ -425,16 +467,25 @@ async def invoice_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await update.message.reply_text("❌ Geçersiz miktar. Lütfen bir sayı girin.")
         return
 
-    # Check if user has a wallet
-    if not hasattr(context, 'user_data') or 'wallet_inkey' not in context.user_data:
+    # Check if user has a wallet in the database
+    if not user_has_wallet(user_id):
         await update.message.reply_text(
             "❌ Önce bir cüzdan oluşturmanız gerekiyor.\n"
             "/wallet komutunu kullanarak bir cüzdan oluşturun."
         )
         return
 
+    # Get wallet data from database
+    wallet_data = get_wallet(user_id)
+    if not wallet_data or 'inkey' not in wallet_data:
+        await update.message.reply_text(
+            "❌ Cüzdan bilgilerinize erişilemiyor.\n"
+            "Lütfen /wallet komutunu tekrar çalıştırın."
+        )
+        return
+
     # Get the wallet inkey
-    wallet_inkey = context.user_data.get('wallet_inkey')
+    wallet_inkey = wallet_data.get('inkey')
 
     # Send a message that we're creating the invoice
     processing_message = await update.message.reply_text(f"{amount} satoshi için fatura oluşturuluyor...")
