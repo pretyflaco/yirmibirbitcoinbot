@@ -145,6 +145,12 @@ async def check_for_new_episode(context: ContextTypes.DEFAULT_TYPE) -> None:
         # Format the message
         title = latest_episode['title']
         link = latest_episode['link']
+
+        # Replace "podcasters" with "creators" in Spotify links for better meta-image support
+        if "podcasters.spotify.com" in link:
+            link = link.replace("podcasters.spotify.com", "creators.spotify.com")
+            logger.info(f"Converted Spotify link to creators URL for better meta-image: {link}")
+
         message = f"🎙️ *Yeni Bölüm:* {title}\n*Link:* {link}"
         
         # Post to each tracked chat
