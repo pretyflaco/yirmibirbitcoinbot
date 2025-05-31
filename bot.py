@@ -31,7 +31,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Import configuration
-from config import TELEGRAM_BOT_TOKEN, ADMIN_USERNAME
+from config import TELEGRAM_BOT_TOKEN, ADMIN_USERNAME, QUOTE_INTERVAL, RSS_CHECK_INTERVAL
 
 # Import handlers
 from handlers.command_handlers import (
@@ -59,7 +59,7 @@ from handlers.message_handlers import (
 
 # Import utilities
 from utils.quotes import post_quote, quote_scheduler, load_quotes
-from utils.rss_monitor import rss_monitor_scheduler
+from utils.rss_monitor import check_for_new_episode
 
 def main() -> None:
     """Start the bot."""
@@ -121,7 +121,7 @@ def main() -> None:
     # Try to use job queue if available, otherwise use asyncio task
     try:
         if application.job_queue:
-            application.job_queue.run_repeating(post_quote, interval=int(os.getenv("QUOTE_INTERVAL", "43200")), first=10)
+            application.job_queue.run_repeating(post_quote, interval=QUOTE_INTERVAL, first=10)
             logger.info("Using job queue for quote scheduling")
         else:
             # Create a task for quote scheduling
@@ -135,7 +135,7 @@ def main() -> None:
 
     # Set up RSS feed monitoring
     try:
-        asyncio.create_task(rss_monitor_scheduler(application))
+        application.job_queue.run_repeating(check_for_new_episode, interval=RSS_CHECK_INTERVAL, first=30)
         logger.info("RSS feed monitoring started")
     except Exception as e:
         logger.error(f"Error setting up RSS monitoring: {str(e)}")
