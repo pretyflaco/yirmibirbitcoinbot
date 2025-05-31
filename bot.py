@@ -59,6 +59,7 @@ from handlers.message_handlers import (
 
 # Import utilities
 from utils.quotes import post_quote, quote_scheduler, load_quotes
+from utils.rss_monitor import rss_monitor_scheduler
 
 def main() -> None:
     """Start the bot."""
@@ -131,6 +132,13 @@ def main() -> None:
         # Fallback to asyncio task
         asyncio.create_task(quote_scheduler(application))
         logger.info("Using asyncio task for quote scheduling (fallback)")
+
+    # Set up RSS feed monitoring
+    try:
+        asyncio.create_task(rss_monitor_scheduler(application))
+        logger.info("RSS feed monitoring started")
+    except Exception as e:
+        logger.error(f"Error setting up RSS monitoring: {str(e)}")
 
     # Start the Bot
     logger.info("Starting bot...")
