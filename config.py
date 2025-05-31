@@ -42,6 +42,10 @@ PRIVATE_CHAT_COOLDOWN = int(os.getenv("PRIVATE_CHAT_COOLDOWN", "900"))   # 15 mi
 QUOTE_INTERVAL = int(os.getenv("QUOTE_INTERVAL", "86400"))  # 24 hours in seconds (1 day)
 QUOTE_SOURCE_URL = "https://github.com/dergigi/QuotableSatoshi"
 
+# RSS feed monitoring settings
+RSS_FEED_URL = "https://anchor.fm/s/587d3d4c/podcast/rss"
+RSS_CHECK_INTERVAL = int(os.getenv("RSS_CHECK_INTERVAL", "3600"))  # 1 hour in seconds
+
 # Validate token format (simple validation)
 def is_valid_token_format(token):
     """Simple validation of Telegram bot token format.
