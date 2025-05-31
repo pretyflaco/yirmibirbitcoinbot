@@ -39,7 +39,7 @@ PUBLIC_GROUP_COOLDOWN = int(os.getenv("PUBLIC_GROUP_COOLDOWN", "3600"))  # 1 hou
 PRIVATE_CHAT_COOLDOWN = int(os.getenv("PRIVATE_CHAT_COOLDOWN", "900"))   # 15 minutes in seconds
 
 # Quote posting settings
-QUOTE_INTERVAL = int(os.getenv("QUOTE_INTERVAL", "43200"))  # 12 hours in seconds
+QUOTE_INTERVAL = int(os.getenv("QUOTE_INTERVAL", "86400"))  # 24 hours in seconds (1 day)
 QUOTE_SOURCE_URL = "https://github.com/dergigi/QuotableSatoshi"
 
 # Validate token format (simple validation)
