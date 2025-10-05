@@ -27,8 +27,9 @@ def parse_episode_number(title: str) -> Optional[int]:
     Returns:
         Episode number as integer, or None if not found
     """
-    # Look for patterns like "001", "002", etc. at the beginning of the title
-    match = re.match(r'^(\d{3})', title.strip())
+    # Look for patterns like "001", "002", "32", etc. at the beginning of the title
+    # Match 1-3 digits followed by a space and dash
+    match = re.match(r'^(\d{1,3})(?:\s*-)', title.strip())
     if match:
         return int(match.group(1))
     return None
