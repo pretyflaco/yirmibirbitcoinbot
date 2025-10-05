@@ -9,6 +9,7 @@ import logging
 import time
 import re
 from typing import Dict, Any, Optional, List, Set
+from datetime import datetime
 
 import feedparser
 from telegram.ext import ContextTypes
@@ -67,6 +68,10 @@ def fetch_rss_feed() -> Optional[List[Dict[str, Any]]]:
             if episode_num:
                 episode_data['episode_number'] = episode_num
             
+            # Add published timestamp for sorting
+            if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                episode_data['published_timestamp'] = time.mktime(entry.published_parsed)
+            
             episodes.append(episode_data)
             
         logger.info(f"Successfully parsed {len(episodes)} episodes from RSS feed")
@@ -77,27 +82,27 @@ def fetch_rss_feed() -> Optional[List[Dict[str, Any]]]:
         return None
 
 def get_latest_rehber_episode(episodes: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
-    """Get the latest "Rehber" series episode.
+    """Get the latest episode by publication date.
     
     Args:
         episodes: List of episode dictionaries
         
     Returns:
-        Latest Rehber episode dictionary, or None if not found
+        Latest episode dictionary (by publication date), or None if not found
     """
-    rehber_episodes = []
+    numbered_episodes = []
     
     for episode in episodes:
         episode_num = episode.get('episode_number')
-        if episode_num and episode_num >= 1:  # Episodes 001, 002, etc.
-            rehber_episodes.append(episode)
+        if episode_num and episode_num >= 1:  # Episodes with numbers
+            numbered_episodes.append(episode)
     
-    if not rehber_episodes:
+    if not numbered_episodes:
         return None
         
-    # Sort by episode number (descending) to get the latest
-    rehber_episodes.sort(key=lambda x: x.get('episode_number', 0), reverse=True)
-    return rehber_episodes[0]
+    # Sort by publication timestamp (descending) to get the most recent
+    numbered_episodes.sort(key=lambda x: x.get('published_timestamp', 0), reverse=True)
+    return numbered_episodes[0]
 
 async def check_for_new_episode(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Check for new podcast episodes and post notifications.
@@ -112,30 +117,28 @@ async def check_for_new_episode(context: ContextTypes.DEFAULT_TYPE) -> None:
             logger.error("Failed to fetch RSS feed")
             return
             
-        # Get latest Rehber episode
+        # Get latest episode by publication date
         latest_episode = get_latest_rehber_episode(episodes)
         if not latest_episode:
-            logger.info("No Rehber episodes found")
+            logger.info("No episodes found")
             return
             
-        episode_num = latest_episode.get('episode_number')
-        if not episode_num:
-            logger.info("Latest episode has no episode number")
+        episode_link = latest_episode.get('link')
+        if not episode_link:
+            logger.info("Latest episode has no link")
             return
             
-        # Check if this is episode 002 or later (we start monitoring from 002)
-        if episode_num < 2:
-            logger.info(f"Episode {episode_num:03d} is before our monitoring threshold (002)")
-            return
-            
-        # Check if we've already posted about this episode
-        last_posted_episode = context.bot_data.get('last_posted_episode', 0)
-        if episode_num <= last_posted_episode:
-            logger.info(f"Episode {episode_num:03d} already posted or older")
+        # Check if we've already posted about this episode (using link as unique identifier)
+        if 'posted_episode_links' not in context.bot_data:
+            context.bot_data['posted_episode_links'] = set()
+        
+        posted_episodes = context.bot_data['posted_episode_links']
+        if episode_link in posted_episodes:
+            logger.info(f"Episode already posted: {latest_episode['title']}")
             return
             
         # This is a new episode we should post about
-        logger.info(f"New episode detected: {episode_num:03d} - {latest_episode['title']}")
+        logger.info(f"New episode detected: {latest_episode['title']}")
         
         # Get tracked chats (same as quote chats)
         tracked_chats = context.bot_data.get('quote_chats', set())
@@ -166,9 +169,9 @@ async def check_for_new_episode(context: ContextTypes.DEFAULT_TYPE) -> None:
             except Exception as e:
                 logger.error(f"Failed to post episode notification to chat {chat_id}: {e}")
                 
-        # Update the last posted episode number
-        context.bot_data['last_posted_episode'] = episode_num
-        logger.info(f"Updated last posted episode to {episode_num:03d}")
+        # Mark this episode as posted
+        context.bot_data['posted_episode_links'].add(episode_link)
+        logger.info(f"Marked episode as posted: {latest_episode['title']}")
         
     except Exception as e:
         logger.error(f"Error in check_for_new_episode: {e}")
