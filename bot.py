@@ -31,7 +31,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Import configuration
-from config import TELEGRAM_BOT_TOKEN, ADMIN_USERNAME, QUOTE_INTERVAL, RSS_CHECK_INTERVAL
+from config import TELEGRAM_BOT_TOKEN, ADMIN_USERNAME, QUOTE_INTERVAL, RSS_CHECK_INTERVAL, YOUTUBE_CHECK_INTERVAL
 
 # Import handlers
 from handlers.command_handlers import (
@@ -60,6 +60,7 @@ from handlers.message_handlers import (
 # Import utilities
 from utils.quotes import post_quote, quote_scheduler, load_quotes
 from utils.rss_monitor import check_for_new_episode
+from utils.youtube_monitor import check_for_new_video
 
 def main() -> None:
     """Start the bot."""
@@ -139,6 +140,21 @@ def main() -> None:
         logger.info("RSS feed monitoring started")
     except Exception as e:
         logger.error(f"Error setting up RSS monitoring: {str(e)}")
+
+    # Set up YouTube monitoring
+    try:
+        # Initialize with the starting video to avoid reposting it
+        if 'posted_video_links' not in application.bot_data:
+            application.bot_data['posted_video_links'] = set()
+        # Add the video that was published today so we don't repost it
+        application.bot_data['posted_video_links'].add('https://youtu.be/eNw-xsqOlfE')
+        application.bot_data['posted_video_links'].add('https://www.youtube.com/watch?v=eNw-xsqOlfE')
+        logger.info("Initialized YouTube monitor with existing video")
+        
+        application.job_queue.run_repeating(check_for_new_video, interval=YOUTUBE_CHECK_INTERVAL, first=60)
+        logger.info("YouTube monitoring started")
+    except Exception as e:
+        logger.error(f"Error setting up YouTube monitoring: {str(e)}")
 
     # Start the Bot
     logger.info("Starting bot...")

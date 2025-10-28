@@ -46,6 +46,11 @@ QUOTE_SOURCE_URL = "https://github.com/dergigi/QuotableSatoshi"
 RSS_FEED_URL = "https://anchor.fm/s/587d3d4c/podcast/rss"
 RSS_CHECK_INTERVAL = int(os.getenv("RSS_CHECK_INTERVAL", "3600"))  # 1 hour in seconds
 
+# YouTube monitoring settings
+YOUTUBE_CHANNEL_HANDLE = "@yirmibirbitcoin"
+YOUTUBE_CHANNEL_URL = "https://www.youtube.com/@yirmibirbitcoin"
+YOUTUBE_CHECK_INTERVAL = int(os.getenv("YOUTUBE_CHECK_INTERVAL", "1800"))  # 30 minutes in seconds
+
 # Validate token format (simple validation)
 def is_valid_token_format(token):
     """Simple validation of Telegram bot token format.
