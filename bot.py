@@ -119,20 +119,22 @@ def main() -> None:
     application.bot_data['quote_chats'].add(yirmibir_group_id)
     logger.info(f"Manually added YirmibirBitcoin group ({yirmibir_group_id}) to tracked chats")
 
-    # Try to use job queue if available, otherwise use asyncio task
-    try:
-        if application.job_queue:
-            application.job_queue.run_repeating(post_quote, interval=QUOTE_INTERVAL, first=10)
-            logger.info("Using job queue for quote scheduling")
-        else:
-            # Create a task for quote scheduling
-            asyncio.create_task(quote_scheduler(application))
-            logger.info("Using asyncio task for quote scheduling")
-    except Exception as e:
-        logger.error(f"Error setting up quote scheduling: {str(e)}")
-        # Fallback to asyncio task
-        asyncio.create_task(quote_scheduler(application))
-        logger.info("Using asyncio task for quote scheduling (fallback)")
+    # Daily Satoshi quote posting intentionally disabled.
+    # (Previously registered post_quote via job_queue.run_repeating / quote_scheduler.)
+    # try:
+    #     if application.job_queue:
+    #         application.job_queue.run_repeating(post_quote, interval=QUOTE_INTERVAL, first=10)
+    #         logger.info("Using job queue for quote scheduling")
+    #     else:
+    #         # Create a task for quote scheduling
+    #         asyncio.create_task(quote_scheduler(application))
+    #         logger.info("Using asyncio task for quote scheduling")
+    # except Exception as e:
+    #     logger.error(f"Error setting up quote scheduling: {str(e)}")
+    #     # Fallback to asyncio task
+    #     asyncio.create_task(quote_scheduler(application))
+    #     logger.info("Using asyncio task for quote scheduling (fallback)")
+    logger.info("Daily Satoshi quote scheduling is disabled")
 
     # Set up RSS feed monitoring
     try:
