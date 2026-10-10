@@ -131,6 +131,15 @@ async def check_for_new_episode(context: ContextTypes.DEFAULT_TYPE) -> None:
         # Check if we've already posted about this episode (using link as unique identifier)
         if 'posted_episode_links' not in context.bot_data:
             context.bot_data['posted_episode_links'] = set()
+
+        # Dedup state lives only in memory, so a restart forgets what was
+        # already posted. On the first run after startup, record the current
+        # latest item as already posted instead of re-announcing it.
+        if not context.bot_data.get('episode_monitor_primed'):
+            context.bot_data['posted_episode_links'].add(episode_link)
+            context.bot_data['episode_monitor_primed'] = True
+            logger.info(f"Startup: marked current latest as already posted: {latest_episode['title']}")
+            return
         
         posted_episodes = context.bot_data['posted_episode_links']
         if episode_link in posted_episodes:

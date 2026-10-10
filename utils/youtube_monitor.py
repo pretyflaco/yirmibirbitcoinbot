@@ -173,6 +173,15 @@ async def check_for_new_video(context: ContextTypes.DEFAULT_TYPE) -> None:
         # Check if we've already posted about this video (using link as unique identifier)
         if 'posted_video_links' not in context.bot_data:
             context.bot_data['posted_video_links'] = set()
+
+        # Dedup state lives only in memory, so a restart forgets what was
+        # already posted. On the first run after startup, record the current
+        # latest item as already posted instead of re-announcing it.
+        if not context.bot_data.get('video_monitor_primed'):
+            context.bot_data['posted_video_links'].add(video_link)
+            context.bot_data['video_monitor_primed'] = True
+            logger.info(f"Startup: marked current latest as already posted: {latest_video['title']}")
+            return
         
         posted_videos = context.bot_data['posted_video_links']
         if video_link in posted_videos:
