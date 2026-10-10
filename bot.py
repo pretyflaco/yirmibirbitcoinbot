@@ -35,7 +35,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 # Import configuration
-from config import TELEGRAM_BOT_TOKEN, ADMIN_USERNAME, QUOTE_INTERVAL, RSS_CHECK_INTERVAL, YOUTUBE_CHECK_INTERVAL
+from config import TELEGRAM_BOT_TOKEN, ADMIN_USERNAME, QUOTE_INTERVAL, RSS_CHECK_INTERVAL, YOUTUBE_CHECK_INTERVAL, BLOG_CHECK_INTERVAL
 
 # Import handlers
 from handlers.command_handlers import (
@@ -64,6 +64,7 @@ from handlers.message_handlers import (
 # Import utilities
 from utils.quotes import post_quote, quote_scheduler, load_quotes
 from utils.rss_monitor import check_for_new_episode
+from utils.blog_monitor import check_for_new_blog_post
 from utils.youtube_monitor import check_for_new_video
 
 def main() -> None:
@@ -161,6 +162,13 @@ def main() -> None:
         logger.info("YouTube monitoring started")
     except Exception as e:
         logger.error(f"Error setting up YouTube monitoring: {str(e)}")
+
+    # Set up yirmibir.org blog monitoring (first check primes existing posts)
+    try:
+        application.job_queue.run_repeating(check_for_new_blog_post, interval=BLOG_CHECK_INTERVAL, first=90)
+        logger.info("Blog monitoring started")
+    except Exception as e:
+        logger.error(f"Error setting up blog monitoring: {str(e)}")
 
     # Start the Bot
     logger.info("Starting bot...")

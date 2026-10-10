@@ -51,6 +51,10 @@ YOUTUBE_CHANNEL_HANDLE = "@yirmibirbitcoin"
 YOUTUBE_CHANNEL_URL = "https://www.youtube.com/@yirmibirbitcoin"
 YOUTUBE_CHECK_INTERVAL = int(os.getenv("YOUTUBE_CHECK_INTERVAL", "1800"))  # 30 minutes in seconds
 
+# Blog (yirmibir.org) monitoring settings
+BLOG_FEED_URL = os.getenv("BLOG_FEED_URL", "https://www.yirmibir.org/rss.xml")
+BLOG_CHECK_INTERVAL = int(os.getenv("BLOG_CHECK_INTERVAL", "3600"))  # 1 hour in seconds
+
 # Validate token format (simple validation)
 def is_valid_token_format(token):
     """Simple validation of Telegram bot token format.
