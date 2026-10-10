@@ -28,6 +28,10 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO
 )
+# httpx logs every request URL at INFO, and Telegram Bot API URLs embed the bot
+# token (https://api.telegram.org/bot<TOKEN>/...). Keep it at WARNING so the
+# token never reaches the journal.
+logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 # Import configuration
