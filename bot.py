@@ -17,7 +17,9 @@ from telegram.ext import (
     ContextTypes,
     MessageHandler,
     filters,
-    ConversationHandler
+    ConversationHandler,
+    PersistenceInput,
+    PicklePersistence,
 )
 
 # Import API clients
@@ -35,7 +37,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 # Import configuration
-from config import TELEGRAM_BOT_TOKEN, ADMIN_USERNAME, QUOTE_INTERVAL, RSS_CHECK_INTERVAL, YOUTUBE_CHECK_INTERVAL, BLOG_CHECK_INTERVAL
+from config import TELEGRAM_BOT_TOKEN, ADMIN_USERNAME, QUOTE_INTERVAL, RSS_CHECK_INTERVAL, YOUTUBE_CHECK_INTERVAL, BLOG_CHECK_INTERVAL, BOT_STATE_FILE
 
 # Import handlers
 from handlers.command_handlers import (
@@ -64,30 +66,77 @@ from handlers.message_handlers import (
 # Import utilities
 from utils.quotes import post_quote, quote_scheduler, load_quotes
 from utils.rss_monitor import check_for_new_episode
-from utils.blog_monitor import check_for_new_blog_post
+from utils.blog_monitor import check_for_new_blog_post, post_latest_blog_command
 from utils.youtube_monitor import check_for_new_video
+
+YIRMIBIR_GROUP_ID = -1001431368885  # @YirmibirBitcoin
+
+
+async def post_init(application: Application) -> None:
+    """Seed bot_data after persistence has loaded it.
+
+    PicklePersistence replaces application.bot_data during initialize(), so
+    anything put into bot_data in main() before run_polling would be lost.
+    Static/derived values are (re)set here on every start.
+    """
+    bot_data = application.bot_data
+
+    # Quotes are reloaded from the JSON files on every start.
+    try:
+        with open('quotes_tr.json', 'r', encoding='utf-8') as f:
+            bot_data['quotes'] = json.load(f)
+        logger.info(f"Loaded {len(bot_data['quotes'])} Turkish Satoshi quotes")
+    except Exception as e:
+        logger.error(f"Error loading Turkish quotes: {str(e)}")
+        try:
+            with open('quotes.json', 'r', encoding='utf-8') as f:
+                bot_data['quotes'] = json.load(f)
+            logger.info(f"Loaded {len(bot_data['quotes'])} English Satoshi quotes (fallback)")
+        except Exception as e:
+            logger.error(f"Error loading English quotes: {str(e)}")
+            bot_data['quotes'] = []
+
+    bot_data.setdefault('quote_chats', set()).add(YIRMIBIR_GROUP_ID)
+    logger.info(f"Manually added YirmibirBitcoin group ({YIRMIBIR_GROUP_ID}) to tracked chats")
+
+    # With persisted posted-sets, monitors only need to prime when the set is
+    # empty (very first run). Reset the per-process primed flags so that logic
+    # is decided by the monitors, not by stale flags from the state file.
+    for flag, key in (('episode_monitor_primed', 'posted_episode_links'),
+                      ('video_monitor_primed', 'posted_video_links'),
+                      ('blog_monitor_primed', 'posted_blog_ids')):
+        bot_data[flag] = bool(bot_data.get(key))
+    # Legacy seed (pre-dates the startup priming); harmless to keep.
+    posted_videos = bot_data.setdefault('posted_video_links', set())
+    posted_videos.add('https://youtu.be/eNw-xsqOlfE')
+    posted_videos.add('https://www.youtube.com/watch?v=eNw-xsqOlfE')
+
+
+    logger.info(
+        "Restored state: %d episodes, %d videos, %d blog posts already posted",
+        len(bot_data.get('posted_episode_links', ())),
+        len(bot_data.get('posted_video_links', ())),
+        len(bot_data.get('posted_blog_ids', ())),
+    )
+
 
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token
-    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
-
-    # Load quotes and store them in application.bot_data
-    try:
-        # Try to load Turkish quotes first
-        with open('quotes_tr.json', 'r', encoding='utf-8') as f:
-            application.bot_data['quotes'] = json.load(f)
-        logger.info(f"Loaded {len(application.bot_data['quotes'])} Turkish Satoshi quotes")
-    except Exception as e:
-        logger.error(f"Error loading Turkish quotes: {str(e)}")
-        # Fallback to English quotes if Turkish file is not available
-        try:
-            with open('quotes.json', 'r', encoding='utf-8') as f:
-                application.bot_data['quotes'] = json.load(f)
-            logger.info(f"Loaded {len(application.bot_data['quotes'])} English Satoshi quotes (fallback)")
-        except Exception as e:
-            logger.error(f"Error loading English quotes: {str(e)}")
-            application.bot_data['quotes'] = []
+    # Persist bot_data only (posted-item sets, tracked chats). user_data is NOT
+    # persisted on purpose: it holds LNbits wallet admin keys.
+    persistence = PicklePersistence(
+        filepath=BOT_STATE_FILE,
+        store_data=PersistenceInput(bot_data=True, chat_data=False, user_data=False, callback_data=False),
+        update_interval=60,
+    )
+    application = (
+        Application.builder()
+        .token(TELEGRAM_BOT_TOKEN)
+        .persistence(persistence)
+        .post_init(post_init)
+        .build()
+    )
 
     # Add command handlers
     application.add_handler(CommandHandler("start", start))
@@ -100,6 +149,7 @@ def main() -> None:
     application.add_handler(CommandHandler("groupid", get_group_id))
     application.add_handler(CommandHandler("wallet", wallet_command))
     application.add_handler(CommandHandler("invoice", invoice_command))
+    application.add_handler(CommandHandler("sonyazi", post_latest_blog_command))
 
     # Add conversation handler for gimmecheese command
     gimmecheese_conv_handler = ConversationHandler(
@@ -114,15 +164,6 @@ def main() -> None:
     # Add handlers for tracking new chats and handling source requests
     application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, track_new_chat))
     application.add_handler(MessageHandler(filters.ChatType.GROUPS & filters.TEXT & ~filters.COMMAND, handle_source_request))
-
-    # Initialize quote_chats if it doesn't exist
-    if 'quote_chats' not in application.bot_data:
-        application.bot_data['quote_chats'] = set()
-
-    # Manually add the YirmibirBitcoin group to tracked chats
-    yirmibir_group_id = -1001431368885  # The actual group ID for @YirmibirBitcoin
-    application.bot_data['quote_chats'].add(yirmibir_group_id)
-    logger.info(f"Manually added YirmibirBitcoin group ({yirmibir_group_id}) to tracked chats")
 
     # Daily Satoshi quote posting intentionally disabled.
     # (Previously registered post_quote via job_queue.run_repeating / quote_scheduler.)
@@ -150,14 +191,6 @@ def main() -> None:
 
     # Set up YouTube monitoring
     try:
-        # Initialize with the starting video to avoid reposting it
-        if 'posted_video_links' not in application.bot_data:
-            application.bot_data['posted_video_links'] = set()
-        # Add the video that was published today so we don't repost it
-        application.bot_data['posted_video_links'].add('https://youtu.be/eNw-xsqOlfE')
-        application.bot_data['posted_video_links'].add('https://www.youtube.com/watch?v=eNw-xsqOlfE')
-        logger.info("Initialized YouTube monitor with existing video")
-        
         application.job_queue.run_repeating(check_for_new_video, interval=YOUTUBE_CHECK_INTERVAL, first=60)
         logger.info("YouTube monitoring started")
     except Exception as e:
