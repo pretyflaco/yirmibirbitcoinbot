@@ -55,6 +55,9 @@ YOUTUBE_CHECK_INTERVAL = int(os.getenv("YOUTUBE_CHECK_INTERVAL", "1800"))  # 30 
 BLOG_FEED_URL = os.getenv("BLOG_FEED_URL", "https://www.yirmibir.org/rss.xml")
 BLOG_CHECK_INTERVAL = int(os.getenv("BLOG_CHECK_INTERVAL", "3600"))  # 1 hour in seconds
 
+# Persistent bot state (posted-item sets, tracked chats). Gitignored.
+BOT_STATE_FILE = os.getenv("BOT_STATE_FILE", "data/bot_state.pickle")
+
 # Validate token format (simple validation)
 def is_valid_token_format(token):
     """Simple validation of Telegram bot token format.

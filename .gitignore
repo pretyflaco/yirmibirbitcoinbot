@@ -34,3 +34,6 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
+
+# Persistent bot state
+data/bot_state.pickle
