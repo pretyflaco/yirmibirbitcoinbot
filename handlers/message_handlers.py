@@ -9,7 +9,7 @@ from typing import Dict, Any, Optional, Set
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from utils.quotes import get_random_quote, replied_to_messages
+from utils.quotes import replied_to_messages
 from config import QUOTE_SOURCE_URL
 
 # Set up logging
@@ -79,25 +79,8 @@ async def track_new_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
         # Add the chat to tracked chats
         context.bot_data['quote_chats'].add(chat_id)
-        logger.info(f"Bot added to chat {chat_id} ({chat_title}), now tracking for quote posts")
+        logger.info(f"Bot added to chat {chat_id} ({chat_title}), now tracking for announcements")
         
         # Log the current number of tracked chats
         tracked_chats_count = len(context.bot_data['quote_chats'])
         logger.info(f"Currently tracking {tracked_chats_count} chats for quote posts")
-        
-        # Post a welcome message with a quote
-        try:
-            quote = get_random_quote()
-            if quote:
-                message = (
-                    f"👋 Merhaba! Ben Bitcoin fiyatları ve Satoshi Nakamoto alıntıları paylaşan bir botum.\n\n"
-                    f"💬 *İlk Satoshi Alıntısı:*\n\n{quote['text']}"
-                )
-                await context.bot.send_message(
-                    chat_id=chat_id,
-                    text=message,
-                    parse_mode='Markdown'
-                )
-                logger.info(f"Posted welcome message with quote to chat {chat_id}")
-        except Exception as e:
-            logger.error(f"Error posting welcome message to chat {chat_id}: {str(e)}")

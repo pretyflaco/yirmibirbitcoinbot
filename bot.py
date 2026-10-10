@@ -64,7 +64,6 @@ from handlers.message_handlers import (
 )
 
 # Import utilities
-from utils.quotes import post_quote, quote_scheduler, load_quotes
 from utils.rss_monitor import check_for_new_episode
 from utils.blog_monitor import check_for_new_blog_post, post_latest_blog_command
 from utils.youtube_monitor import check_for_new_video
@@ -165,22 +164,8 @@ def main() -> None:
     application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, track_new_chat))
     application.add_handler(MessageHandler(filters.ChatType.GROUPS & filters.TEXT & ~filters.COMMAND, handle_source_request))
 
-    # Daily Satoshi quote posting intentionally disabled.
-    # (Previously registered post_quote via job_queue.run_repeating / quote_scheduler.)
-    # try:
-    #     if application.job_queue:
-    #         application.job_queue.run_repeating(post_quote, interval=QUOTE_INTERVAL, first=10)
-    #         logger.info("Using job queue for quote scheduling")
-    #     else:
-    #         # Create a task for quote scheduling
-    #         asyncio.create_task(quote_scheduler(application))
-    #         logger.info("Using asyncio task for quote scheduling")
-    # except Exception as e:
-    #     logger.error(f"Error setting up quote scheduling: {str(e)}")
-    #     # Fallback to asyncio task
-    #     asyncio.create_task(quote_scheduler(application))
-    #     logger.info("Using asyncio task for quote scheduling (fallback)")
-    logger.info("Daily Satoshi quote scheduling is disabled")
+    # Automatic Satoshi quote posting has been removed (see utils/quotes.py).
+    logger.info("Automatic quote posting: removed")
 
     # Set up RSS feed monitoring
     try:

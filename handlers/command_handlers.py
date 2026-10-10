@@ -16,7 +16,6 @@ from api.exchanges import ExchangesAPI
 from api.lnbits import LNBitsAPI
 from database.db import user_has_wallet, save_wallet, get_wallet
 from utils.rate_limiting import is_banned, check_rate_limit, ban_user
-from utils.quotes import get_random_quote
 from utils.formatting import (
     format_price_message,
     format_volume_message,
